@@ -13,6 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^2.1.2",
+    "@mdx-js/loader": "^1.5.8",
+    "@next/mdx": "^9.3.5",
     "@zeit/next-sass": "^1.0.1",
     "autoprefixer": "^9.7.6",
     "axios": "^0.19.2",
