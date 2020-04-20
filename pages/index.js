@@ -1,30 +1,17 @@
-import fs from 'fs';
-import path from 'path';
-import util from 'util';
+import { startCase } from 'lodash';
+import Link from "next/link";
 
-import wlc from "../data/westminster/wlc.json";
+import {
+    removeJsonExtension,
+    getConfessions
+} from "../helpers/index";
 import Blog from "../blog/test.mdx";
 
 import '../styles/index.scss';
 
-const readDir = util.promisify(fs.readdir);
-
-const getData = async () => {
-    const folders = await readDir("./data/");
-    return Promise.all(
-        folders.map(async (folder) => {
-            const contents = await readDir(`./data/${folder}`);
-            return Promise.resolve({
-                folder,
-                contents
-            });
-        })
-    );
-};
-
 export async function getStaticProps(context) {
     // will be passed to the page component as props
-    const confessions = await getData();
+    const confessions = await getConfessions();
     return {
         props: {
             confessions
@@ -35,7 +22,6 @@ export async function getStaticProps(context) {
 const HomePage = ({
     confessions
 }) => {
-    console.log(confessions);
     return (
         <div className="home">
             <h1 className="text-center">Confessional Christianity</h1>
@@ -43,14 +29,26 @@ const HomePage = ({
                 {confessions.map((confession) => {
                     return (
                         <li>
-                            <span>{confession.folder}</span>
+                            <h2>{startCase(confession.folder)}</h2>
                             <ul>
-                                {confession.contents.map((confession) => <li>{confession}</li>)}
+                                {confession.contents.map((confession) => {
+                                    const parsedConfession = confession.replace(removeJsonExtension, '');
+                                    return (
+                                        <li>
+                                            <Link
+                                                href="/confession/[confession]"
+                                                as={`/confession/${parsedConfession}`}>
+                                                {startCase(parsedConfession)}
+                                            </Link>
+                                        </li>
+                                    )
+                                })}
                             </ul>
                         </li>
                     );
                 })}
             </ul>
+            <Blog />
         </div>
     );
 }
