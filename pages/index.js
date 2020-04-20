@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { startCase } from 'lodash';
 import Link from "next/link";
+import cx from "classnames";
 
 import {
     removeJsonExtension,
@@ -22,15 +24,29 @@ export async function getStaticProps(context) {
 const HomePage = ({
     confessions
 }) => {
+    const [expanded, setExpanded] = useState([]);
+    
+    const toggleFolder = (e, folder) => {
+        e.preventDefault();
+        
+        if (expanded.includes(folder)) {
+            setExpanded(expanded.filter((expandedFolder) => expandedFolder !== folder));
+        }
+        else {
+            setExpanded([...expanded, folder])
+        }
+    };
+
     return (
-        <div className="home">
-            <h1 className="text-center">Confessional Christianity</h1>
-            <ul>
+        <div className="home flex flex-col p-8">
+            <h1 className="text-center text-5xl">Confessional Christianity</h1>
+            <ul className="flex w-2/4 self-center justify-center px-12 items-center flex-wrap">
                 {confessions.map((confession) => {
+                    const clickHandler = (e) => toggleFolder(e, confession.folder);
                     return (
-                        <li>
-                            <h2>{startCase(confession.folder)}</h2>
-                            <ul>
+                        <li className="p-10 hover:cursor-pointer" onClick={clickHandler}>
+                            <h2 className="text-xl">{startCase(confession.folder)}</h2>
+                            <ul className={cx({ hidden: !expanded.includes(confession.folder) })}>
                                 {confession.contents.map((confession) => {
                                     const parsedConfession = confession.replace(removeJsonExtension, '');
                                     return (
