@@ -40,17 +40,17 @@ const HomePage = ({
     return (
         <div className="home flex flex-col p-8">
             <h1 className="text-center text-5xl">Confessional Christianity</h1>
-            <ul className="flex w-2/4 self-center justify-center px-12 items-center flex-wrap">
+            <ul className="flex w-2/4 self-center justify-center px-12 items-center flex-wrap relative">
                 {confessions.map((confession) => {
                     const clickHandler = (e) => toggleFolder(e, confession.folder);
                     return (
                         <li className="p-10 hover:cursor-pointer" onClick={clickHandler}>
                             <h2 className="text-xl">{startCase(confession.folder)}</h2>
-                            <ul className={cx({ hidden: !expanded.includes(confession.folder) })}>
+                            <ul className={cx('absolute', { hidden: !expanded.includes(confession.folder) })}>
                                 {confession.contents.map((confession) => {
                                     const parsedConfession = confession.replace(removeJsonExtension, '');
                                     return (
-                                        <li>
+                                        <li className="">
                                             <Link
                                                 href="/confession/[confession]"
                                                 as={`/confession/${parsedConfession}`}>

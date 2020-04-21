@@ -3,10 +3,69 @@ import {
     removeJsonExtension
 } from "../../helpers";
 
-const Confession = ({
+const Creed = (data) => {
+    return (
+        <div className="creed">
+            <h1>{data.name}</h1>
+            <p>{data.text}</p>
+        </div>
+    );
+}
+
+const Confession = (data) => {
+    return (
+        <div className="confession">
+            <h1>{data.name}</h1>
+            <span>{data.publication_year}</span>
+            {data.chapters.map((chapter) => {
+                const isElaborateConfession = Object.keys(chapter).includes('articles');
+                return (
+                    <div className="confession-chapter">
+                        <h2>{`Chapter ${chapter.number}: ${chapter.name}`}</h2>
+                        {!isElaborateConfession && <p>{chapter.text}</p>}
+                        {isElaborateConfession && (
+                            chapter.articles.map((article) => {
+                                const includesVerses = Object.keys(article).includes('verses');
+                                return (
+                                    <div className="confession-chatper__article">
+                                        <p>{article.text}</p>
+                                        {includesVerses && Array.isArray(article.verses) && (
+                                            article.verses.map((verse) => verse)
+                                        )}
+                                        {includesVerses && !Array.isArray(article.verses) && (
+                                            Object.keys(article.verses)
+                                                .map((citation) => (
+                                                    <div className="scripture-citation">
+                                                        <p>{`${citation}: ${article.verses[citation].map((verse) => verse)}`}</p>
+                                                    </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )
+                            })
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    )
+}
+
+const ConfessionalDocument = ({
     data
 }) => {
-    return `HEYO, ${data.name}`;
+    console.log("data", data);
+    if (data.type === 'creed') {
+        return (
+            <Creed {...data} />
+        );
+    }
+
+    if (data.type === 'confession') {
+        return (
+            <Confession {...data} />
+        );
+    }
 }
 
 export async function getStaticPaths() {
@@ -49,4 +108,4 @@ export async function getStaticProps(context) {
     };
 }
 
-export default Confession;
+export default ConfessionalDocument;
