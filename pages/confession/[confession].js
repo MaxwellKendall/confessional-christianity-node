@@ -1,7 +1,10 @@
+import { startCase } from "lodash";
+
 import {
     getConfessions,
     removeJsonExtension
 } from "../../helpers";
+import '../../styles/index.scss';
 
 const Creed = (data) => {
     return (
@@ -14,39 +17,41 @@ const Creed = (data) => {
 
 const Confession = (data) => {
     return (
-        <div className="confession">
-            <h1>{data.name}</h1>
-            <span>{data.publication_year}</span>
-            {data.chapters.map((chapter) => {
-                const isElaborateConfession = Object.keys(chapter).includes('articles');
-                return (
-                    <div className="confession-chapter">
-                        <h2>{`Chapter ${chapter.number}: ${chapter.name}`}</h2>
-                        {!isElaborateConfession && <p>{chapter.text}</p>}
-                        {isElaborateConfession && (
-                            chapter.articles.map((article) => {
-                                const includesVerses = Object.keys(article).includes('verses');
-                                return (
-                                    <div className="confession-chatper__article">
-                                        <p>{article.text}</p>
-                                        {includesVerses && Array.isArray(article.verses) && (
-                                            article.verses.map((verse) => verse)
-                                        )}
-                                        {includesVerses && !Array.isArray(article.verses) && (
-                                            Object.keys(article.verses)
-                                                .map((citation) => (
-                                                    <div className="scripture-citation">
-                                                        <p>{`${citation}: ${article.verses[citation].map((verse) => verse)}`}</p>
-                                                    </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )
-                            })
-                        )}
-                    </div>
-                );
-            })}
+        <div className="confession flex flex-col justify-center align-center p-10">
+            <h1 className="text-5xl text-center">{startCase(data.name)}</h1>
+            <h2 className="text-3xl text-center">{data.publication_year}</h2>
+            <div className="confession-chapters flex justify-center align-items flex-col">
+                {data.chapters.map((chapter) => {
+                    const isElaborateConfession = Object.keys(chapter).includes('articles');
+                    return (
+                        <div className="confession-chapter pb-4">
+                            <h3 className="text-2xl pb-2">{`Chapter ${chapter.number}: ${chapter.name}`}</h3>
+                            {!isElaborateConfession && <p>{chapter.text}</p>}
+                            {isElaborateConfession && (
+                                chapter.articles.map((article) => {
+                                    const includesVerses = Object.keys(article).includes('verses');
+                                    return ( 
+                                        <div className="confession-chapter__article">
+                                            <p>{article.text}</p>
+                                            {includesVerses && Array.isArray(article.verses) && (
+                                                article.verses.map((verse) => verse)
+                                            )}
+                                            {includesVerses && !Array.isArray(article.verses) && (
+                                                Object.keys(article.verses)
+                                                    .map((citation) => (
+                                                        <div className="scripture-citation">
+                                                            <p>{`${citation}: ${article.verses[citation].map((verse) => verse)}`}</p>
+                                                        </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    )
+                                })
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     )
 }
