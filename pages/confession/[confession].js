@@ -98,7 +98,8 @@ const Confession = (data) => {
                                 chapter.articles.map((article) => {
                                     const includesVerses = Object.keys(article).includes('verses');
                                     return ( 
-                                        <div className="confession-chapter__article">
+                                        <div className="confession-chapter__article pb-2">
+                                            <h4 className="text-xl pb-2">{`Article ${article.number}`}</h4>
                                             <p>{article.text}</p>
                                             {includesVerses && Array.isArray(article.verses) && (
                                                 article.verses.map((verse) => verse)
