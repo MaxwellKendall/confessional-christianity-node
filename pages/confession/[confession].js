@@ -33,6 +33,32 @@ const getCitations = (question) => {
         ));
 };
 
+const Psalter = (data) => {
+    return (
+        <div className="confession flex flex-col justify-center align-center p-10">
+            <h1 className="text-5xl text-center">{startCase(data.name)}</h1>
+            <h2 className="text-3xl text-center">{data.publication_year}</h2>
+            <div className="catechism-question flex justify-center align-items flex-col">
+                {data.days.map((day) => {
+                    return (
+                        <div className="catechism-day pb-4">
+                            <h3 className="text-2xl pb-2">{`Lord's Day ${day.number}`}</h3>
+                            {day.questions.map((question) => (
+                                <div className="catechism-question pb-2">
+                                    <h4 className="text-2xl">
+                                        {`Question ${question.number}: ${question.question}`}
+                                        </h4>
+                                    <p>{question.answer}</p>
+                                    {getCitations(question)}
+                                </div>
+                            ))}
+                        </div>
+                )})}
+            </div>
+        </div>
+    )
+}
+
 const HeidelbergCatechism = (data) => {
     return (
         <div className="confession flex flex-col justify-center align-center p-10">
@@ -186,6 +212,8 @@ const ConfessionalDocument = ({
             <Document {...data} />
         );
     }
+
+    return <div>Page not Found</div>;
 }
 
 export async function getStaticPaths() {
