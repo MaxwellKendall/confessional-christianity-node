@@ -34,7 +34,7 @@ const getCitations = (question) => {
 
 const Psalter = (data) => {
     return (
-        <div className="confession flex flex-col justify-center align-center p-10">
+        <div className="confession flex flex-col justify-center align-center p-10 w-full">
             <h1 className="text-5xl text-center">{startCase(data.name)}</h1>
             <h2 className="text-3xl text-center">{data.publication_year}</h2>
             <div className="catechism-question flex justify-center align-items flex-col">
@@ -60,7 +60,7 @@ const Psalter = (data) => {
 
 const HeidelbergCatechism = (data) => {
     return (
-        <div className="confession flex flex-col justify-center align-center p-10">
+        <div className="confession flex flex-col justify-center align-center p-10 w-full">
             <h1 className="text-5xl text-center">{startCase(data.name)}</h1>
             <h2 className="text-3xl text-center">{data.publication_year}</h2>
             <div className="catechism-question flex justify-center align-items flex-col">
@@ -88,7 +88,7 @@ const HeidelbergCatechism = (data) => {
 const Catechism = (data) => {
     if (Object.keys(data).includes('days')) return <HeidelbergCatechism {...data} />;
     return (
-        <div className="confession flex flex-col justify-center align-center p-10">
+        <div className="confession flex flex-col justify-center align-center p-10 w-full">
             <h1 className="text-5xl text-center">{startCase(data.name)}</h1>
             <h2 className="text-3xl text-center">{data.publication_year}</h2>
             <div className="catechism-question flex justify-center align-items flex-col">
@@ -109,7 +109,7 @@ const Catechism = (data) => {
 
 const Confession = (data) => {
     return (
-        <div className="confession flex flex-col justify-center align-center p-10">
+        <div className="confession flex flex-col justify-center align-center p-10 w-full">
             <h1 className="text-5xl text-center">{startCase(data.name)}</h1>
             <h2 className="text-3xl text-center">{data.publication_year}</h2>
             <div className="confession-chapters flex justify-center align-items flex-col">
@@ -169,7 +169,7 @@ const getDocumentContent = (content, i, name) => {
 
 const Document = (data) => {
     return (
-        <div className="confession flex flex-col justify-center align-center p-10">
+        <div className="confession flex flex-col justify-center align-center p-10 w-full">
             <h1 className="text-5xl text-center">{startCase(data.name)}</h1>
             <h2 className="text-3xl text-center">{data.publication_year}</h2>
             <div className="confession-chapters flex justify-center align-items flex-col">
