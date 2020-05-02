@@ -2,24 +2,33 @@ import { useState } from 'react';
 import { startCase } from 'lodash';
 import Link from "next/link";
 import cx from "classnames";
+import util from 'util';
+import fs from 'fs';
 
-import {
-    removeJsonExtension,
-    getConfessions
-} from "../helpers/index";
+import { removeJsonExtension } from "../helpers/index";
 import Blog from "../blog/test.mdx";
 
 import '../styles/index.scss';
 
-// export async function getStaticProps(context) {
-//     // will be passed to the page component as props
-//     const confessions = await getConfessions();
-//     return {
-//         props: {
-//             confessions
-//         }
-//     };
-// };
+export async function getStaticProps(context) {
+    // will be passed to the page component as props
+    const readDir = util.promisify(fs.readdir);
+    const folders = await readDir("./data/");
+    const confessions = await Promise.all(
+        folders.map(async (folder) => {
+            const contents = await readDir(`./data/${folder}`);
+            return Promise.resolve({
+                folder,
+                contents
+            });
+        })
+    );
+    return {
+        props: {
+            confessions
+        }
+    };
+};
 
 const HomePage = ({
     confessions
@@ -40,7 +49,7 @@ const HomePage = ({
     return (
         <div className="home flex flex-col p-8">
             <h1 className="text-center text-5xl">Confessional Christianity</h1>
-            {/* <ul className="flex w-2/4 self-center justify-center px-12 items-center flex-wrap relative">
+            <ul className="flex w-2/4 self-center justify-center px-12 items-center flex-wrap relative">
                 {confessions.map((confession) => {
                     const clickHandler = (e) => toggleFolder(e, confession.folder);
                     return (
@@ -63,7 +72,7 @@ const HomePage = ({
                         </li>
                     );
                 })}
-            </ul> */}
+            </ul>
             <Blog />
         </div>
     );

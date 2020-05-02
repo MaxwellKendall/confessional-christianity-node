@@ -1,9 +1,8 @@
 import { startCase } from "lodash";
+import util from 'util';
+import fs from 'fs';
 
-import {
-    getConfessions,
-    removeJsonExtension
-} from "../../helpers";
+import { removeJsonExtension } from "../../helpers";
 import '../../styles/index.scss';
 
 const Creed = (data) => {
@@ -217,44 +216,63 @@ const ConfessionalDocument = ({
     return <div>Page not Found</div>;
 }
 
-// export async function getStaticPaths() {
-//     // import { getAvailableConfessions } from "../../helpers";
-//     const confessions = await getConfessions();
-//     return {
-//       ...confessions
-//         .reduce((acc, folder) => {
-//             return {
-//                 ...acc,
-//                 paths: [
-//                     ...acc.paths,
-//                     ...folder.contents
-//                         .map((confession) => ({
-//                             params: {
-//                                 confession: confession.replace(removeJsonExtension, '')
-//                             }
-//                         }))
-//                 ]
-//             }
-//         }, { paths: [] }),
-//       fallback: false,
-//     };
-// };
+export async function getStaticPaths() {
+    const readDir = util.promisify(fs.readdir);
+    const folders = await readDir("./data/");
+    const confessions = await Promise.all(
+        folders.map(async (folder) => {
+            const contents = await readDir(`./data/${folder}`);
+            return Promise.resolve({
+                folder,
+                contents
+            });
+        })
+    );
+    return {
+      ...confessions
+        .reduce((acc, folder) => {
+            return {
+                ...acc,
+                paths: [
+                    ...acc.paths,
+                    ...folder.contents
+                        .map((confession) => ({
+                            params: {
+                                confession: confession.replace(removeJsonExtension, '')
+                            }
+                        }))
+                ]
+            }
+        }, { paths: [] }),
+      fallback: false,
+    };
+};
 
-// export async function getStaticProps(context) {
-//     const confessions = await getConfessions();
-//     const { confession } = context.params;
-//     const folder = confessions.find((folder) => {
-//         // console.log("folder", folder, confession);
-//         return folder
-//             .contents
-//             .some((content) => content === `${confession}.json`)
-//     });
-//     const data = require(`../../data/${folder.folder}/${confession}.json`);
-//     return {
-//         props: {
-//             data
-//         }
-//     };
-// }
+export async function getStaticProps(context) {
+    const readDir = util.promisify(fs.readdir);
+    const folders = await readDir("./data/");
+    const confessions = await Promise.all(
+        folders.map(async (folder) => {
+            console.log("CWD: ", process.cwd());
+            const contents = await readDir(`./data/${folder}`);
+            return Promise.resolve({
+                folder,
+                contents
+            });
+        })
+    );
+    const { confession } = context.params;
+    const folder = confessions.find((folder) => {
+        return folder
+            .contents
+            .some((content) => content === `${confession}.json`)
+    });
+    const data = require(`../../data/${folder.folder}/${confession}.json`);
+    return {
+        props: {
+            data
+        }
+    };
+}
 
 export default ConfessionalDocument;
