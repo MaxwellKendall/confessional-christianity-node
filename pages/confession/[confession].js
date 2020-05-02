@@ -189,6 +189,7 @@ const Document = (data) => {
 const ConfessionalDocument = ({
     data
 }) => {
+    if (!data) return null;
     if (data.type === 'creed') {
         return (
             <Creed {...data} />
@@ -216,44 +217,44 @@ const ConfessionalDocument = ({
     return <div>Page not Found</div>;
 }
 
-export async function getStaticPaths() {
-    // import { getAvailableConfessions } from "../../helpers";
-    const confessions = await getConfessions();
-    return {
-      ...confessions
-        .reduce((acc, folder) => {
-            return {
-                ...acc,
-                paths: [
-                    ...acc.paths,
-                    ...folder.contents
-                        .map((confession) => ({
-                            params: {
-                                confession: confession.replace(removeJsonExtension, '')
-                            }
-                        }))
-                ]
-            }
-        }, { paths: [] }),
-      fallback: false,
-    };
-};
+// export async function getStaticPaths() {
+//     // import { getAvailableConfessions } from "../../helpers";
+//     const confessions = await getConfessions();
+//     return {
+//       ...confessions
+//         .reduce((acc, folder) => {
+//             return {
+//                 ...acc,
+//                 paths: [
+//                     ...acc.paths,
+//                     ...folder.contents
+//                         .map((confession) => ({
+//                             params: {
+//                                 confession: confession.replace(removeJsonExtension, '')
+//                             }
+//                         }))
+//                 ]
+//             }
+//         }, { paths: [] }),
+//       fallback: false,
+//     };
+// };
 
-export async function getStaticProps(context) {
-    const confessions = await getConfessions();
-    const { confession } = context.params;
-    const folder = confessions.find((folder) => {
-        // console.log("folder", folder, confession);
-        return folder
-            .contents
-            .some((content) => content === `${confession}.json`)
-    });
-    const data = require(`../../data/${folder.folder}/${confession}.json`);
-    return {
-        props: {
-            data
-        }
-    };
-}
+// export async function getStaticProps(context) {
+//     const confessions = await getConfessions();
+//     const { confession } = context.params;
+//     const folder = confessions.find((folder) => {
+//         // console.log("folder", folder, confession);
+//         return folder
+//             .contents
+//             .some((content) => content === `${confession}.json`)
+//     });
+//     const data = require(`../../data/${folder.folder}/${confession}.json`);
+//     return {
+//         props: {
+//             data
+//         }
+//     };
+// }
 
 export default ConfessionalDocument;
