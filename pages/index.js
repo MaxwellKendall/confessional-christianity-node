@@ -48,7 +48,7 @@ const HomePage = ({
 
     return (
         <div className="home flex flex-col p-8">
-            <h1 className="text-center text-5xl">Confessional Christianity</h1>
+            <h1 className="text-center text-5xl">Confessional Christianity Dot Com</h1>
             <ul className="flex w-2/4 self-center justify-center px-12 items-center flex-wrap relative">
                 {confessions.map((confession) => {
                     const clickHandler = (e) => toggleFolder(e, confession.folder);
