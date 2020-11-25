@@ -1,0 +1,6 @@
+{
+    "extends": ["airbnb"],
+    "parserOptions": {
+        "parser": "babel-eslint"
+    }
+}

@@ -6,6 +6,10 @@ html {
     font-size: 16px;
     display: flex;
     width: 100%;
+    body,
+    #__next {
+        width: 100%;
+    }
 }
 
 h1 {
