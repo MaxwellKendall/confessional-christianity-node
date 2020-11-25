@@ -13,10 +13,10 @@ import '../styles/index.scss';
 export async function getStaticProps(context) {
   // will be passed to the page component as props
   const readDir = util.promisify(fs.readdir);
-  const folders = await readDir('./compendium/data/json/unformatted/');
+  const folders = await readDir('./data');
   const confessions = await Promise.all(
     folders.map(async (folder) => {
-      const contents = await readDir(`./compendium/data/json/unformatted/${folder}`);
+      const contents = await readDir(`./data/${folder}`);
       return Promise.resolve({
         folder,
         contents,
