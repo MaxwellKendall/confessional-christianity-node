@@ -1,0 +1,3 @@
+[submodule "compendium"]
+	path = compendium
+	url = git@github.com:MaxwellKendall/compendium.git
