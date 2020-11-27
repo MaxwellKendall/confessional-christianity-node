@@ -1,36 +1,47 @@
 import fs from 'fs';
-import { startCase, flattenDeep, uniqueId } from 'lodash';
+import { startCase, flattenDeep, uniqueId, flatten } from 'lodash';
 import algoliasearch from 'algoliasearch';
 import fetch from 'isomorphic-fetch';
+import queryString from 'query-string'
 
 import { addRecordToIndex, parseOsisBibleReference } from './helpers/index';
+import { removeFormattingForString } from './formatHelper';
 
 const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
 const bibleIndex = client.initIndex('bible-verses');
 
-const getBibleVerse = async (bibleVerse, citedBy, objectID) => {
-  const response = await fetch('https://api.esv.org/v3/passage/text/', {
-    params: {
-      q: bibleVerse,
+const getQueryParams = (bibleText) => {
+  return queryString.stringify({
+      'q': bibleText,
       'include-short-copyright': false,
       'include-verse-numbers': false,
       'include-headings': false,
       'include-selahs': false,
       'include-footnotes': false
+    })
+}
+
+const getBibleVerse = async ({ fullText, citedBy, objectID }) => {
+  console.log('fullText', fullText);
+  return fetch(`https://api.esv.org/v3/passage/text/?${getQueryParams(fullText)}`, {
+    headers: {
+      Authorization: "Token aaf1ca6b55e48327f96d4bce5e091d5221b5acd2"
     }
   })
-    .then((resp) => {
-      return resp.json();
+    .then(async (resp) => {
+      // return resp.json();
+      const { passages } = await resp.json();
+      console.log('resp', typeof passages[0]);
+      return {
+        citedBy,
+        objectID,
+        fullText: removeFormattingForString(passages[0])
+      }
     })
     .catch((e) => {
       console.log(e);
       throw e;
     });
-  return {
-    citedBy,
-    objectID,
-    fullText: response.passages[0]
-  }
 }
 
 const getConfessionContextByName = (ctx) => {
@@ -50,13 +61,20 @@ const getSecondaryNumericalPositionPrefix = (ctx, number) => {
   return `${ctx}Article ${number} `;
 }
 
+const getAllBibleVerses = async (allCitations) => {
+  return Promise.all(allCitations
+    .filter((c, i) => i % 49 === 0)
+    .map((c) => getBibleVerse(c)))
+} 
+
 // import fetch from 'isomorphic-fetch';
 
-// const readFrom = '../data/json/unformatted/three-forms-of-unity/heidelberg-catechism.json';
-// const readFrom = '../data/json/unformatted/anglican/39-articles.json';
-// const readFrom = '../data/json/unformatted/second-london/1689-confession.json';
+// const readFrom = '../data/three-forms-of-unity/heidelberg-catechism.json';
+// const readFrom = '../data/anglican/39-articles.json';
+// const readFrom = '../data/second-london/1689-confession.json';
 const readFrom = '../data/second-london/keach.json';
-// const readFrom = '../data/json/unformatted/ancient-church/apostles-creed.json';
+// const readFrom = '../data/ancient-church/apostles-creed.json';
+// const readFrom = '../data/miscellany/catechism-young-children.json';
 // const readFrom = '../data';
 
 const parseVerses = (obj) => {
@@ -159,38 +177,27 @@ const doesFileHaveCitations = (fileAsObjOrArr) => {
     .some(([, value]) => doesFileHaveCitations(value));
 };
 
-const populateFullVerses = ({ name: citedBy, verses }, i) => {
-  const shouldFetch = i % 5 === 0;
+const extractAllCitations = ({ name: citedBy, verses }, i) => {
   const objectID = uniqueId();
   if (Array.isArray(verses)) {
     // handle array of verses
     return flattenDeep(verses)
-      .map((verse) => {
-        if (shouldFetch) {
-          return getBibleVerse(verse, citedBy, objectID);
-        }
-        return {
-          citedBy,
-          objectID,
-          fullText: verse
-        };
-      });
+      .map((verse) => ({
+        citedBy,
+        objectID,
+        fullText: verse
+      }))
   }
 
   return Object
     .entries(verses)
     .reduce((acc, [, verses]) => acc.concat(verses), [])
-    .map((verses) => {
+    .map((verses) => ({
       // build object
-      if (shouldFetch) {
-        return getBibleVerse(verse, citedBy, objectID);
-      }
-      return {
         citedBy,
         objectID,
-        fullText: verse
-      };
-    })
+        fullText: verses
+      }));
 }
 
 const parseDetailFromFile = (data, fileName) => {
@@ -199,13 +206,25 @@ const parseDetailFromFile = (data, fileName) => {
   if (doesFileHaveCitations(file)) {
     const detail = getDetailWithCitations(file);
     if (Array.isArray(detail)) {
-      const details = flattenDeep(detail);
+      const details = flattenDeep(detail).map((d) => extractAllCitations(d));
+      const deDuped = flattenDeep(details)
+        .reduce((acc, { fullText, citedBy, objectID }) => {
+          const existingCitation = acc.find((obj) => obj.fullText === fullText);
+          if (existingCitation) {
+            return acc
+              .filter(({ fullText: existingFullText }) => existingFullText !== fullText)
+              .concat([{ ...existingCitation, citedBy: [existingCitation.citedBy].concat([citedBy])}])
+          }
+          return acc.concat([{ fullText, citedBy, objectID }]);
+        }, []);
+      
       // console.log('data for confession w/ citations', prettyFileName, details.length);
-      details.forEach((d, i) => {
-        // addRecordToIndex(aggIndex, { ...d, objectID: uniqueId() });
-        const verseDetail = populateFullVerses(d, i);
-        console.log('verseDetail', verseDetail);
-      })
+      // addRecordToIndex(aggIndex, { ...d, objectID: uniqueId() });
+      // console.log('details', flattenDeep(details).length)
+      const dedupedWithFullText = getAllBibleVerses(deDuped)
+        .then((d) => {
+          console.log('data', d);
+        });
     }
     else {
       // console.log('data for confession w/ citations', prettyFileName, detail);

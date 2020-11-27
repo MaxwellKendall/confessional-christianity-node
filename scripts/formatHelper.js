@@ -2,7 +2,7 @@ const escapeCharRegex = RegExp(/\\/);
 const newLineCharRegex = RegExp(/\n/);
 const yamlExtensionRegExp = RegExp(/.yaml/);
 
-const removeFormattingForString = (str) => str
+export const removeFormattingForString = (str) => str
   .split('')
   .map((char) => {
     if (newLineCharRegex.test(char)) return char.replace(newLineCharRegex, ' ');

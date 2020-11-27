@@ -26,6 +26,7 @@
     "@babel/preset-env": "^7.12.7",
     "isomorphic-fetch": "^3.0.0",
     "lodash": "^4.17.20",
+    "query-string": "^6.13.7",
     "yaml": "^1.8.3"
   }
 }
