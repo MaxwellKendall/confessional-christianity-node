@@ -106,3 +106,4 @@ export const addRecordToIndex = async (index, record) => {
   }
   return Promise.resolve();
 };
+

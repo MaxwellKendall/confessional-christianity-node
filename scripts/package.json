@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build-json": "npx babel-node --no-babelrc yaml-to-json.js",
-    "populate-algolia": "npx babel-node algolia.js"
+    "populate-agg": "npx babel-node populate-aggregate-algolia.js",
+    "populate-bible-verses": "npx babel-node populate-bible-verses.js"
   },
   "repository": {
     "type": "git",

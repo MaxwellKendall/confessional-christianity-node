@@ -8,6 +8,23 @@ const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SE
 
 const aggIndex = client.initIndex('aggregate');
 
+const getConfessionContextByName = (ctx) => {
+  if (ctx.toLowerCase().includes('catechism') && ctx.toLowerCase().includes('heidelberg')) {
+    return `${ctx} LORD's Day `;
+  }
+  if (ctx.toLowerCase().includes('catechism')) {
+    return `${ctx} Question `;
+  }
+  return `${ctx} Chapter `;
+}
+
+const getSecondaryNumericalPositionPrefix = (ctx, number) => {
+  if (ctx.toLowerCase().includes('catechism') && ctx.toLowerCase().includes('heidelberg')) {
+    return `${ctx}Question ${number} `;
+  }
+  return `${ctx}Article ${number} `;
+}
+
 // import fetch from 'isomorphic-fetch';
 
 // const readFrom = '../data/json/unformatted/three-forms-of-unity/heidelberg-catechism.json';
@@ -64,16 +81,40 @@ const getDetail = (fileAsObjOrArr, ctx = '') => {
     .map(([, value]) => getDetail(value, name));
 };
 
+// end goal is to have format like this: confession name, chapter, section
+const getContext = (existingCtx, obj) => {
+  if (existingCtx && Object.keys(obj).includes('name') && Object.keys(obj).includes('number')) {
+    return `${existingCtx}${obj.number} ${obj.name} `;
+  }
+  if (existingCtx && Object.keys(obj).includes('name')) {
+    return `${existingCtx}${obj.name} `;
+  }
+  if (existingCtx && Object.keys(obj).includes('number')) {
+    // ie, article number within chapter or question w/in lords day
+    const isSecondaryNumericalPosition = existingCtx.split(' ').some((str) => !Number.isNaN(parseInt(str, 10)));
+    return isSecondaryNumericalPosition
+      ? `${getSecondaryNumericalPositionPrefix(existingCtx, obj.number)}`
+      : `${existingCtx}${obj.number} `;
+  }
+  if (Object.keys(obj).includes('name')) {
+    return getConfessionContextByName(obj.name);
+  }
+}
+
 const getDetailWithCitations = (fileAsObjOrArr, ctx = '') => {
-  if (Object.keys(fileAsObjOrArr).includes('verses')) return { ...parseVerses(fileAsObjOrArr), name: ctx };
+  if (Object.keys(fileAsObjOrArr).includes('verses')) {
+    const name = getContext(ctx, fileAsObjOrArr);
+    return {
+      name,
+      ...parseVerses(fileAsObjOrArr),
+    }
+  };
   if (Array.isArray(fileAsObjOrArr)) {
     return fileAsObjOrArr
       .map((item) => getDetailWithCitations(item, ctx));
   }
 
-  const name = ctx
-    ? `${ctx}${fileAsObjOrArr?.name || fileAsObjOrArr?.number}`
-    : `${fileAsObjOrArr?.name || fileAsObjOrArr?.number} `;
+  const name = getContext(ctx, fileAsObjOrArr); 
 
   return Object
     .entries(fileAsObjOrArr)
@@ -100,23 +141,24 @@ const parseDetailFromFile = (data, fileName) => {
     const detail = getDetailWithCitations(file);
     if (Array.isArray(detail)) {
       const details = flattenDeep(detail);
-      console.log('data for confession w/ citations', prettyFileName, details.length);
+      // console.log('data for confession w/ citations', prettyFileName, details.length);
       details.forEach((d) => {
-        addRecordToIndex(aggIndex, { ...d, objectID: uniqueId() });
+        console.log('name', d.name)
+        // addRecordToIndex(aggIndex, { ...d, objectID: uniqueId() });
       })
     }
     else {
-      console.log('data for confession w/ citations', prettyFileName, detail);
+      // console.log('data for confession w/ citations', prettyFileName, detail);
     }
   }
   else {
     const detail = getDetail(file);
     if (Array.isArray(detail)) {
       const details = flattenDeep(detail);
-      console.log('data for confession w/o any citations: ', prettyFileName, details, details.length);
+      // console.log('data for confession w/o any citations: ', prettyFileName, details, details.length);
     }
     else {
-      console.log('data for confession w/o any citations: ', prettyFileName, detail);
+      // console.log('data for confession w/o any citations: ', prettyFileName, detail);
     }
   }
 };
