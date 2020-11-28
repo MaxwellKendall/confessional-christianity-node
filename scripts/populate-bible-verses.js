@@ -14,12 +14,15 @@ const SCRIPTURE_API_SECRET = process.env.SCRIPTURE_API_SECRET;
 const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
 const bibleIndex = client.initIndex('bible verses');
 
-// const readFrom = '../data/three-forms-of-unity/heidelberg-catechism.json';
-// const readFrom = '../data/anglican/39-articles.json';
+// const readFrom = '../data/second-london/keach.json'; ✅
+// const readFrom = '../data/three-forms-of-unity/heidelberg-catechism.json'; ✅
+const readFrom = '../data/westminster/wlc.json';
+// const readFrom = '../data/westminster/wsc.json';
+// const readFrom = '../data/westminster/wcf.json';
 // const readFrom = '../data/second-london/1689-confession.json';
-const readFrom = '../data/second-london/keach.json';
 // const readFrom = '../data/ancient-church/apostles-creed.json';
 // const readFrom = '../data/miscellany/catechism-young-children.json';
+// const readFrom = '../data/anglican/39-articles.json';
 // const readFrom = '../data';
 
 const cache = {};
@@ -41,8 +44,8 @@ const getQueryParams = () => {
 const parsePassages = (passages) => {
   return passages
     .filter(({ type }) => type === 'text')
-    .reduce((acc, str) => {
-      return `${acc} ${str}`;
+    .reduce((acc, { text: str }) => {
+      return `${acc}${str}`;
     }, '')
 }
 
@@ -52,7 +55,6 @@ const getApiBookIdByOsisValue = (osis) => {
 
 const getBibleVerse = ({ bibleText: osis, citedBy, confession }) => {
   const bibleText = getApiBookIdByOsisValue(osis);
-  console.log('bibleText', bibleText);
   if (Object.keys(cache).includes(bibleText)) {
     console.info('CACHE HIT', bibleText)
     return Promise.resolve({
@@ -61,7 +63,9 @@ const getBibleVerse = ({ bibleText: osis, citedBy, confession }) => {
       confession
     });
   }
-  return fetch(`${baseUrl}/${bibleText}?${getQueryParams()}`, {
+  if (!bibleText) return Promise.resolve({ bibleText: '', citedBy, confession });
+  const url = `${baseUrl}/${bibleText}?${getQueryParams()}`;
+  return fetch(url, {
     headers: {
       'api-key': SCRIPTURE_API_SECRET
     }
@@ -70,7 +74,10 @@ const getBibleVerse = ({ bibleText: osis, citedBy, confession }) => {
       return resp.json();
     })
     .then((resp) => {
-      console.log('resp', resp);
+      if (resp.statusCode !== 200) {
+        console.error('resp', resp);
+        console.error('url', url);
+      }
       const { data: { reference: bibleCitationPretty, content: [passages] } } = resp;
       const parsedPassage = `${parsePassages(passages.items)} (${bibleCitationPretty})`;
       console.info('CACHE MISS', bibleText)
@@ -308,7 +315,7 @@ const parseDetailFromFile = async (data, fileName) => {
       if (deDuped.length) {
         return getAllBibleVerses(deDuped)
           .then((allCitations) => {
-            allCitations.reduce((prevPromise, record) => {
+            flattenDeep(allCitations).reduce((prevPromise, record) => {
               return prevPromise.then(() => {
                 return addRecordToIndex(bibleIndex, record)
               })
