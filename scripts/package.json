@@ -6,7 +6,7 @@
   "scripts": {
     "build-json": "npx babel-node --no-babelrc yaml-to-json.js",
     "populate-agg": "npx babel-node populate-aggregate-algolia.js",
-    "populate-bible-verses": "npx babel-node populate-bible-verses.js"
+    "populate-bible-verses": "npx babel-node --unhandled-rejections=strict populate-bible-verses.js"
   },
   "repository": {
     "type": "git",

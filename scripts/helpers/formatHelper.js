@@ -77,4 +77,4 @@ const removeFormatting = (json) => {
     }, json);
 };
 
-module.exports = removeFormatting;
+export default removeFormatting;

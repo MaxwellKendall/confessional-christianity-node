@@ -1,3 +1,5 @@
+import { uniqueId } from "lodash";
+
 export const bibleBookByAbbreviation = {
   Gen: 'Genesis',
   Exod: 'Exodus',
@@ -68,6 +70,75 @@ export const bibleBookByAbbreviation = {
   Rev: 'Revelation',
 };
 
+export const bibleApiAbbrByOsis = {
+  Gen: 'GEN',
+  Exod: 'EXO',
+  Lev: 'LEV',
+  Num: 'NUM',
+  Deut: 'DEU',
+  Josh: 'JOS',
+  Judg: 'JDG',
+  Ruth: 'RUT',
+  '1Sam': '1SA',
+  '2Sam': '2SA',
+  '1Kgs': '1KI',
+  '2Kgs': '2KI',
+  '1Chr': '1CH',
+  '2Chr': '2CH',
+  Ezra: 'Ezr',
+  Neh: 'Neh',
+  Esth: 'Est',
+  Job: 'Job',
+  Ps: 'Psa',
+  Prov: 'Pro',
+  Eccl: 'Ecc',
+  Song: 'Sng',
+  Isa: 'Isa',
+  Jer: 'Jer',
+  Lam: 'Lam',
+  Ezek: 'Ezk',
+  Dan: 'Dan',
+  Hos: 'Hos',
+  Joel: 'Jol',
+  Amos: 'Amo',
+  Obad: 'Oba',
+  Jonah: 'Jon',
+  Mic: 'Mic',
+  Nah: 'Nam',
+  Hab: 'Hab',
+  Zeph: 'Zep',
+  Hag: 'Hag',
+  Zech: 'Zec',
+  Mal: 'Mal',
+  Matt: 'Mat',
+  Mark: 'Mrk',
+  Luke: 'Luk',
+  John: 'Jhn',
+  Acts: 'Act',
+  Rom: 'Rom',
+  '1Cor': '1Co',
+  '2Cor': '2Co',
+  Gal: 'Gal',
+  Eph: 'Eph',
+  Phil: 'Php',
+  Col: 'Col',
+  '1Thess': '1Th',
+  '2Thess': '2Th',
+  '1Tim': '1Ti',
+  '2Tim': '2Ti',
+  Titus: 'Tit',
+  Phlm: 'Phm',
+  Heb: 'Heb',
+  Jas: 'Jas',
+  '1Pet': '1Pe',
+  '2Pet': '2Pe',
+  '1John': '1Jn',
+  '2John': '2Jn',
+  '3John': '3Jn',
+  Jude: 'Jud',
+  Rev: 'Rev',
+};
+
 export const parseOsisBibleReference = (osisStr) => {
   if (!osisStr) return '';
   if (osisStr.includes(',')) {
@@ -89,17 +160,36 @@ export const parseOsisBibleReference = (osisStr) => {
     }, '');
 };
 
+export const mapOSisTextToApiValues = (osisStr) => {
+  if (!osisStr) return '';
+  const splitStr = osisStr.split('-');
+  return splitStr
+    .reduce((acc, str, i) => {
+      const bookChapterVerse = str.split('.');
+      const book = bibleApiAbbrByOsis[bookChapterVerse[0]];
+      const chapterVerse = bookChapterVerse.slice(1).join('.');
+      if (i !== 0) {
+        return `${acc}-${book}.${chapterVerse}`;
+      }
+      return `${book}.${chapterVerse}`;
+    }, '');
+};
+
 // ALGOLIA STUFF
 const isItemInIndex = (index, id) => index.search(id)
   .then((data) => data.hits.length)
   .catch((e) => console.log('error from isItemInIndex', e));
 
 export const addRecordToIndex = async (index, record) => {
-  const doesRecordExist = await isItemInIndex(index, record.objectID);
+  // const doesRecordExist = await isItemInIndex(index, record.objectID);
+  const doesRecordExist = false;
   if (!doesRecordExist) {
     return index
-      .saveObject(record)
-      .then(() => Promise.resolve())
+      .saveObject({ ...record, objectID: uniqueId() })
+      .then(() => {
+        console.log('record added: ', record.citedBy);
+        return Promise.resolve();
+      })
       .catch((e) => {
         console.error('Error adding record to index', e);
       });
