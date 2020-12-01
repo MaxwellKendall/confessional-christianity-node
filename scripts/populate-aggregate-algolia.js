@@ -1,3 +1,11 @@
+
+/**
+ *  TODO:
+ * - articles/chapters/questions/answers w/ no verses are excluded
+ * - some are too big
+ **/
+
+
 import fs from 'fs';
 import { startCase, flattenDeep, uniqueId } from 'lodash';
 import algoliasearch from 'algoliasearch';
@@ -141,10 +149,8 @@ const parseDetailFromFile = (data, fileName) => {
     const detail = getDetailWithCitations(file);
     if (Array.isArray(detail)) {
       const details = flattenDeep(detail);
-      // console.log('data for confession w/ citations', prettyFileName, details.length);
       details.forEach((d) => {
-        console.log('name', d.name)
-        // addRecordToIndex(aggIndex, { ...d, objectID: uniqueId() });
+        addRecordToIndex(aggIndex, { ...d, objectID: uniqueId(d.title) });
       })
     }
     else {

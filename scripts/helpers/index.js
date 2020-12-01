@@ -180,14 +180,15 @@ const isItemInIndex = (index, id) => index.search(id)
   .then((data) => data.hits.length)
   .catch((e) => console.log('error from isItemInIndex', e));
 
-export const addRecordToIndex = async (index, record) => {
+export const addRecordToIndex = async (index, record, objectIDPrefix) => {
+  const name = record.name ? record.name : record.citedBy;
   // const doesRecordExist = await isItemInIndex(index, record.objectID);
   const doesRecordExist = false;
   if (!doesRecordExist) {
     return index
-      .saveObject({ ...record, objectID: uniqueId() })
+      .saveObject({ ...record, objectID: uniqueId(objectIDPrefix) })
       .then(() => {
-        console.log('record added: ', record.citedBy);
+        console.log('record added: ', name);
         return Promise.resolve();
       })
       .catch((e) => {

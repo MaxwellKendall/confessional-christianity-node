@@ -14,10 +14,10 @@ const SCRIPTURE_API_SECRET = process.env.SCRIPTURE_API_SECRET;
 const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
 const bibleIndex = client.initIndex('bible verses');
 
-// const readFrom = '../data/second-london/keach.json'; ✅
-// const readFrom = '../data/three-forms-of-unity/heidelberg-catechism.json'; ✅
-const readFrom = '../data/westminster/wlc.json';
-// const readFrom = '../data/westminster/wsc.json';
+// const readFrom = '../data/second-london/keach.json';✅
+// const readFrom = '../data/three-forms-of-unity/heidelberg-catechism.json';✅
+// const readFrom = '../data/westminster/wlc.json';✅
+const readFrom = '../data/westminster/wsc.json'; 
 // const readFrom = '../data/westminster/wcf.json';
 // const readFrom = '../data/second-london/1689-confession.json';
 // const readFrom = '../data/ancient-church/apostles-creed.json';
@@ -303,8 +303,12 @@ const parseDetailFromFile = async (data, fileName) => {
               .filter(({ bibleText: existingBibleText }) => existingBibleText !== bibleText)
               .concat([{
                 ...existingCitation,
-                citedBy: [existingCitation.citedBy].concat([citedBy]),
-                confession: [existingCitation.confession].concat([obj.confession]),
+                citedBy: Array.isArray(existingCitation.citedBy)
+                  ? existingCitation.citedBy.concat([citedBy])
+                  : [existingCitation.citedBy].concat([citedBy]),
+                confession: Array.isArray(existingCitation.confession)
+                  ? existingCitation.confession.concat([obj.confession])
+                  : [existingCitation.confession].concat([obj.confession]),
                 ...getDedupedQuestionProperty(existingCitation, obj)
               }])
           }
@@ -317,7 +321,7 @@ const parseDetailFromFile = async (data, fileName) => {
           .then((allCitations) => {
             flattenDeep(allCitations).reduce((prevPromise, record) => {
               return prevPromise.then(() => {
-                return addRecordToIndex(bibleIndex, record)
+                return addRecordToIndex(bibleIndex, record, fileName)
               })
             }, Promise.resolve())
           });
@@ -371,4 +375,4 @@ const readPath = (filePath) => {
 };
 
 // readPath(readFrom);
-readFile(readFrom, 'Keach')
+readFile(readFrom, 'WSC')

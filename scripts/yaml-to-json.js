@@ -1,9 +1,9 @@
-const fs = require('fs');
-const YAML = require('yaml');
+import fs from 'fs';
+import YAML from 'yaml';
 
-const removeFormatting = require('./formatHelper');
+import removeFormatting from './helpers/formatHelper';
 
-const readFileRoot = '../compendium/data/yaml';
+const readFileRoot = '../compendium/data';
 const writeFileRoot = '../data';
 const yamlExtensionRegExp = RegExp(/.yaml/);
 
