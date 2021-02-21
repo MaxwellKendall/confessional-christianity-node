@@ -1,12 +1,10 @@
 import fs from 'fs';
-import { startCase, flattenDeep, uniqueId, debounce } from 'lodash';
+import { startCase, flattenDeep } from 'lodash';
 import algoliasearch from 'algoliasearch';
 import fetch from 'isomorphic-fetch';
 import queryString from 'query-string'
 
 import { addRecordToIndex, bibleApiAbbrByOsis, parseOsisBibleReference, mapOSisTextToApiValues } from './helpers/index';
-import { removeFormattingForString } from './helpers/formatHelper';
-import { resolve } from 'path';
 
 const ESV_API_SECRET = process.env.ESV_API_SECRET;
 const SCRIPTURE_API_SECRET = process.env.SCRIPTURE_API_SECRET;
@@ -18,8 +16,8 @@ const bibleIndex = client.initIndex('bible verses');
 // const readFrom = '../data/three-forms-of-unity/heidelberg-catechism.json';✅
 // const readFrom = '../data/westminster/wlc.json';✅
 // const readFrom = '../data/westminster/wsc.json'; ✅
-// const readFrom = '../data/westminster/wcf.json';
-// const readFrom = '../data/second-london/1689-confession.json';
+// const readFrom = '../data/westminster/wcf.json'; ✅
+const readFrom = '../data/second-london/1689-confession.json';
 // const readFrom = '../data/ancient-church/apostles-creed.json';
 // const readFrom = '../data/miscellany/catechism-young-children.json';
 // const readFrom = '../data/anglican/39-articles.json';
@@ -344,14 +342,16 @@ const parseDetailFromFile = async (data, fileName) => {
   }
 };
 
-const readFile = (filePath, fileName) => {
+const readFile = (filePath) => {
   let data = '';
+  const idPrefix = filePath.split('/')[filePath.split('/').length - 1]
   const readStream = fs.createReadStream(filePath);
   readStream.on('data', (d) => {
     data += d;
   });
   readStream.on('end', () => {
-    parseDetailFromFile(data, fileName);
+    // parseDetailFromFile(data, idPrefix.replace(new RegExp(/.json$/), '').toUpperCase());
+    parseDetailFromFile(data, '1689');
   });
 };
 
@@ -375,4 +375,4 @@ const readPath = (filePath) => {
 };
 
 // readPath(readFrom);
-readFile(readFrom, 'WSC')
+readFile(readFrom);

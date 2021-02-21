@@ -24,6 +24,7 @@
     "@babel/node": "^7.12.6",
     "@babel/plugin-proposal-optional-chaining": "^7.12.7",
     "@babel/preset-env": "^7.12.7",
+    "algoliasearch": "^4.8.3",
     "isomorphic-fetch": "^3.0.0",
     "lodash": "^4.17.20",
     "query-string": "^6.13.7",
