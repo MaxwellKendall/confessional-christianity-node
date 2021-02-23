@@ -20,7 +20,6 @@ const removeFormattingForObjects = (obj) => {
           return removeFormattingForString(data);
         }
         if (typeof data === 'object') {
-          console.log('data', data);
           return removeFormattingForObjects(data);
         }
         return data;

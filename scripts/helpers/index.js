@@ -198,3 +198,4 @@ export const addRecordToIndex = async (index, record, objectIDPrefix) => {
   return Promise.resolve();
 };
 
+export const getConfessionalAbbreviationId = (name) => name.split(' ').reduce((acc, str) => `${acc}${str[0]}`, '');
