@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { flattenDeep, groupBy, startCase } from 'lodash';
+import { flattenDeep } from 'lodash';
 import YAML from 'yaml';
 
 import removeFormatting from './helpers/formatHelper';
@@ -8,58 +8,51 @@ import { getConfessionalAbbreviationId } from './helpers';
 const readFileRoot = '../compendium/data';
 const writeFileRoot = '../normalized-data';
 const yamlExtensionRegExp = RegExp(/.yaml/);
-const includedFiles = ['wsc.yaml', 'wlc.yaml', 'wcf.yaml', 'belgic-confession.yaml', 'canons-of-dort.yaml', 'heidelberg-catechism.yaml'];
 
-const prefixes = ['articles', 'chapters', 'questions', 'days'];
-const prettyPrefix = {
+const includedFiles = ['wsc.yaml', 'wlc.yaml', 'wcf.yaml', 'heidelberg-catechism.yaml'];
+const prettyChildrenTitleByChildrenType = {
   articles: 'Article',
   chapters: 'Chapter',
   questions: 'Question',
-  days: 'Day',
+  days: 'LORD\'s Day',
+  rejections: 'Rejection',
 };
 
-const getPrefix = (obj) => {
-  return ['chapter', 'article', 'question']
-    .filter((str) => Object.keys(obj).includes(str))[0];
+const getChildrenType = (obj) => {
+  const nestedPrefix = Object.entries(obj).reduce((acc, [key, value]) => {
+    if (acc) return acc;
+    if (Array.isArray(value) && key !== 'verses' && key !== 'recommended_reading') return key;
+    return '';
+  }, '');
+  if (nestedPrefix) return nestedPrefix;
+  return null;
 };
 
-const getContent = (obj) => {
-  if (obj && !Array.isArray(obj)) {
-    const nestedPropertyName = prefixes.filter((prefix) => (
-      Object.keys(obj).includes(prefix)
-    ))[0];
-    if (nestedPropertyName) {
-      return obj[nestedPropertyName];
-    }
-    if (Object.keys(obj).includes('content')) {
-      return obj.content;
-    }
+const getTitle = (obj, prefix = null) => {
+  if (prefix && (obj.name || obj.question)) {
+    return `${prettyChildrenTitleByChildrenType[prefix]} ${obj.number}: ${obj.name || obj.question}`;
   }
-  return obj;
+  return `${prettyChildrenTitleByChildrenType[prefix]} ${obj.number}`;
 };
 
-const enforceJSONShape = (json, confession = '') => {
+const enforceJSONShape = (json, confession = '', childrenType = '') => {
   if (!Array.isArray(json)) {
     return {
       title: json.name,
       type: json.type,
-      content: enforceJSONShape(getContent(json), getConfessionalAbbreviationId(json.name)),
+      content: enforceJSONShape(json[getChildrenType(json)], getConfessionalAbbreviationId(json.name), getChildrenType(json)),
     };
   }
-  const hasNestedContent = json.some((obj) => (
-    Object.keys(obj)
-      .some((key) => (
-        key !== 'verses'
-        && prefixes.includes(key)
-      ))
-  ));
-  if (hasNestedContent) {
-    const nestedPropertyName = prefixes.filter((prefix) => (
-      json.some((obj) => Object.keys(obj).includes(prefix))
-    ))[0];
+
+  const grandChildrenType = json.reduce((grandChildName, obj) => {
+    if (grandChildName) return grandChildName;
+    return getChildrenType(obj);
+  }, null);
+
+  if (grandChildrenType) {
     return json
       .map((obj) => ({
-        title: obj.name || obj.question || obj.day,
+        title: getTitle(obj, childrenType),
         number: obj.number,
         isParent: true,
         parent: confession,
@@ -68,9 +61,9 @@ const enforceJSONShape = (json, confession = '') => {
       .concat(flattenDeep(
         json
           .map((obj) => (
-            obj[nestedPropertyName]
+            obj[grandChildrenType]
               .map((innerObj) => ({
-                title: `${prettyPrefix[nestedPropertyName]} ${innerObj.number}${Object.keys(innerObj).includes('question') ? `: ${innerObj.question}` : ''}`,
+                title: getTitle(innerObj, grandChildrenType),
                 text: innerObj.text || innerObj.answer,
                 verses: innerObj.verses,
                 isParent: false,
@@ -80,9 +73,9 @@ const enforceJSONShape = (json, confession = '') => {
           )),
       ));
   }
-
+  // BC, WSC, & WLC
   return json.map((obj) => ({
-    title: `${startCase(getPrefix(obj))} ${obj.number}${Object.keys(obj).includes('question') ? `: ${obj.question}` : `: ${obj.name}`}`,
+    title: getTitle(obj, childrenType),
     text: obj.text || obj.answer,
     verses: obj.verses || {},
     isParent: false,
@@ -94,13 +87,6 @@ const enforceJSONShape = (json, confession = '') => {
 const fileToJson = async (file) => {
   const yml = await fs.readFileSync(file, 'utf8');
   return YAML.parse(yml);
-};
-
-const groupContent = (obj) => {
-  if (obj.isParent) {
-    return obj.id;
-  }
-  return obj.parent;
 };
 
 const writeFile = async (path, json) => {
