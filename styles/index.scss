@@ -2,6 +2,8 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative&family=Marcellus&family=Cinzel&display=swap');
+
 html {
     font-size: 16px;
     display: flex;
@@ -10,8 +12,20 @@ html {
     #__next {
         width: 100%;
     }
-}
-
-h1 {
-    color: blue;
+    h1 {
+        font-family: 'Cinzel Decorative', cursive;
+    }
+    h2, h3, h4, h5 {
+        font-family: 'Cinzel', serif;
+    }
+    p,
+    span,
+    strong {
+        font-family: 'Marcellus', serif;
+    }
+    .home-pg-search {
+        background: url('./search.png') no-repeat;
+        background-position-y: center;
+        background-position-x: 20px;
+    }
 }
