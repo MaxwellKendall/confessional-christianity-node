@@ -177,9 +177,9 @@ export const mapOSisTextToApiValues = (osisStr) => {
 
 export const addRecordToIndex = async (index, record) => {
   return index
-    .saveObject({ ...record, objectID: uniqueId(record.id) })
+    .saveObject({ ...record, objectID: record.id })
     .then(() => {
-      console.log('record added: ', record.id, record.citedBy);
+      console.log('record added: ', record.id);
       return Promise.resolve();
     })
     .catch((e) => {

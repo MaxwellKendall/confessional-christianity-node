@@ -1,4 +1,5 @@
-import fs from 'fs';
+import fs, { readdir } from 'fs';
+import path from 'path';
 import { flattenDeep } from 'lodash';
 import YAML from 'yaml';
 
@@ -128,4 +129,11 @@ const readDirectoryAndWriteFiles = async (subDirPath = '') => {
   });
 };
 
-readDirectoryAndWriteFiles();
+readDirectoryAndWriteFiles()
+  .then(() => {
+    const files = await readdir(readFileRoot);
+    const read = fs.createReadStream(path.resolve(__dirname, readFileRoot));
+    read.on('data', (d) => {
+      console.log('d', d);
+    })
+  });

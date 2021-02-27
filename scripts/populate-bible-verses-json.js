@@ -27,9 +27,9 @@ const getQueryParams = () => {
     'include-chapter-numbers': false,
     'include-verse-numbers': true,
     'include-verse-spans': false,
-    'use-org-id': false
-  })
-}
+    'use-org-id': false,
+  });
+};
 
 const parsePassages = (passages) => {
   return passages
@@ -153,7 +153,6 @@ const enforceSchema = (arr, existingData) => arr
   }, existingData);
 
 const parseDetailFromFile = async (data) => {
-  console.log("!!!")
   const parsedData = JSON.parse(data);
   const { title } = data;
   if (doesFileHaveCitations(parsedData)) {
@@ -163,7 +162,6 @@ const parseDetailFromFile = async (data) => {
       existingFile += d;
     });
     readStream.on('end', () => {
-      console.log('existingfile', existingFile)
       const normalizedCitation = enforceSchema(parsedData.content, JSON.parse(existingFile));
       const write = fs.createWriteStream(path.resolve(__dirname, '../deduped-bible-verses.json'));
       write.write(JSON.stringify(normalizedCitation));
