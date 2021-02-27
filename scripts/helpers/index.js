@@ -175,27 +175,16 @@ export const mapOSisTextToApiValues = (osisStr) => {
     }, '');
 };
 
-// ALGOLIA STUFF
-const isItemInIndex = (index, id) => index.search(id)
-  .then((data) => data.hits.length)
-  .catch((e) => console.log('error from isItemInIndex', e));
-
-export const addRecordToIndex = async (index, record, objectIDPrefix) => {
-  const name = record.name ? record.name : record.citedBy;
-  // const doesRecordExist = await isItemInIndex(index, record.objectID);
-  const doesRecordExist = false;
-  if (!doesRecordExist) {
-    return index
-      .saveObject({ ...record, objectID: uniqueId(objectIDPrefix) })
-      .then(() => {
-        console.log('record added: ', name);
-        return Promise.resolve();
-      })
-      .catch((e) => {
-        console.error('Error adding record to index', e);
-      });
-  }
-  return Promise.resolve();
+export const addRecordToIndex = async (index, record) => {
+  return index
+    .saveObject({ ...record, objectID: uniqueId(record.id) })
+    .then(() => {
+      console.log('record added: ', record.id, record.citedBy);
+      return Promise.resolve();
+    })
+    .catch((e) => {
+      console.error('Error adding record to index', e);
+    });
 };
 
 export const getConfessionalAbbreviationId = (name) => name.split(' ').reduce((acc, str) => `${acc}${str[0]}`, '');

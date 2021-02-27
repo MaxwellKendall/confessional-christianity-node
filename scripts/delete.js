@@ -3,7 +3,7 @@ import algoliasearch from 'algoliasearch';
 const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
 const bibleIndex = client.initIndex('bible verses');
 
-const searchStr = 'Westminster Confession of Faith';
+const searchStr = '(undefined)';
 
 bibleIndex
   .search(searchStr, { hitsPerPage: 1000 })
