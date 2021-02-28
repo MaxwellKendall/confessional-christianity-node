@@ -1,6 +1,6 @@
 export const removeJsonExtension = new RegExp(/.json$/);
 
-const confessionCitationByIndex = {
+export const confessionCitationByIndex = {
   WCoF: ['Westminster Confession of Faith', 'Chapter', 'Article', 'Scripture Citation'],
   HC: ['Heidelberg Catechism', 'LORD\'s Day', 'Question and Answer', 'Scripture Citation'],
   WSC: ['Westminster Shorter Catechism', 'Question and Answer', 'Scripture Citation'],

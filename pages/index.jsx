@@ -109,8 +109,6 @@ const HomePage = ({
     );
   };
 
-  console.log('searchResults', searchResults);
-
   return (
     <div className="home flex flex-col p-8 w-full my-24">
       <h1 className="text-center text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
