@@ -43,7 +43,7 @@ export default ({
     });
     return Object
       .entries(data)
-      .reduce((acc, [key, value]) => acc.concat(value), [])
+      .reduce((acc, [, value]) => acc.concat(value), [])
       .map((obj) => {
         if (Object.keys(confessionCitationByIndex).includes(obj.parent) && !Object.keys(obj).includes('text')) {
           return (

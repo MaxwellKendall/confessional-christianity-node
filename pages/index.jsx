@@ -1,17 +1,24 @@
 /* eslint-disable no-underscore-dangle */
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import algoliasearch from 'algoliasearch';
 import { throttle } from 'lodash';
-import React, { useState } from 'react';
 import Highlighter from 'react-highlight-words';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { parseConfessionId } from '../helpers';
 
 // const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
-const client = algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_API_KEY, process.env.NEXT_PUBLIC_ALGOLIA_SECRET_KEY);
+const client = algoliasearch(
+  process.env.NEXT_PUBLIC_ALGOLIA_API_KEY,
+  process.env.NEXT_PUBLIC_ALGOLIA_SECRET_KEY,
+);
 
 const aggIndex = client.initIndex('aggregate');
 const facets = ['document:Heidelberg Catechism'];
 const prePopulatedSearch = {
-  query: 'Question 1: What is thy only comfort',
+  query: 'What is thy only comfort in life and death',
   index: 'aggregate',
 };
 
@@ -44,7 +51,10 @@ const HomePage = ({
   prePopulatedSearchResults,
   prePopulatedQuery
 }) => {
-  const [searchTerm, setSearchTerm] = useState(prePopulatedQuery);
+  const router = useRouter();
+  const { search } = router.query;
+  const initialSearch = search || prePopulatedQuery;
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [searchResults, setSearchResults] = useState([]);
   const [areResultsPristine, setAreResultsPristine] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,9 +62,10 @@ const HomePage = ({
   const fetchResults = throttle(() => {
     setIsLoading(true);
     if (areResultsPristine) setAreResultsPristine(false);
-    client.multipleQueries(defaultQueries.map((obj) => ({ ...obj, query: searchTerm })))
+    if (searchTerm !== search) setSearchTerm(search);
+    client.multipleQueries(defaultQueries.map((obj) => ({ ...obj, query: search })))
       .then(({ results }) => {
-        console.log('response', results);
+        setIsLoading(false);
         const parsedResults = results
           .map(({ hits, index }) => hits.map((h) => ({ ...h, index })))
           .reduce((acc, arr) => acc.concat(arr), []);
@@ -62,9 +73,19 @@ const HomePage = ({
       });
   }, 300);
 
+  useEffect(() => {
+    fetchResults();
+  }, [search]);
+
   const handleSubmit = (e) => {
     e.persist();
     if (e.keyCode === 13) {
+      router.push({
+        pathname: '',
+        query: {
+          search: searchTerm,
+        },
+      });
       fetchResults();
     }
   };
@@ -114,14 +135,15 @@ const HomePage = ({
       <h1 className="text-center text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
       <input type="text" className="home-pg-search border border-gray-500 rounded-full leading-10 w-full lg:w-1/2 my-24 mx-auto outline-none pl-12 py-2" value={searchTerm} onChange={handleSearchInput} onKeyDown={handleSubmit} />
       <ul className="results w-full lg:w-1/2 mx-auto">
-        {areResultsPristine && prePopulatedSearchResults.map((obj) => renderResults(obj))}
-        {!areResultsPristine && searchResults.map((obj) => renderResults(obj))}
+        {isLoading && <FontAwesomeIcon icon={faSpinner} />}
+        {areResultsPristine && !isLoading && prePopulatedSearchResults.map((obj) => renderResults(obj))}
+        {!areResultsPristine && !isLoading && searchResults.map((obj) => renderResults(obj))}
       </ul>
     </div>
   );
 };
 
-export async function getStaticProps(context) {
+export async function getStaticProps() {
   // will be passed to the page component as props
   const resp = await aggIndex.search(prePopulatedSearch.query, {
     facetFilters: facets,
