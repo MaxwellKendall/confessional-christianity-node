@@ -1,8 +1,12 @@
 /* eslint-disable react/prop-types */
 // import App from 'next/app';
 import React from 'react';
-
+import { config } from '@fortawesome/fontawesome-svg-core';
+// Import the CSS
+import '@fortawesome/fontawesome-svg-core/styles.css';
 import '../styles/index.scss';
+
+config.autoAddCss = false;
 
 function MyApp({ Component, pageProps }) {
   return <Component {...pageProps} />;
