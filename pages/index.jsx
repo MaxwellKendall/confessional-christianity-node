@@ -1,6 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
+
 import path from 'path';
 import fetch from 'isomorphic-fetch';
 import queryString from 'query-string';
@@ -146,10 +148,8 @@ const HomePage = ({
   };
 
   const parseBibleText = (text) => {
-    console.log('text', text.split('(ESV)'));
     const textAsArr = text.split('(ESV)');
     const citationSummary = textAsArr[textAsArr.length - 1].split(';');
-    console.log('citation', citationSummary);
     const cleanCitation = new RegExp(/^[\s,(]|^[,]|[,)\s]$/);
     const cleanVerse = new RegExp(/^[\s,]/);
     return textAsArr
@@ -252,8 +252,21 @@ const HomePage = ({
     );
   };
 
+  const pgTitle = search ? `Confessional Christianity | ${searchTerm}` : 'Confessional Christianity';
+
   return (
     <div className="home flex flex-col p-8 w-full my-24">
+      <Head>
+        <title>{pgTitle}</title>
+        <meta property="og:title" content={pgTitle} key="title" />
+        <meta property="og:title" content={pgTitle} key="title" />
+        {/* <meta property="og:image" content={path.resolve(__dirname, '../preview-img.png')} />
+        <link rel="shortcut icon" href={path.resolve(__dirname, '../favicon.ico')} /> */}
+        {/* <meta property="og:image" content="../preview-img.png" /> */}
+        {/* <link rel="shortcut icon" href="../favicon.ico" /> */}
+        <meta property="og:image" content="/preview-img.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+      </Head>
       <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
       <input type="text" className="home-pg-search border border-gray-500 rounded-full leading-10 w-full lg:w-1/2 my-24 mx-auto outline-none pl-12 pr-4 py-2" value={searchTerm} onChange={handleSearchInput} onKeyDown={handleSubmit} />
       <ul className="results w-full lg:w-1/2 mx-auto">
