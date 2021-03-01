@@ -252,18 +252,13 @@ const HomePage = ({
     );
   };
 
-  const pgTitle = search ? `Confessional Christianity | ${searchTerm}` : 'Confessional Christianity';
+  const pgTitle = search ? `Confessional Christianity | ${searchTerm}` : 'Confessional Christianity | Historic Creeds & Catechisms';
 
   return (
     <div className="home flex flex-col p-8 w-full my-24">
       <Head>
         <title>{pgTitle}</title>
         <meta property="og:title" content={pgTitle} key="title" />
-        <meta property="og:title" content={pgTitle} key="title" />
-        {/* <meta property="og:image" content={path.resolve(__dirname, '../preview-img.png')} />
-        <link rel="shortcut icon" href={path.resolve(__dirname, '../favicon.ico')} /> */}
-        {/* <meta property="og:image" content="../preview-img.png" /> */}
-        {/* <link rel="shortcut icon" href="../favicon.ico" /> */}
         <meta property="og:image" content="/preview-img.png" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
