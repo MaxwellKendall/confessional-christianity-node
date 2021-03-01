@@ -16,3 +16,14 @@ export const parseConfessionId = (id) => {
     return `${acc}${confessionCitationByIndex[src[0]][i]} ${frag} `;
   }, '');
 };
+
+export const confessionPathByName = {
+  'westminster-confession-of-faith': 'normalized-data/westminster/wcf.json',
+  'westminster-larger-catechism': 'normalized-data/westminster/wlc.json',
+  'westminster-shorter-catechism': 'normalized-data/westminster/wsc.json',
+  'heidelberg-catechism': 'normalized-data/three-forms-of-unity/heidelberg-catechism.json',
+};
+
+export const removeCitationId = (id) => {
+  return id.split('-').slice(0, id.split('-').length - 1).join('-');
+};

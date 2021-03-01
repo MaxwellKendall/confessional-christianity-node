@@ -1,13 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
+import path from 'path';
+import { promises as fs } from 'fs';
 import algoliasearch from 'algoliasearch';
 import { throttle } from 'lodash';
 import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { parseConfessionId } from '../helpers';
+import { confessionPathByName, parseConfessionId, removeCitationId } from '../helpers';
+import { getConfessionalAbbreviationId } from '../scripts/helpers';
 
 // const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
 const client = algoliasearch(
@@ -49,7 +51,8 @@ const defaultQueries = [
 
 const HomePage = ({
   prePopulatedSearchResults,
-  prePopulatedQuery
+  prePopulatedQuery,
+  contentById,
 }) => {
   const router = useRouter();
   const { search } = router.query;
@@ -58,6 +61,7 @@ const HomePage = ({
   const [searchResults, setSearchResults] = useState([]);
   const [areResultsPristine, setAreResultsPristine] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [showMore, setShowMore] = useState([]);
 
   const fetchResults = throttle(() => {
     setIsLoading(true);
@@ -74,7 +78,9 @@ const HomePage = ({
   }, 300);
 
   useEffect(() => {
-    fetchResults();
+    if (search) {
+      fetchResults();
+    }
   }, [search]);
 
   const handleSubmit = (e) => {
@@ -86,17 +92,24 @@ const HomePage = ({
           search: searchTerm,
         },
       });
-      fetchResults();
     }
   };
 
   const handleSearchInput = (e) => {
     e.persist();
     setSearchTerm(e.target.value);
-    if (e.target.value.length > 3) {
-      // fetchResults();
+  };
+
+  const handleShowMore = (id) => {
+    if (showMore.includes(id)) {
+      setShowMore(showMore.filter((str) => str !== id));
+    }
+    else {
+      setShowMore(showMore.concat([id]));
     }
   };
+
+  console.log('results', areResultsPristine, searchResults);
 
   const renderResults = (result) => {
     if (result.index === 'aggregate') {
@@ -104,7 +117,7 @@ const HomePage = ({
       return (
         <li className="w-full flex flex-col justify-center mb-24">
           <h2 className="text-4xl w-full text-center mb-24">{`The ${result.document}`}</h2>
-          <Highlighter textToHighlight={result.title} searchWords={result._highlightResult.title.matchedWords} highlightClassName="search-result-matched-word" />
+          <Highlighter className="text-2xl" textToHighlight={result.title} searchWords={result._highlightResult.title.matchedWords} highlightClassName="search-result-matched-word" />
           {text && <Highlighter className="mt-4" textToHighlight={result.text} searchWords={result._highlightResult.text.matchedWords} highlightClassName="search-result-matched-word" />}
         </li>
       );
@@ -124,7 +137,22 @@ const HomePage = ({
           />
         <div className="citations pt-5 mb-24">
           <h3>Passage Cited by:</h3>
-          {result.citedBy.map((id) => <p className="">{parseConfessionId(id)}</p>)}
+          {result.citedBy.map((id) => (
+            <div className="show-more">
+              <p className="">
+                {parseConfessionId(id)}
+                <button
+                  type="submit"
+                  onClick={() => handleShowMore(id)}
+                >
+                  {showMore.includes(id) ? '(Hide Citation)' : '(Show Citation)'}
+                </button>
+              </p>
+              {showMore.includes(id) && (
+                <p className="pl-2 my-2 border-l-4">{contentById[removeCitationId(id)]}</p>
+              )}
+            </div>
+          ))}
         </div>
       </li>
     );
@@ -135,7 +163,14 @@ const HomePage = ({
       <h1 className="text-center text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
       <input type="text" className="home-pg-search border border-gray-500 rounded-full leading-10 w-full lg:w-1/2 my-24 mx-auto outline-none pl-12 py-2" value={searchTerm} onChange={handleSearchInput} onKeyDown={handleSubmit} />
       <ul className="results w-full lg:w-1/2 mx-auto">
-        {isLoading && <FontAwesomeIcon icon={faSpinner} />}
+        {isLoading && (
+          <li className="w-full flex">
+            <p className="text-xl w-full text-center">
+              <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
+              Fetching your search results...
+            </p>
+          </li>
+        )}
         {areResultsPristine && !isLoading && prePopulatedSearchResults.map((obj) => renderResults(obj))}
         {!areResultsPristine && !isLoading && searchResults.map((obj) => renderResults(obj))}
       </ul>
@@ -145,8 +180,29 @@ const HomePage = ({
 
 export async function getStaticProps() {
   // will be passed to the page component as props
+  const contentById = await Object
+    .entries(confessionPathByName)
+    .reduce((prevPromise, [key, value]) => {
+      return prevPromise.then(async (acc) => {
+        const pathToConfession = path.join(process.cwd(), value);
+        const fileContents = await fs.readFile(pathToConfession, 'utf8');
+        const parsed = JSON.parse(fileContents);
+        const asObject = parsed.content
+          .reduce((asObj, obj) => {
+            return {
+              ...asObj,
+              [obj.id]: obj.text || '',
+            };
+          }, {});
+        return Promise.resolve({
+          ...acc,
+          ...asObject,
+        });
+      });
+    }, Promise.resolve({}));
+
   const resp = await aggIndex.search(prePopulatedSearch.query, {
-    facetFilters: facets,
+    // facetFilters: facets,
     attributesToHighlight: [
       'text',
       'title',
@@ -157,6 +213,7 @@ export async function getStaticProps() {
     props: {
       prePopulatedSearchResults: resp.hits.map((obj) => ({ ...obj, index: prePopulatedSearch.index })),
       prePopulatedQuery: prePopulatedSearch.query,
+      contentById,
     },
   };
 }

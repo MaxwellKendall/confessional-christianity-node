@@ -3,20 +3,12 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { groupBy } from 'lodash';
 
-import { confessionCitationByIndex } from '../helpers';
+import { confessionCitationByIndex, confessionPathByName } from '../helpers';
 import { parseOsisBibleReference } from '../scripts/helpers';
-
-const confessionPathByName = {
-  'westminster-confession-of-faith': 'normalized-data/westminster/wcf.json',
-  'westminster-larger-catechism': 'normalized-data/westminster/wlc.json',
-  'westminster-shorter-catechism': 'normalized-data/westminster/wsc.json',
-  'heidelberg-catechism': 'normalized-data/three-forms-of-unity/heidelberg-catechism.json',
-};
 
 export const getStaticProps = async (context) => {
   const pathToConfession = path.join(process.cwd(), confessionPathByName[context.params.confession]);
   const fileContents = await fs.readFile(pathToConfession, 'utf8');
-  console.log('contents', fileContents);
   return {
     props: {
       ...JSON.parse(fileContents),
@@ -47,12 +39,12 @@ export default ({
       .map((obj) => {
         if (Object.keys(confessionCitationByIndex).includes(obj.parent) && !Object.keys(obj).includes('text')) {
           return (
-            <h3 className="text-center text-2xl mx-auto max-w-2xl">{obj.title}</h3>
+            <h3 className={`text-center text-2xl mx-auto max-w-2xl js-${obj.id}`}>{obj.title}</h3>
           );
         }
 
         return (
-          <div className="pl-10 my-12">
+          <div className={`pl-10 my-12 js-${obj.id}`}>
             <h4 className="text-xl">{obj.title}</h4>
             <p>{obj.text}</p>
             {Object.keys(obj).includes('verses') && (
