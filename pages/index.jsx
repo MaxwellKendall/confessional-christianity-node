@@ -2,16 +2,31 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import path from 'path';
+import fetch from 'isomorphic-fetch';
+import queryString from 'query-string';
 import { promises as fs } from 'fs';
 import algoliasearch from 'algoliasearch';
-import { throttle } from 'lodash';
+import { throttle, trim, trimStart } from 'lodash';
 import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { confessionPathByName, parseConfessionId, removeCitationId } from '../helpers';
-import { getConfessionalAbbreviationId } from '../scripts/helpers';
 
-// const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
+import { confessionPathByName, parseConfessionId, removeCitationId } from '../helpers';
+import { getConfessionalAbbreviationId, parseOsisBibleReference } from '../scripts/helpers';
+
+const baseUrl = 'https://api.esv.org/v3/passage/text';
+const getQueryParams = (bibleText) => {
+  return queryString.stringify({
+    q: bibleText,
+    'content-type': 'json',
+    'include-passage-references': false,
+    'include-footnotes': false,
+    'include-footnote-body': false,
+    'include-headings': false,
+  });
+};
+
+const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
 const client = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_API_KEY,
   process.env.NEXT_PUBLIC_ALGOLIA_SECRET_KEY,
@@ -62,6 +77,7 @@ const HomePage = ({
   const [areResultsPristine, setAreResultsPristine] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showMore, setShowMore] = useState([]);
+  const [bibleTextById, setBibleTextById] = useState({});
 
   const fetchResults = throttle(() => {
     setIsLoading(true);
@@ -109,16 +125,94 @@ const HomePage = ({
     }
   };
 
-  console.log('results', areResultsPristine, searchResults);
+  const handleFetchCitation = (text, id) => {
+    if (bibleTextById[id]) {
+      setBibleTextById(Object
+        .keys(bibleTextById)
+        .filter((str) => str !== id)
+        .reduce((acc, key) => ({ ...acc, [key]: bibleTextById[key] }), {}));
+      return Promise.resolve();
+    }
+    return fetch(`${baseUrl}/?${getQueryParams(text)}`, {
+      headers: {
+        Authorization: `Token ${NEXT_PUBLIC_ESV_API_SECRET}`,
+      },
+    })
+      .then((resp) => resp.json())
+      .then((resp) => {
+        const { passages, canonical } = resp;
+        setBibleTextById({ ...bibleTextById, [id]: `${passages} (${canonical})`});
+      });
+  };
+
+  const parseBibleText = (text) => {
+    console.log('text', text.split('(ESV)'));
+    const textAsArr = text.split('(ESV)');
+    const citationSummary = textAsArr[textAsArr.length - 1].split(';');
+    console.log('citation', citationSummary);
+    const cleanCitation = new RegExp(/^[\s,(]|^[,]|[,)\s]$/);
+    const cleanVerse = new RegExp(/^[\s,]/);
+    return textAsArr
+      .slice(0, textAsArr.length - 1)
+      .map((str, i) => (
+        <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
+          {trimStart(str).replace(cleanVerse, '')}
+          <strong className="font-bold tracking-wider uppercase w-full my-4 ml-4">
+            {`~ ${trim(citationSummary[i]).replace(cleanCitation, '')} (ESV)`}
+          </strong>
+        </p>
+      ));
+  };
 
   const renderResults = (result) => {
     if (result.index === 'aggregate') {
       const text = Object.keys(result).includes('text');
       return (
         <li className="w-full flex flex-col justify-center mb-24">
-          <h2 className="text-4xl w-full text-center mb-24">{`The ${result.document}`}</h2>
+          <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{`The ${result.document}`}</h2>
           <Highlighter className="text-2xl" textToHighlight={result.title} searchWords={result._highlightResult.title.matchedWords} highlightClassName="search-result-matched-word" />
-          {text && <Highlighter className="mt-4" textToHighlight={result.text} searchWords={result._highlightResult.text.matchedWords} highlightClassName="search-result-matched-word" />}
+          {text && (
+            <Highlighter className="mt-4" textToHighlight={result.text} searchWords={result._highlightResult.text.matchedWords} highlightClassName="search-result-matched-word" />
+          )}
+          {Object.keys(result).includes('verses') && (
+            <ul className="mt-12">
+              <li>
+                {Object
+                  .entries(result.verses)
+                  .map(([citation, verses]) => {
+                    const citationId = `${result.id}-${citation}`;
+                    return (
+                      <div className="citation-container flex flex-wrap py-2">
+                        <ul className="flex flex-wrap items-center">
+                          {[citation]
+                            .concat(verses)
+                            .map((v) => {
+                              if (v.length === 1) {
+                                return (
+                                  <p className="text-lg mx-1">{`${v}: `}</p>
+                                );
+                              }
+                              return (
+                                <p className="text-lg mx-1">{parseOsisBibleReference(v)}</p>
+                              );
+                            })
+                            .concat([
+                              <button type="submit" className="cursor-pointer mx-1 text-base focus:outline-none" onClick={() => handleFetchCitation(verses.join(','), citationId)}>
+                                {Object.keys(bibleTextById).includes(citationId) ? '(SHOW LESS)' : '(SHOW MORE)'}
+                              </button>,
+                            ])}
+                        </ul>
+                        {Object.keys(bibleTextById).includes(citationId) && (
+                          <div className="verses ml-10">
+                            {parseBibleText(bibleTextById[citationId])}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+              </li>
+            </ul>
+          )}
         </li>
       );
     }
@@ -126,7 +220,7 @@ const HomePage = ({
       <li className="w-full flex flex-col justify-center">
         <Highlighter
           highlightClassName="search-result-matched-word"
-          className="text-4xl w-full text-center mb-24"
+          className="text-3xl lg:text-4xl w-full text-center mb-24"
           textToHighlight={result.citation}
           searchWords={result._highlightResult.citation.matchedWords}
         />
@@ -134,7 +228,7 @@ const HomePage = ({
           className="mt-4"
           textToHighlight={result.bibleText}
           searchWords={result._highlightResult.bibleText.matchedWords}
-          />
+        />
         <div className="citations pt-5 mb-24">
           <h3>Passage Cited by:</h3>
           {result.citedBy.map((id) => (
@@ -160,8 +254,8 @@ const HomePage = ({
 
   return (
     <div className="home flex flex-col p-8 w-full my-24">
-      <h1 className="text-center text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
-      <input type="text" className="home-pg-search border border-gray-500 rounded-full leading-10 w-full lg:w-1/2 my-24 mx-auto outline-none pl-12 py-2" value={searchTerm} onChange={handleSearchInput} onKeyDown={handleSubmit} />
+      <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
+      <input type="text" className="home-pg-search border border-gray-500 rounded-full leading-10 w-full lg:w-1/2 my-24 mx-auto outline-none pl-12 pr-4 py-2" value={searchTerm} onChange={handleSearchInput} onKeyDown={handleSubmit} />
       <ul className="results w-full lg:w-1/2 mx-auto">
         {isLoading && (
           <li className="w-full flex">
@@ -202,7 +296,7 @@ export async function getStaticProps() {
     }, Promise.resolve({}));
 
   const resp = await aggIndex.search(prePopulatedSearch.query, {
-    // facetFilters: facets,
+    facetFilters: facets,
     attributesToHighlight: [
       'text',
       'title',

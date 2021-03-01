@@ -156,7 +156,7 @@ export const parseOsisBibleReference = (osisStr) => {
       if (i !== 0) {
         return `${acc} - ${book} ${chapterVerse}`;
       }
-      return `${book} ${chapterVerse}`;
+      return `${book} ${chapterVerse} `;
     }, '');
 };
 
