@@ -8,7 +8,6 @@ export const confessionCitationByIndex = {
 };
 export const parseConfessionId = (id) => {
   const fragments = id.split('-');
-  console.log('id', fragments)
   return fragments.reduce((acc, frag, i, src) => {
     const isLast = src.length === i - 1;
     if (isLast) return `${acc}${confessionCitationByIndex[src[0]][i]} ${frag.toUpperCase()}`;
@@ -24,6 +23,6 @@ export const confessionPathByName = {
   'heidelberg-catechism': 'normalized-data/three-forms-of-unity/heidelberg-catechism.json',
 };
 
-export const removeCitationId = (id) => {
-  return id.split('-').slice(0, id.split('-').length - 1).join('-');
+export const getCitationContextById = (id, idPositions = 1) => {
+  return id.split('-').slice(0, idPositions).join('-');
 };

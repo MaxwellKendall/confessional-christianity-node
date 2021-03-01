@@ -13,7 +13,7 @@ import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { confessionPathByName, parseConfessionId, removeCitationId } from '../helpers';
+import { confessionPathByName, parseConfessionId, getCitationContextById, confessionCitationByIndex } from '../helpers';
 import { getConfessionalAbbreviationId, parseOsisBibleReference } from '../scripts/helpers';
 
 const baseUrl = 'https://api.esv.org/v3/passage/text';
@@ -143,7 +143,7 @@ const HomePage = ({
       .then((resp) => resp.json())
       .then((resp) => {
         const { passages, canonical } = resp;
-        setBibleTextById({ ...bibleTextById, [id]: `${passages} (${canonical})`});
+        setBibleTextById({ ...bibleTextById, [id]: `${passages} (${canonical})` });
       });
   };
 
@@ -157,11 +157,52 @@ const HomePage = ({
       .map((str, i) => (
         <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
           {trimStart(str).replace(cleanVerse, '')}
-          <strong className="font-bold tracking-wider uppercase w-full my-4 ml-4">
+          <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
             {`~ ${trim(citationSummary[i]).replace(cleanCitation, '')} (ESV)`}
           </strong>
         </p>
       ));
+  };
+
+  const parseConfessionText = (obj, id) => {
+    return (
+      <div className="my-4 w-full ml-10 flex flex-col">
+        {Object.keys(obj).includes('title') && (
+          <h4 className="pl-4 border-l-4">{obj.title}</h4>
+        )}
+        {Object.keys(obj).includes('text') && (
+          <p className="pl-4 border-l-4">{obj.text}</p>
+        )}
+        <p className="pl-8 border-l-4 py-4 font-bold">{`~ ${parseConfessionId(id)}`}</p>
+      </div>
+    );
+  };
+
+  const renderCitedBy = (citedBy) => {
+    return citedBy.map((id, i) => {
+      const confessionName = confessionCitationByIndex[getCitationContextById(id, 1)][0];
+      // chapter where scripture is cited etc...
+      const citationTitle = confessionName.includes('Heidelberg')
+        ? contentById[getCitationContextById(id, 3)].title
+        : contentById[getCitationContextById(id, 2)].title;
+
+      const idWithoutCitation = getCitationContextById(id, id.split('-').length - 1);
+      return (
+        <div className="pl-4 py-2">
+          <p>
+            {`${i + 1}. ${confessionName} ${citationTitle}`}
+            <button
+              type="submit"
+              className="cursor-pointer mx-1 text-base focus:outline-none"
+              onClick={() => handleShowMore(id)}
+            >
+              {showMore.includes(id) ? '(SHOW LESS)' : '(SHOW MORE)'}
+            </button>
+          </p>
+          {showMore.includes(id) && parseConfessionText(contentById[idWithoutCitation], id)}
+        </div>
+      );
+    });
   };
 
   const renderResults = (result) => {
@@ -187,7 +228,7 @@ const HomePage = ({
                           {[citation]
                             .concat(verses)
                             .map((v) => {
-                              if (v.length === 1) {
+                              if (v.length < 3) {
                                 return (
                                   <p className="text-lg mx-1">{`${v}: `}</p>
                                 );
@@ -203,7 +244,7 @@ const HomePage = ({
                             ])}
                         </ul>
                         {Object.keys(bibleTextById).includes(citationId) && (
-                          <div className="verses ml-10">
+                          <div className="verses ml-5 lg:ml-10">
                             {parseBibleText(bibleTextById[citationId])}
                           </div>
                         )}
@@ -231,22 +272,7 @@ const HomePage = ({
         />
         <div className="citations pt-5 mb-24">
           <h3>Passage Cited by:</h3>
-          {result.citedBy.map((id) => (
-            <div className="show-more">
-              <p className="">
-                {parseConfessionId(id)}
-                <button
-                  type="submit"
-                  onClick={() => handleShowMore(id)}
-                >
-                  {showMore.includes(id) ? '(Hide Citation)' : '(Show Citation)'}
-                </button>
-              </p>
-              {showMore.includes(id) && (
-                <p className="pl-2 my-2 border-l-4">{contentById[removeCitationId(id)]}</p>
-              )}
-            </div>
-          ))}
+          {renderCitedBy(result.citedBy)}
         </div>
       </li>
     );
@@ -260,6 +286,9 @@ const HomePage = ({
         <title>{pgTitle}</title>
         <meta property="og:title" content={pgTitle} key="title" />
         <meta property="og:image" content="/preview-img.png" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:domain" value="confessionalchristianity.com" />
+        <meta property="og:twitter-image" content="/preview-img.png" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
@@ -293,7 +322,7 @@ export async function getStaticProps() {
           .reduce((asObj, obj) => {
             return {
               ...asObj,
-              [obj.id]: obj.text || '',
+              [obj.id]: obj,
             };
           }, {});
         return Promise.resolve({
