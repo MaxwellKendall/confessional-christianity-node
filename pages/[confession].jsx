@@ -50,19 +50,22 @@ export default ({
             <h3 className="text-center text-2xl mx-auto max-w-2xl">{obj.title}</h3>
           );
         }
+
         return (
           <div className="pl-10 my-12">
-            <h4 className="text-xl max-w-2xl">{obj.title}</h4>
+            <h4 className="text-xl">{obj.title}</h4>
             <p>{obj.text}</p>
-            {/* <ul className="mt-10">
-              {Object
-                .entries(obj.verses)
-                .map(([key, verse]) => (
-                  <li>
-                    <p>{`${key.toUpperCase()}: ${verse}`}</p>
-                  </li>
-                ))}
-            </ul> */}
+            {Object.keys(obj).includes('verses') && (
+              <ul className="mt-10">
+                {Object
+                  .entries(obj.verses)
+                  .map(([key, verses]) => (
+                    <li>
+                      <p>{`${key.toUpperCase()}: ${verses.map((v) => ` ${parseOsisBibleReference(v)}`)}`}</p>
+                    </li>
+                  ))}
+              </ul>
+            )}
           </div>
         );
       });

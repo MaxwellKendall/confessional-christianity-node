@@ -145,7 +145,7 @@ export const parseOsisBibleReference = (osisStr) => {
     return osisStr
       .split(',')
       .map((s) => parseOsisBibleReference(s))
-      .join(', ');
+      .join(',');
   }
   const splitStr = osisStr.split('-');
   return splitStr

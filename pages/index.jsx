@@ -112,7 +112,7 @@ const HomePage = ({
   return (
     <div className="home flex flex-col p-8 w-full my-24">
       <h1 className="text-center text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
-      <input type="text" className="home-pg-search border border-gray-500 rounded-full leading-10 w-full lg:w-1/2 my-24 mx-auto outline-none pl-12" value={searchTerm} onChange={handleSearchInput} onKeyDown={handleSubmit} />
+      <input type="text" className="home-pg-search border border-gray-500 rounded-full leading-10 w-full lg:w-1/2 my-24 mx-auto outline-none pl-12 py-2" value={searchTerm} onChange={handleSearchInput} onKeyDown={handleSubmit} />
       <ul className="results w-full lg:w-1/2 mx-auto">
         {areResultsPristine && prePopulatedSearchResults.map((obj) => renderResults(obj))}
         {!areResultsPristine && searchResults.map((obj) => renderResults(obj))}
