@@ -3,11 +3,14 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { groupBy } from 'lodash';
 
-import { confessionCitationByIndex, confessionPathByName } from '../helpers';
+import { confessionPathByName, confessionCitationByIndex } from '../dataMapping';
 import { parseOsisBibleReference } from '../scripts/helpers';
 
 export const getStaticProps = async (context) => {
-  const pathToConfession = path.join(process.cwd(), confessionPathByName[context.params.confession]);
+  const pathToConfession = path.join(
+    process.cwd(),
+    confessionPathByName[context.params.confession],
+  );
   const fileContents = await fs.readFile(pathToConfession, 'utf8');
   return {
     props: {

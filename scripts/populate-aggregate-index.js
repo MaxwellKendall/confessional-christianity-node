@@ -29,13 +29,11 @@ const addFileContentsToIndex = (filePath) => new Promise((resolve) => {
     return content.reduce((prevPromise, d, i, arr) => {
       const isLast = arr.length === i - 1;
       if (isLast) {
-        return prevPromise.then(() => {
-          return addRecordToIndex(aggIndex, {
-            ...d,
-            document: title,
-          })
-            .then(() => resolve(title));
-        });
+        return prevPromise.then(() => addRecordToIndex(aggIndex, {
+          ...d,
+          document: title,
+        })
+          .then(() => resolve(title)));
       }
       return prevPromise.then(() => addRecordToIndex(aggIndex, {
         ...d,

@@ -13,20 +13,23 @@ import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { confessionPathByName, parseConfessionId, getCitationContextById, confessionCitationByIndex } from '../helpers';
-import { getConfessionalAbbreviationId, parseOsisBibleReference } from '../scripts/helpers';
+import {
+  confessionPathByName,
+  confessionCitationByIndex,
+} from '../dataMapping';
+
+import { parseConfessionId, getCitationContextById } from '../helpers';
+import { parseOsisBibleReference } from '../scripts/helpers';
 
 const baseUrl = 'https://api.esv.org/v3/passage/text';
-const getQueryParams = (bibleText) => {
-  return queryString.stringify({
-    q: bibleText,
-    'content-type': 'json',
-    'include-passage-references': false,
-    'include-footnotes': false,
-    'include-footnote-body': false,
-    'include-headings': false,
-  });
-};
+const getQueryParams = (bibleText) => queryString.stringify({
+  q: bibleText,
+  'content-type': 'json',
+  'include-passage-references': false,
+  'include-footnotes': false,
+  'include-footnote-body': false,
+  'include-headings': false,
+});
 
 const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
 const client = algoliasearch(
@@ -66,6 +69,9 @@ const defaultQueries = [
   },
 ];
 
+const documentFacetRegex = new RegExp(/document:(WCF|Westminster\sConfession\sof\sFaith|westminster\sconfession\sof\sfaith|HC|Heidelberg\sCatechism|heidelberg\scatechism|WSC|Westminster\sShorter\sCatechism|westminster\sshorter\scatechism|WLC|Westminser\sLarger\sCatechism|westminster\slarger\scatechism)/);
+const chapterFacetRegex = new RegExp(/chapter:[0-9]*|lord's\sday:[0-9]*|lords\sday:[0-9]*|question|Question|answer|Answer/);
+
 const HomePage = ({
   prePopulatedSearchResults,
   prePopulatedQuery,
@@ -81,11 +87,26 @@ const HomePage = ({
   const [showMore, setShowMore] = useState([]);
   const [bibleTextById, setBibleTextById] = useState({});
 
+  const parseFacets = (str) => {
+    const document = str.match(documentFacetRegex);
+    const chapter = str.match(chapterFacetRegex);
+
+    if (document && chapter) return [document[0]].concat(chapter[0]);
+    if (document) return [document[0]];
+    if (chapter) return [chapter[0]];
+    return [];
+  };
+
   const fetchResults = throttle(() => {
+    const facetFilters = parseFacets(search);
     setIsLoading(true);
     if (areResultsPristine) setAreResultsPristine(false);
     if (searchTerm !== search) setSearchTerm(search);
-    client.multipleQueries(defaultQueries.map((obj) => ({ ...obj, query: search })))
+    client.multipleQueries(defaultQueries.map((obj) => ({
+      ...obj,
+      query: search.replace(chapterFacetRegex, '').replace(documentFacetRegex, ''),
+      facetFilters,
+    })))
       .then(({ results }) => {
         setIsLoading(false);
         const parsedResults = results
@@ -121,8 +142,7 @@ const HomePage = ({
   const handleShowMore = (id) => {
     if (showMore.includes(id)) {
       setShowMore(showMore.filter((str) => str !== id));
-    }
-    else {
+    } else {
       setShowMore(showMore.concat([id]));
     }
   };
@@ -164,46 +184,42 @@ const HomePage = ({
       ));
   };
 
-  const parseConfessionText = (obj, id) => {
+  const parseConfessionText = (obj, id) => (
+    <div className="my-4 w-full ml-10 flex flex-col">
+      {Object.keys(obj).includes('title') && (
+        <h4 className="pl-4 border-l-4">{obj.title}</h4>
+      )}
+      {Object.keys(obj).includes('text') && (
+        <p className="pl-4 border-l-4">{obj.text}</p>
+      )}
+      <p className="pl-8 border-l-4 py-4 font-bold">{`~ ${parseConfessionId(id)}`}</p>
+    </div>
+  );
+
+  const renderCitedBy = (citedBy) => citedBy.map((id, i) => {
+    const confessionName = confessionCitationByIndex[getCitationContextById(id, 1)][0];
+    // chapter where scripture is cited etc...
+    const citationTitle = confessionName.includes('Heidelberg')
+      ? contentById[getCitationContextById(id, 3)].title
+      : contentById[getCitationContextById(id, 2)].title;
+
+    const idWithoutCitation = getCitationContextById(id, id.split('-').length - 1);
     return (
-      <div className="my-4 w-full ml-10 flex flex-col">
-        {Object.keys(obj).includes('title') && (
-          <h4 className="pl-4 border-l-4">{obj.title}</h4>
-        )}
-        {Object.keys(obj).includes('text') && (
-          <p className="pl-4 border-l-4">{obj.text}</p>
-        )}
-        <p className="pl-8 border-l-4 py-4 font-bold">{`~ ${parseConfessionId(id)}`}</p>
+      <div className="pl-4 py-2">
+        <p>
+          {`${i + 1}. ${confessionName} ${citationTitle}`}
+          <button
+            type="submit"
+            className="cursor-pointer mx-1 text-base focus:outline-none"
+            onClick={() => handleShowMore(id)}
+          >
+            {showMore.includes(id) ? '(SHOW LESS)' : '(SHOW MORE)'}
+          </button>
+        </p>
+        {showMore.includes(id) && parseConfessionText(contentById[idWithoutCitation], id)}
       </div>
     );
-  };
-
-  const renderCitedBy = (citedBy) => {
-    return citedBy.map((id, i) => {
-      const confessionName = confessionCitationByIndex[getCitationContextById(id, 1)][0];
-      // chapter where scripture is cited etc...
-      const citationTitle = confessionName.includes('Heidelberg')
-        ? contentById[getCitationContextById(id, 3)].title
-        : contentById[getCitationContextById(id, 2)].title;
-
-      const idWithoutCitation = getCitationContextById(id, id.split('-').length - 1);
-      return (
-        <div className="pl-4 py-2">
-          <p>
-            {`${i + 1}. ${confessionName} ${citationTitle}`}
-            <button
-              type="submit"
-              className="cursor-pointer mx-1 text-base focus:outline-none"
-              onClick={() => handleShowMore(id)}
-            >
-              {showMore.includes(id) ? '(SHOW LESS)' : '(SHOW MORE)'}
-            </button>
-          </p>
-          {showMore.includes(id) && parseConfessionText(contentById[idWithoutCitation], id)}
-        </div>
-      );
-    });
-  };
+  });
 
   const renderResults = (result) => {
     if (result.index === 'aggregate') {
@@ -211,6 +227,9 @@ const HomePage = ({
       return (
         <li className="w-full flex flex-col justify-center mb-24">
           <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{`The ${result.document}`}</h2>
+          {result.document !== contentById[result.parent].title && (
+            <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{contentById[result.parent].title}</h3>
+          )}
           <Highlighter className="text-2xl" textToHighlight={result.title} searchWords={result._highlightResult.title.matchedWords} highlightClassName="search-result-matched-word" />
           {text && (
             <Highlighter className="mt-4" textToHighlight={result.text} searchWords={result._highlightResult.text.matchedWords} highlightClassName="search-result-matched-word" />
@@ -302,8 +321,10 @@ const HomePage = ({
             </p>
           </li>
         )}
-        {areResultsPristine && !isLoading && prePopulatedSearchResults.map((obj) => renderResults(obj))}
-        {!areResultsPristine && !isLoading && searchResults.map((obj) => renderResults(obj))}
+        {areResultsPristine && !isLoading && (
+          prePopulatedSearchResults.map((obj) => renderResults(obj))
+        )}
+        {!areResultsPristine && !isLoading && searchResults.filter((obj) => Object.keys(obj).includes('text')).map((obj) => renderResults(obj))}
       </ul>
     </div>
   );
@@ -313,24 +334,20 @@ export async function getStaticProps() {
   // will be passed to the page component as props
   const contentById = await Object
     .entries(confessionPathByName)
-    .reduce((prevPromise, [key, value]) => {
-      return prevPromise.then(async (acc) => {
-        const pathToConfession = path.join(process.cwd(), value);
-        const fileContents = await fs.readFile(pathToConfession, 'utf8');
-        const parsed = JSON.parse(fileContents);
-        const asObject = parsed.content
-          .reduce((asObj, obj) => {
-            return {
-              ...asObj,
-              [obj.id]: obj,
-            };
-          }, {});
-        return Promise.resolve({
-          ...acc,
-          ...asObject,
-        });
+    .reduce((prevPromise, [key, value]) => prevPromise.then(async (acc) => {
+      const pathToConfession = path.join(process.cwd(), value);
+      const fileContents = await fs.readFile(pathToConfession, 'utf8');
+      const parsed = JSON.parse(fileContents);
+      const asObject = parsed.content
+        .reduce((asObj, obj) => ({
+          ...asObj,
+          [obj.id]: obj,
+        }), {});
+      return Promise.resolve({
+        ...acc,
+        ...asObject,
       });
-    }, Promise.resolve({}));
+    }), Promise.resolve({}));
 
   const resp = await aggIndex.search(prePopulatedSearch.query, {
     facetFilters: facets,

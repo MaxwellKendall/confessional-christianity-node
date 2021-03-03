@@ -1,7 +1,5 @@
 const escapeCharRegex = RegExp(/\\/);
 const newLineCharRegex = RegExp(/\n/);
-const yamlExtensionRegExp = RegExp(/.yaml/);
-
 export const removeFormattingForString = (str) => str
   .split('')
   .map((char) => {
@@ -24,7 +22,7 @@ const removeFormattingForObjects = (obj) => {
         }
         return data;
       });
-}
+  }
   return Object
     .keys(obj)
     .reduce((acc, key) => {
@@ -72,6 +70,7 @@ const removeFormatting = (json) => {
             ...acc,
             [key.key]: removeFormattingForObjects(acc[key.key]),
           };
+        default: return acc;
       }
     }, json);
 };

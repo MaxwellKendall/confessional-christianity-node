@@ -1,11 +1,5 @@
-export const removeJsonExtension = new RegExp(/.json$/);
+import { confessionCitationByIndex } from '../dataMapping';
 
-export const confessionCitationByIndex = {
-  WCoF: ['Westminster Confession of Faith', 'Chapter', 'Article', 'Scripture Citation'],
-  HC: ['Heidelberg Catechism', 'LORD\'s Day', 'Question and Answer', 'Scripture Citation'],
-  WSC: ['Westminster Shorter Catechism', 'Question and Answer', 'Scripture Citation'],
-  WLC: ['Westminster Larger Catechism', 'Question and Answer', 'Scripture Citation'],
-};
 export const parseConfessionId = (id) => {
   const fragments = id.split('-');
   return fragments.reduce((acc, frag, i, src) => {
@@ -16,13 +10,4 @@ export const parseConfessionId = (id) => {
   }, '');
 };
 
-export const confessionPathByName = {
-  'westminster-confession-of-faith': 'normalized-data/westminster/wcf.json',
-  'westminster-larger-catechism': 'normalized-data/westminster/wlc.json',
-  'westminster-shorter-catechism': 'normalized-data/westminster/wsc.json',
-  'heidelberg-catechism': 'normalized-data/three-forms-of-unity/heidelberg-catechism.json',
-};
-
-export const getCitationContextById = (id, idPositions = 1) => {
-  return id.split('-').slice(0, idPositions).join('-');
-};
+export const getCitationContextById = (id, idPositions = 1) => id.split('-').slice(0, idPositions).join('-');

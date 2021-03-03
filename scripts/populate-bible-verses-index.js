@@ -20,7 +20,7 @@ let start = Date.now();
 
 const logTime = (end) => {
   const elapsed = end - start;
-  console.log("TIME SINCE LAST INVOCATION: ---- **********", Math.floor(elapsed / 1000));
+  console.log('TIME SINCE LAST INVOCATION: ---- **********', Math.floor(elapsed / 1000));
   start = Date.now();
 };
 
@@ -28,16 +28,14 @@ const logTime = (end) => {
 // const baseUrl = 'https://api.scripture.api.bible/v1/bibles/06125adad2d5898a-01/passages';
 const baseUrl = 'https://api.esv.org/v3/passage/text';
 
-const getQueryParams = (bibleText) => {
-  return queryString.stringify({
-    q: bibleText,
-    'content-type': 'json',
-    'include-passage-references': false,
-    'include-footnotes': false,
-    'include-footnote-body': false,
-    'include-headings': false,
-  });
-};
+const getQueryParams = (bibleText) => queryString.stringify({
+  q: bibleText,
+  'content-type': 'json',
+  'include-passage-references': false,
+  'include-footnotes': false,
+  'include-footnote-body': false,
+  'include-headings': false,
+});
 
 const areWeThrottled = (resp) => {
   if (Object.keys(resp).includes('detail')) {
@@ -75,14 +73,12 @@ const getBibleVerse = (bibleText, { citedBy }) => {
         return { isThrottled: true, detail: resp.detail };
       }
       return new Promise((resolve) => {
-        setTimeout(() => {
-          return resolve({
-            citedBy,
-            citation: canonical,
-            id: bibleText,
-            bibleText: parsedPassage,
-          });
-        }, esvFetchInterval);
+        setTimeout(() => resolve({
+          citedBy,
+          citation: canonical,
+          id: bibleText,
+          bibleText: parsedPassage,
+        }), esvFetchInterval);
       });
     })
     .catch((e) => {
@@ -91,34 +87,32 @@ const getBibleVerse = (bibleText, { citedBy }) => {
     });
 };
 
-const getAllBibleVerses = (allCitations) => {
-  return Object.keys(allCitations)
-    .reduce((acc, c, i, srcArr) => {
-      const isLast = srcArr.length === i + 1;
-      return acc
-        .then((data) => {
-          if (data && Object.keys(data).includes('isThrottled')) {
-            console.log(`We are throttled: ${data.detail}`);
-            return Promise.resolve(data);
-          }
-          if (data) {
-            return addRecordToIndex(bibleIndex, data)
-              .then(() => {
-                if (isLast) {
-                  return getBibleVerse(c, allCitations[c])
-                    .then((d) => addRecordToIndex(bibleIndex, d));
-                }
-                return getBibleVerse(c, allCitations[c]);
-              });
-          }
-          return getBibleVerse(c, allCitations[c]);
-        })
-        .catch((e) => {
-          console.error('Error fetching bible verses', e);
-          throw e;
-        });
-    }, Promise.resolve(null));
-};
+const getAllBibleVerses = (allCitations) => Object.keys(allCitations)
+  .reduce((acc, c, i, srcArr) => {
+    const isLast = srcArr.length === i + 1;
+    return acc
+      .then((data) => {
+        if (data && Object.keys(data).includes('isThrottled')) {
+          console.log(`We are throttled: ${data.detail}`);
+          return Promise.resolve(data);
+        }
+        if (data) {
+          return addRecordToIndex(bibleIndex, data)
+            .then(() => {
+              if (isLast) {
+                return getBibleVerse(c, allCitations[c])
+                  .then((d) => addRecordToIndex(bibleIndex, d));
+              }
+              return getBibleVerse(c, allCitations[c]);
+            });
+        }
+        return getBibleVerse(c, allCitations[c]);
+      })
+      .catch((e) => {
+        console.error('Error fetching bible verses', e);
+        throw e;
+      });
+  }, Promise.resolve(null));
 
 const readFile = (filePath) => {
   let data = '';
