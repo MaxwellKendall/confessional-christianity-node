@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-underscore-dangle */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -17,7 +17,10 @@ import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import BibleTextResult from '../components/BibleTextResult';
 import SEO from '../components/SEO';
 import {
-  allResultsAreSameConfession, areResultsChaptersOnly, areResultsUniformChapter, getUniformConfessionTitle,
+  allResultsAreSameConfession,
+  areResultsChaptersOnly,
+  areResultsUniformChapter,
+  getUniformConfessionTitle,
 } from '../helpers';
 
 const client = algoliasearch(
@@ -103,7 +106,6 @@ const chapterFacetRegex = new RegExp(/.*chapter:([0-9]*|lord's\sday:[0-9]*|lords
 
 const handleSortById = (a, b) => {
   if (Object.keys(a).includes('number')) {
-    console.log('test sort a', a.number, a.title);
     if (a.number > b.number) return 1;
     if (b.number > a.number) return -1;
     return 0;
@@ -113,6 +115,8 @@ const handleSortById = (a, b) => {
   if (parseInt(idB[idB.length - 1], 10) < parseInt(idA[idA.length - 1], 10)) return 1;
   return 0;
 };
+
+const stickyBreakPoint = 41;
 
 const HomePage = ({
   prePopulatedSearchResults,
@@ -131,6 +135,8 @@ const HomePage = ({
   const [areResultsSameChapter, setAreResultsSameChapter] = useState(false);
   const [currentPg, setCurrentPg] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+  const [isSticky, setSticky] = useState(false);
+  const searchRef = useRef();
 
   const parseFacets = (str) => {
     const document = documentFacetRegex.exec(str);
@@ -139,6 +145,22 @@ const HomePage = ({
     if (document) return [`parent:${parentIdByAbbreviation[document[1]]}`];
     return [];
   };
+
+  const handleScroll = throttle(() => {
+    if (searchRef.current) {
+      const { top } = searchRef.current.getBoundingClientRect();
+      if (top < stickyBreakPoint) {
+        setSticky(true);
+      } else if (isSticky) {
+        setSticky(false);
+      }
+    }
+  }, 200);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const fetchResults = throttle(() => {
     const facetFilters = parseFacets(search);
@@ -157,7 +179,7 @@ const HomePage = ({
         setIsLoading(false);
         const hasMoreData = results.reduce((acc, { nbPages }) => {
           if (acc) return acc;
-          return currentPg < nbPages;
+          return currentPg < nbPages - 1;
         }, false);
         setHasMore(hasMoreData);
         const parsedResults = results
@@ -252,7 +274,16 @@ const HomePage = ({
     <div className="home flex flex-col p-8 w-full my-24">
       <SEO title={pgTitle} />
       <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
-      <input type="text" className="home-pg-search border border-gray-500 rounded-full leading-10 w-full lg:w-1/2 my-24 mx-auto outline-none pl-12 pr-4 py-2" value={searchTerm} onChange={handleSearchInput} onKeyDown={handleSubmit} />
+      <div className="w-full lg:w-1/2 my-24 mx-auto sticky top-0 pt-10 pb-5 z-10 bg-white">
+        <input
+          ref={searchRef}
+          type="text"
+          className={`${isSticky ? ' shadow-lg' : ''} home-pg-search border border-gray-500 rounded-full leading-10 outline-none w-full pl-12 pr-12 py-2`}
+          value={searchTerm}
+          onChange={handleSearchInput}
+          onKeyDown={handleSubmit}
+        />
+      </div>
       <ul className="results w-full lg:w-1/2 mx-auto">
         {isLoading && (
           <li className="w-full flex">
@@ -272,7 +303,6 @@ const HomePage = ({
         {!areResultsPristine && searchResults.length && (
           searchResults
             .sort((a, b) => {
-              console.log('sort', areResultsSameChapter || areResultsUniform);
               if (areResultsSameChapter || areResultsUniform) return handleSortById(a, b);
               return 0;
             })
