@@ -11,3 +11,38 @@ export const parseConfessionId = (id) => {
 };
 
 export const getCitationContextById = (id, idPositions = 1) => id.split('-').slice(0, idPositions).join('-');
+
+export const allResultsAreSameConfession = (results) => (
+  results.length
+  && results.reduce((acc, { id }, i, arr) => {
+    if (i === 0) return getCitationContextById(id);
+    const current = getCitationContextById(id);
+    const prev = getCitationContextById(arr[i - 1].id);
+    return (
+      acc
+      && prev === current
+    );
+  }, false)
+);
+
+export const getUniformConfessionTitle = ([result], idPosition = 1) => {
+  debugger;
+  return parseConfessionId(
+    getCitationContextById(result.id, idPosition)
+  );
+}
+
+export const areResultsChaptersOnly = (results) => results.length && results.every((o) => !Object.keys(o).includes('text'));
+
+export const areResultsUniformChapter = (results) => (
+  results.length
+  && results.reduce((acc, { id }, i, arr) => {
+    if (i === 0) return true;
+    const current = getCitationContextById(id, 2);
+    const prev = getCitationContextById(arr[i - 1].id, 2);
+    return (
+      acc
+      && prev === current
+    );
+  }, false)
+);

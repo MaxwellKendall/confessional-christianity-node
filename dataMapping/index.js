@@ -11,3 +11,11 @@ export const confessionPathByName = {
   'westminster-shorter-catechism': 'normalized-data/westminster/wsc.json',
   'heidelberg-catechism': 'normalized-data/three-forms-of-unity/heidelberg-catechism.json',
 };
+
+export const parentIdByAbbreviation = {
+  WCF: 'WCoF',
+  'WCOF': 'WCoF',
+  'HC': 'HC',
+  'WLC': 'WLC',
+  'WSC': 'WSC',
+};

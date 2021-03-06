@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react';
 import Highlighter from 'react-highlight-words';
+import { uniqueId } from 'lodash';
 
 import { parseConfessionId, getCitationContextById } from '../helpers';
 import { confessionCitationByIndex } from '../dataMapping';
@@ -60,7 +61,7 @@ const BibleTextResult = ({
   });
 
   return (
-    <li className="w-full flex flex-col justify-center">
+    <li key={uniqueId()} className="w-full flex flex-col justify-center">
       <Highlighter
         highlightClassName="search-result-matched-word"
         className="text-3xl lg:text-4xl w-full text-center mb-24"
