@@ -8,7 +8,7 @@ import { promises as fs } from 'fs';
 import algoliasearch from 'algoliasearch';
 import { groupBy, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInfoCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { confessionPathByName, parentIdByAbbreviation } from '../dataMapping';
 
@@ -29,7 +29,7 @@ const client = algoliasearch(
 );
 
 const aggIndex = client.initIndex('aggregate');
-const facets = ['document:Heidelberg Catechism'];
+const facets = ['parent:WCoF-3'];
 const prePopulatedSearch = { query: 'What is thy only comfort in life and death', index: 'aggregate' };
 
 const defaultQueries = [
@@ -82,7 +82,7 @@ export async function getStaticProps() {
     .reduce((acc, [, value]) => acc.concat([value]), []),
   (obj) => obj.parent);
 
-  const resp = await aggIndex.search(prePopulatedSearch.query, {
+  const resp = await aggIndex.search('', {
     facetFilters: facets,
     attributesToHighlight: [
       'text',
@@ -95,7 +95,7 @@ export async function getStaticProps() {
       chaptersById,
       prePopulatedSearchResults: resp.hits
         .map((obj) => ({ ...obj, index: prePopulatedSearch.index })),
-      prePopulatedQuery: prePopulatedSearch.query,
+      prePopulatedQuery: 'document:WCF chapter:3',
       contentById,
     },
   };
@@ -239,7 +239,9 @@ const HomePage = ({
         <ConfessionTextResult
           {...result}
           contentById={contentById}
-          document={areResultsUniform || areResultsSameChapter ? null : result.document}
+          document={(areResultsUniform || areResultsSameChapter || areResultsPristine)
+            ? null
+            : result.document}
         />
       );
     }
@@ -258,10 +260,11 @@ const HomePage = ({
   };
 
   const renderChapterTitle = () => {
-    const [result] = searchResults;
+    const [result] = areResultsPristine ? prePopulatedSearchResults : searchResults;
+    console.log('result', result);
     if (result.id.includes('WSC') || result.id.includes('WLC')) return null;
     return (
-      <h3 className="text-2xl lg:text-3xl w-full text-center mb-24">{contentById[searchResults[0].parent].title}</h3>
+      <h3 className="text-2xl lg:text-3xl w-full text-center mb-24">{contentById[result.parent].title}</h3>
     );
   };
 
@@ -294,13 +297,16 @@ const HomePage = ({
       )}
       {(searchResults.length || areResultsPristine) && (
         <ul className="results w-full lg:w-1/2 mx-auto">
-          {!areResultsPristine && areResultsUniform && (
-            <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{getUniformConfessionTitle(searchResults)}</h2>
+          {(areResultsPristine || areResultsUniform) && (
+            <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{getUniformConfessionTitle(areResultsPristine ? prePopulatedSearchResults : searchResults)}</h2>
           )}
-          {!isLoading && areResultsPristine && prePopulatedSearchResults.map(renderResults)}
-          {!areResultsPristine && areResultsSameChapter && (
+          {(areResultsPristine || areResultsSameChapter) && (
             renderChapterTitle()
           )}
+          {!isLoading && areResultsPristine && prePopulatedSearchResults
+            .sort(handleSortById)
+            .map(renderResults)
+          }
           {!areResultsPristine && (
             searchResults
               .sort((a, b) => {
