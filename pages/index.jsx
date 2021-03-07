@@ -6,9 +6,9 @@ import { useRouter } from 'next/router';
 import path from 'path';
 import { promises as fs } from 'fs';
 import algoliasearch from 'algoliasearch';
-import { groupBy, set, throttle } from 'lodash';
+import { groupBy, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faInfoCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { confessionPathByName, parentIdByAbbreviation } from '../dataMapping';
 
@@ -273,7 +273,9 @@ const HomePage = ({
   return (
     <div className="home flex flex-col p-8 w-full my-24">
       <SEO title={pgTitle} />
-      <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
+      <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
+        Confessional Christianity
+      </h1>
       <div className="w-full lg:w-1/2 my-24 mx-auto sticky top-0 pt-10 pb-5 z-10 bg-white">
         <input
           ref={searchRef}
@@ -284,39 +286,42 @@ const HomePage = ({
           onKeyDown={handleSubmit}
         />
       </div>
-      <ul className="results w-full lg:w-1/2 mx-auto">
-        {isLoading && (
-          <li className="w-full flex">
-            <p className="text-xl w-full text-center">
-              <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
-              Fetching your search results...
-            </p>
-          </li>
-        )}
-        {searchResults.length && !areResultsPristine && areResultsUniform && (
-          <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{`The ${getUniformConfessionTitle(searchResults)}`}</h2>
-        )}
-        {!isLoading && areResultsPristine && prePopulatedSearchResults.map(renderResults)}
-        {searchResults.length && !areResultsPristine && areResultsSameChapter && (
-          renderChapterTitle()
-        )}
-        {!areResultsPristine && searchResults.length && (
-          searchResults
-            .sort((a, b) => {
-              if (areResultsSameChapter || areResultsUniform) return handleSortById(a, b);
-              return 0;
-            })
-            .map(renderResults)
-        )}
-        {isLoading && searchResults.length && (
-          <li className="w-full flex">
-            <p className="text-xl w-full text-center">
-              <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
-              Loading more...
-            </p>
-          </li>
-        )}
-      </ul>
+      {isLoading && (
+      <p className="text-xl w-full text-center">
+        <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
+        Fetching your search results...
+      </p>
+      )}
+      {(searchResults.length || areResultsPristine) && (
+        <ul className="results w-full lg:w-1/2 mx-auto">
+          {!areResultsPristine && areResultsUniform && (
+            <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{getUniformConfessionTitle(searchResults)}</h2>
+          )}
+          {!isLoading && areResultsPristine && prePopulatedSearchResults.map(renderResults)}
+          {!areResultsPristine && areResultsSameChapter && (
+            renderChapterTitle()
+          )}
+          {!areResultsPristine && (
+            searchResults
+              .sort((a, b) => {
+                if (areResultsSameChapter || areResultsUniform) return handleSortById(a, b);
+                return 0;
+              })
+              .map(renderResults)
+          )}
+        </ul>
+      )}
+      {isLoading && searchResults.length && (
+      <p className="text-xl w-full text-center">
+        <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
+        Loading more...
+      </p>
+      )}
+      {!isLoading && !areResultsPristine && !searchResults.length && (
+        <p className="text-xl w-full text-center">
+          No results found.
+        </p>
+      )}
       {hasMore && !isLoading && (
         <button type="submit" onClick={handleLoadMore}>LOAD MORE</button>
       )}

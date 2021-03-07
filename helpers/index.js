@@ -25,9 +25,14 @@ export const allResultsAreSameConfession = (results) => (
   }, false)
 );
 
-export const getUniformConfessionTitle = ([result], idPosition = 1) => parseConfessionId(
-  getCitationContextById(result.id, idPosition),
-);
+export const getUniformConfessionTitle = ([result], idPosition = 1) => {
+  if (result.index === 'aggregate') {
+    return `The ${parseConfessionId(
+      getCitationContextById(result.id, idPosition),
+    )}`;
+  }
+  return '';
+};
 
 export const areResultsChaptersOnly = (results) => results.length && results.every((o) => !Object.keys(o).includes('text'));
 
