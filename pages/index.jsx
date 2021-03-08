@@ -10,7 +10,7 @@ import { groupBy, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { confessionPathByName, parentIdByAbbreviation } from '../dataMapping';
+import { confessionCitationByIndex, confessionPathByName, parentIdByAbbreviation } from '../dataMapping';
 
 import ConfessionTextResult from '../components/ConfessionTextResult';
 import ConfessionChapterResult from '../components/ConfessionChapterResult';
@@ -102,7 +102,8 @@ export async function getStaticProps() {
 }
 
 const documentFacetRegex = new RegExp(/document:(WCF|Westminster\sConfession\sof\sFaith|westminster\sconfession\sof\sfaith|HC|Heidelberg\sCatechism|heidelberg\scatechism|WSC|Westminster\sShorter\sCatechism|westminster\sshorter\scatechism|WLC|Westminster\sLarger\sCatechism|westminster\slarger\scatechism)/);
-const chapterFacetRegex = new RegExp(/.*chapter:([0-9]*|lord's\sday:[0-9]*|lords\sday:[0-9]*|question:[0-9]*|Question:[0-9]*|answer:[0-9]*|Answer:[0-9]*).*/);
+const chapterFacetRegex = new RegExp(/chapter:([0-9]*|lord's\sday:[0-9]*|lords\sday:[0-9]*|question:[0-9]*|Question:[0-9]*|answer:[0-9]*|Answer:[0-9]*)/);
+const articleFacetRegex = new RegExp(/Article|article:([0-9]*)/);
 
 const handleSortById = (a, b) => {
   if (Object.keys(a).includes('number')) {
@@ -117,6 +118,7 @@ const handleSortById = (a, b) => {
 };
 
 const stickyBreakPoint = 41;
+const confessions = ['wcf', 'wlc', 'wsc', 'hc'];
 
 const HomePage = ({
   prePopulatedSearchResults,
@@ -139,10 +141,19 @@ const HomePage = ({
   const searchRef = useRef();
 
   const parseFacets = (str) => {
-    const document = documentFacetRegex.exec(str);
+    const document = documentFacetRegex
+      .exec(str)[1]
+      .split(' ')
+      .map((s) => {
+        if (confessions.includes(s.toLowerCase())) return s.toUpperCase();
+        return s[0].toUpperCase();
+      })
+      .join('');
     const chapter = chapterFacetRegex.exec(str);
-    if (document && chapter) return [`parent:${parentIdByAbbreviation[document[1]]}-${chapter[1]}`];
-    if (document) return [`parent:${parentIdByAbbreviation[document[1]]}`];
+    const article = articleFacetRegex.exec(str);
+    if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}-${article[1]}`];
+    if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter[1]}`];
+    if (document) return [`document:${confessionCitationByIndex[document][0]}`];
     return [];
   };
 
@@ -169,9 +180,10 @@ const HomePage = ({
     if (searchTerm !== search) setSearchTerm(search);
     setAreResultsUniform(false);
     setAreResultsSameChapter(false);
+    const queryWithoutFacetFilters = search.replace(chapterFacetRegex, '').replace(documentFacetRegex, '').replace(articleFacetRegex, '');
     client.multipleQueries(defaultQueries.map((obj) => ({
       ...obj,
-      query: search.replace(chapterFacetRegex, '').replace(documentFacetRegex, ''),
+      query: queryWithoutFacetFilters,
       page: currentPg,
       facetFilters,
     })))
@@ -239,9 +251,9 @@ const HomePage = ({
         <ConfessionTextResult
           {...result}
           contentById={contentById}
-          document={(areResultsUniform || areResultsSameChapter || areResultsPristine)
-            ? null
-            : result.document}
+          document={result.document}
+          hideChapterTitle={(areResultsSameChapter || areResultsPristine)}
+          hideDocumentTitle={(areResultsUniform || areResultsSameChapter || areResultsPristine)}
         />
       );
     }
@@ -250,7 +262,11 @@ const HomePage = ({
         <ConfessionChapterResult
           {...result}
           contentById={contentById}
-          data={chaptersById[result.id]}
+          data={chaptersById[result.id].map((obj) => ({
+            ...obj,
+            hideChapterTitle: true,
+            hideDocumentTitle: (areResultsUniform || areResultsSameChapter || areResultsPristine),
+          }))}
         />
       );
     }
@@ -261,7 +277,7 @@ const HomePage = ({
 
   const renderChapterTitle = () => {
     const [result] = areResultsPristine ? prePopulatedSearchResults : searchResults;
-    console.log('result', result);
+
     if (result.id.includes('WSC') || result.id.includes('WLC')) return null;
     return (
       <h3 className="text-2xl lg:text-3xl w-full text-center mb-24">{contentById[result.parent].title}</h3>

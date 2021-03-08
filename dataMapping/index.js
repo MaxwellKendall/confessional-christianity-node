@@ -1,5 +1,7 @@
 export const confessionCitationByIndex = {
+  WCF: ['Westminster Confession of Faith', 'Chapter', 'Article', 'Scripture Citation'],
   WCoF: ['Westminster Confession of Faith', 'Chapter', 'Article', 'Scripture Citation'],
+  WCOF: ['Westminster Confession of Faith', 'Chapter', 'Article', 'Scripture Citation'],
   HC: ['Heidelberg Catechism', 'LORD\'s Day', 'Question and Answer', 'Scripture Citation'],
   WSC: ['Westminster Shorter Catechism', 'Question and Answer', 'Scripture Citation'],
   WLC: ['Westminster Larger Catechism', 'Question and Answer', 'Scripture Citation'],

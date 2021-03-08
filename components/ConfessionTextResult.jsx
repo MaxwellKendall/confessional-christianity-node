@@ -23,11 +23,13 @@ const getQueryParams = (bibleText) => queryString.stringify({
 const ConfessionTextResult = ({
   contentById,
   _highlightResult = null,
-  document = null,
+  document = '',
   text = '',
   title,
   id: confessionId,
   parent: parentId,
+  hideDocumentTitle = false,
+  hideChapterTitle = false,
   verses = {},
 }) => {
   const [bibleTextById, setBibleTextById] = useState({});
@@ -113,7 +115,7 @@ const ConfessionTextResult = ({
 
   const renderTitle = () => {
     if (confessionId.includes('WSC') || confessionId.includes('WLC')) return null;
-    if (document && document !== contentById[parentId].title) {
+    if (!hideChapterTitle && document.toUpperCase() !== contentById[parentId].title.toUpperCase()) {
       return <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{contentById[parentId].title}</h3>;
     }
     return null;
@@ -121,7 +123,7 @@ const ConfessionTextResult = ({
 
   return (
     <li key={uniqueId(confessionId)} className="w-full flex flex-col justify-center mb-24">
-      {document && <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{`The ${document}`}</h2>}
+      {document && !hideDocumentTitle && <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{`The ${document}`}</h2>}
       {renderTitle()}
       {_highlightResult && (
         <>
