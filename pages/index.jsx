@@ -25,6 +25,7 @@ import {
   chapterFacetRegex,
   articleFacetRegex,
   parseFacets,
+  parseConfessionId,
 } from '../helpers';
 
 const client = algoliasearch(
@@ -213,43 +214,54 @@ const HomePage = ({
     setSearchTerm(e.target.value);
   };
 
-  const renderResults = (result) => {
-    if (result.index === 'aggregate' && Object.keys(result).includes('text')) {
-      return (
-        <ConfessionTextResult
-          {...result}
-          contentById={contentById}
-          document={result.document}
-          hideChapterTitle={(areResultsSameChapter || areResultsPristine)}
-          hideDocumentTitle={(areResultsUniform || areResultsSameChapter || areResultsPristine)}
-        />
-      );
-    }
-    if (result.index === 'aggregate') {
-      return (
-        <ConfessionChapterResult
-          {...result}
-          contentById={contentById}
-          data={chaptersById[result.id].map((obj) => ({
-            ...obj,
-            hideChapterTitle: true,
-            hideDocumentTitle: (areResultsUniform || areResultsSameChapter || areResultsPristine),
-          }))}
-        />
-      );
-    }
-    return (
-      <BibleTextResult contentById={contentById} {...result} />
-    );
-  };
+  const renderResults = () => {
+    const groupedResults = groupBy(searchResults, (obj) => {
+      if (obj.index === 'aggregate') return obj.document;
+      return 'bible';
+    });
 
-  const renderChapterTitle = () => {
-    const [result] = areResultsPristine ? prePopulatedSearchResults : searchResults;
-
-    // Question title is included in the result object for these confessions 👇
-    if (result.id.includes('WSC') || result.id.includes('WLC')) return null;
+    const groupedListOfResults = Object
+      .entries(groupedResults)
+      .reduce((acc, [documentTitle, results]) => {
+        if (documentTitle === 'bible') return acc.concat(results.map((result) => <BibleTextResult contentById={contentById} {...result} />));
+        const groupedByChapter = groupBy(results, (obj) => obj.parent);
+        return (
+          <li>
+            <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">
+              {documentTitle}
+            </h2>
+            <ul>
+              {Object
+                .keys(groupedByChapter)
+                .map((chapterId) => {
+                  const chapterTitle = getUniformConfessionTitle(groupedByChapter[chapterId], 2);
+                  // should be true for WSC and WLC
+                  if (chapterTitle.toUpperCase() === documentTitle.toUpperCase()) {
+                    return results
+                      .map((result) => (
+                        <ConfessionTextResult
+                          {...result}
+                          hideChapterTitle
+                          hideDocumentTitle
+                        />
+                      ));
+                  }
+                  return (
+                    <ConfessionChapterResult
+                      title={chapterTitle}
+                      data={results.sort(handleSortById)}
+                      contentById={contentById}
+                    />
+                  );
+                })}
+            </ul>
+          </li>
+        );
+      }, []);
     return (
-      <h3 className="text-2xl lg:text-3xl w-full text-center mb-24">{contentById[result.parent].title}</h3>
+      <ul className="results w-full lg:w-1/2 mx-auto">
+        {groupedListOfResults}
+      </ul>
     );
   };
 
@@ -275,32 +287,12 @@ const HomePage = ({
         />
       </div>
       {isLoading && (
-      <p className="text-xl w-full text-center">
-        <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
-        Fetching your search results...
-      </p>
+        <p className="text-xl w-full text-center">
+          <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
+          Fetching your search results...
+        </p>
       )}
-      {(searchResults.length || areResultsPristine) && (
-        <ul className="results w-full lg:w-1/2 mx-auto">
-          {(areResultsPristine || areResultsUniform) && (
-            <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{getUniformConfessionTitle(areResultsPristine ? prePopulatedSearchResults : searchResults)}</h2>
-          )}
-          {(areResultsPristine || areResultsSameChapter) && (
-            renderChapterTitle()
-          )}
-          {!isLoading && areResultsPristine && prePopulatedSearchResults
-            .sort(handleSortById)
-            .map(renderResults)}
-          {!areResultsPristine && (
-            searchResults
-              .sort((a, b) => {
-                if (areResultsSameChapter || areResultsUniform) return handleSortById(a, b);
-                return 0;
-              })
-              .map(renderResults)
-          )}
-        </ul>
-      )}
+      {renderResults()}
       {isLoading && searchResults.length && (
       <p className="text-xl w-full text-center">
         <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
