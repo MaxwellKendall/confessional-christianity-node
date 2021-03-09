@@ -10,7 +10,7 @@ import { groupBy, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { confessionCitationByIndex, confessionPathByName, parentIdByAbbreviation } from '../dataMapping';
+import { confessionPathByName } from '../dataMapping';
 
 import ConfessionTextResult from '../components/ConfessionTextResult';
 import ConfessionChapterResult from '../components/ConfessionChapterResult';
@@ -18,9 +18,13 @@ import BibleTextResult from '../components/BibleTextResult';
 import SEO from '../components/SEO';
 import {
   allResultsAreSameConfession,
-  areResultsChaptersOnly,
   areResultsUniformChapter,
   getUniformConfessionTitle,
+  handleSortById,
+  documentFacetRegex,
+  chapterFacetRegex,
+  articleFacetRegex,
+  parseFacets,
 } from '../helpers';
 
 const client = algoliasearch(
@@ -101,24 +105,7 @@ export async function getStaticProps() {
   };
 }
 
-const documentFacetRegex = new RegExp(/document:(WCF|Westminster\sConfession\sof\sFaith|westminster\sconfession\sof\sfaith|HC|Heidelberg\sCatechism|heidelberg\scatechism|WSC|Westminster\sShorter\sCatechism|westminster\sshorter\scatechism|WLC|Westminster\sLarger\sCatechism|westminster\slarger\scatechism)/);
-const chapterFacetRegex = new RegExp(/chapter:([0-9]*|lord's\sday:[0-9]*|lords\sday:[0-9]*|question:[0-9]*|Question:[0-9]*|answer:[0-9]*|Answer:[0-9]*)/);
-const articleFacetRegex = new RegExp(/Article|article:([0-9]*)/);
-
-const handleSortById = (a, b) => {
-  if (Object.keys(a).includes('number')) {
-    if (a.number > b.number) return 1;
-    if (b.number > a.number) return -1;
-    return 0;
-  }
-  const [idA, idB] = [a.id.split('-'), b.id.split('-')];
-  if (parseInt(idA[idA.length - 1], 10) < parseInt(idB[idB.length - 1], 10)) return -1;
-  if (parseInt(idB[idB.length - 1], 10) < parseInt(idA[idA.length - 1], 10)) return 1;
-  return 0;
-};
-
 const stickyBreakPoint = 41;
-const confessions = ['wcf', 'wlc', 'wsc', 'hc'];
 
 const HomePage = ({
   prePopulatedSearchResults,
@@ -139,24 +126,6 @@ const HomePage = ({
   const [hasMore, setHasMore] = useState(false);
   const [isSticky, setSticky] = useState(false);
   const searchRef = useRef();
-
-  const parseFacets = (str) => {
-    const document = documentFacetRegex.exec(str)
-      ? documentFacetRegex.exec(str)[1]
-        .split(' ')
-        .map((s) => {
-          if (confessions.includes(s.toLowerCase())) return s.toUpperCase();
-          return s[0].toUpperCase();
-        })
-        .join('')
-      : null;
-    const chapter = chapterFacetRegex.exec(str);
-    const article = articleFacetRegex.exec(str);
-    if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}-${article[1]}`];
-    if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter[1]}`];
-    if (document) return [`document:${confessionCitationByIndex[document][0]}`];
-    return [];
-  };
 
   const handleScroll = throttle(() => {
     if (searchRef.current) {
@@ -203,9 +172,7 @@ const HomePage = ({
         } else {
           setSearchResults(parsedResults);
         }
-        if (areResultsChaptersOnly(parsedResults)) {
-          setAreResultsUniform(true);
-        } else if (allResultsAreSameConfession(parsedResults)) {
+        if (allResultsAreSameConfession(parsedResults)) {
           setAreResultsUniform(true);
           if (areResultsUniformChapter(parsedResults)) {
             setAreResultsSameChapter(true);
@@ -279,6 +246,7 @@ const HomePage = ({
   const renderChapterTitle = () => {
     const [result] = areResultsPristine ? prePopulatedSearchResults : searchResults;
 
+    // Question title is included in the result object for these confessions 👇
     if (result.id.includes('WSC') || result.id.includes('WLC')) return null;
     return (
       <h3 className="text-2xl lg:text-3xl w-full text-center mb-24">{contentById[result.parent].title}</h3>
@@ -322,8 +290,7 @@ const HomePage = ({
           )}
           {!isLoading && areResultsPristine && prePopulatedSearchResults
             .sort(handleSortById)
-            .map(renderResults)
-          }
+            .map(renderResults)}
           {!areResultsPristine && (
             searchResults
               .sort((a, b) => {
