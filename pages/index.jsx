@@ -141,14 +141,15 @@ const HomePage = ({
   const searchRef = useRef();
 
   const parseFacets = (str) => {
-    const document = documentFacetRegex
-      .exec(str)[1]
-      .split(' ')
-      .map((s) => {
-        if (confessions.includes(s.toLowerCase())) return s.toUpperCase();
-        return s[0].toUpperCase();
-      })
-      .join('');
+    const document = documentFacetRegex.exec(str)
+      ? documentFacetRegex.exec(str)[1]
+        .split(' ')
+        .map((s) => {
+          if (confessions.includes(s.toLowerCase())) return s.toUpperCase();
+          return s[0].toUpperCase();
+        })
+        .join('')
+      : null;
     const chapter = chapterFacetRegex.exec(str);
     const article = articleFacetRegex.exec(str);
     if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}-${article[1]}`];
