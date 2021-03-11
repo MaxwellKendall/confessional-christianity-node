@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/prop-types */
 import React from 'react';
@@ -22,7 +23,10 @@ const ConfessionChapterResult = ({
     <ul>
       {data
         .map((d) => (
-          <ConfessionTextResult {...d} contentById={contentById} searchTerms={[searchTerm]} />
+          <ConfessionTextResult
+            {...d}
+            contentById={contentById}
+          />
         ))}
     </ul>
   </li>

@@ -8,7 +8,9 @@ import { promises as fs } from 'fs';
 import algoliasearch from 'algoliasearch';
 import { groupBy, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import {
+ faMinus, faPlus, faSpinner,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { confessionPathByName } from '../dataMapping';
 
@@ -22,8 +24,6 @@ import {
   chapterFacetRegex,
   articleFacetRegex,
   parseFacets,
-  getUniformConfessionTitle,
-  getCitationContextById,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -62,6 +62,11 @@ const defaultQueries = [
   },
 ];
 
+const groupByDocument = (results) => groupBy(results, (obj) => {
+  if (obj.index === 'bible verses') return 'bible';
+  return obj.document;
+});
+
 export async function getStaticProps() {
   // will be passed to the page component as props
   const contentById = await Object
@@ -98,13 +103,55 @@ export async function getStaticProps() {
   return {
     props: {
       chaptersById,
-      prePopulatedSearchResults: resp.hits
-        .map((obj) => ({ ...obj, index: prePopulatedSearch.index })),
+      prePopulatedSearchResults: groupByDocument(
+        resp.hits.map((obj) => ({ ...obj, index: prePopulatedSearch.index })),
+      ),
       prePopulatedQuery: 'document:WCF chapter:3',
       contentById,
     },
   };
 }
+
+const getSearchTerms = (obj, term) => {
+  const highlightedProperties = ['text', 'title', 'bibleText', 'citation'];
+  const { _highlightResult: result } = obj;
+  return highlightedProperties
+    .reduce((acc, key) => {
+      const doesExist = result
+        ? Object.keys(result).includes(key)
+        : false;
+      if (doesExist) {
+        return acc.concat(result[key].matchedWords);
+      }
+      return acc;
+    }, term.split(' '));
+};
+
+const getResultsLength = (map) => Object
+  .entries(map)
+  .reduce((acc, [, entry]) => acc + entry.length, 0);
+
+const parseResults = (results, existingResults, currentPg) => {
+  const newResults = results
+    .map(({ hits, index }) => hits.map((h) => ({ ...h, index })))
+    .reduce((acc, arr) => acc.concat(arr), []);
+
+  const newResultsMapped = groupByDocument(newResults);
+
+  if (currentPg > 0) {
+    return {
+      ...Object
+        .keys(newResultsMapped)
+        .reduce((acc, key) => ({
+          ...acc,
+          [key]: Object.keys(acc).includes(key)
+            ? acc[key].concat(newResultsMapped[key])
+            : newResultsMapped[key],
+        }), existingResults),
+    };
+  }
+  return newResultsMapped;
+};
 
 const stickyBreakPoint = 41;
 
@@ -118,9 +165,14 @@ const HomePage = ({
   const { search } = router.query;
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [expanded, setExpanded] = useState(['WCoF']);
   const [searchResults, setSearchResults] = useState(search ? [] : prePopulatedSearchResults);
   const [areResultsPristine, setAreResultsPristine] = useState(true);
   const [isLoading, setIsLoading] = useState(!!search);
+  const [totals, setTotals] = useState({
+    bible: 0,
+    confession: getResultsLength(prePopulatedSearchResults),
+  });
   const [currentPg, setCurrentPg] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [isSticky, setSticky] = useState(false);
@@ -160,15 +212,12 @@ const HomePage = ({
           if (acc) return acc;
           return currentPg < nbPages - 1;
         }, false);
+        setTotals({
+          bible: results.find((o) => o.index === 'bible verses').nbHits,
+          confession: results.find((o) => o.index === 'aggregate').nbHits,
+        });
         setHasMore(hasMoreData);
-        const parsedResults = results
-          .map(({ hits, index }) => hits.map((h) => ({ ...h, index })))
-          .reduce((acc, arr) => acc.concat(arr), []);
-        if (currentPg > 0) {
-          setSearchResults(searchResults.concat(parsedResults));
-        } else {
-          setSearchResults(parsedResults);
-        }
+        setSearchResults(parseResults(results, searchResults, currentPg));
       });
   }, 300);
 
@@ -202,78 +251,92 @@ const HomePage = ({
     setSearchTerm(e.target.value);
   };
 
+  const handleExpand = (id) => {
+    if (expanded.includes(id)) {
+      setExpanded(expanded.filter((s) => s !== id));
+    } else {
+      setExpanded(expanded.concat([id]));
+    }
+  };
+
   const renderResults = () => {
-    const groupedResults = groupBy(searchResults, (obj) => {
-      if (obj.index === 'aggregate') return obj.document;
-      return 'bible';
-    });
-
-    console.log('results', groupedResults);
-
     const groupedListOfResults = Object
-      .entries(groupedResults)
+      .entries(searchResults)
+      .sort(([a], [b]) => {
+        if (a === 'bible') return 1;
+        if (b === 'bible') return -1;
+        return 0;
+      })
       .reduce((acc, [documentTitle, results]) => {
-        console.log('test documentTitle', documentTitle);
         if (documentTitle === 'bible') {
-          console.log('acc', acc, results);
           return acc
             .concat(
               results
                 .map((result) => <BibleTextResult contentById={contentById} {...result} />),
             );
         }
-        const groupedByChapter = groupBy(results, (obj) => obj.parent);
+
         const documentId = getConfessionalAbbreviationId(documentTitle);
+        const isExpanded = expanded.includes(documentId);
+        const groupedByChapter = groupBy(results, (obj) => {
+          if (obj.parent === documentId) return obj.id;
+          return obj.parent;
+        });
+
         return (
           acc.concat([
             <li>
-              <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">
+              <h2 className="text-3xl lg:text-4xl w-full mb-24 flex sticky top-0">
                 {documentTitle}
+                <span className="text-xl lg:text-lg ml-10 my-auto">{`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}</span>
+                <FontAwesomeIcon
+                  className="ml-auto my-auto text-xl lg:text-lg"
+                  icon={isExpanded ? faMinus : faPlus}
+                  onClick={() => handleExpand(documentId)}
+                />
               </h2>
-              <ul>
-                {Object
-                  .keys(groupedByChapter)
-                  .sort((a, b) => handleSortById({ id: a }, { id: b }))
-                  .filter((key) => key.includes(documentId))
-                  .map((chapterId) => {
-                    const isResultChapter = (
-                      chapterId.split('-').length === 1
-                      && !chapterId.includes('WSC')
-                      && !chapterId.includes('WLC')
-                    );
-                    // should be true for WSC and WLC
-                    if (isResultChapter) {
-                      console.log('chapterId', chapterId);
-                      return (
-                        <ConfessionChapterResult
-                          title={contentById[chapterId].title}
-                          searchTerm={search}
-                          data={chaptersById[chapterId]
-                            .map((obj) => ({
-                              ...obj,
-                              hideChapterTitle: true,
-                              hideDocumentTitle: true,
-                            }))
-                            .sort(handleSortById)}
-                          contentById={contentById}
-                        />
+              {isExpanded && (
+                <ul>
+                  {Object
+                    .keys(groupedByChapter)
+                    .sort((a, b) => handleSortById({ id: a }, { id: b }))
+                    .filter((key) => key.includes(documentId))
+                    .map((chapterId) => {
+                      const isResultChapter = (
+                        // parent would then be the document
+                        chapterId.split('-').length === 2
+                        && !chapterId.includes('WSC')
+                        && !chapterId.includes('WLC')
                       );
-                    }
-                    return groupedByChapter[chapterId]
-                      .map((obj) => (
-                        <ConfessionTextResult
-                          {...obj}
-                          searchTerms={[
-                            search,
-                            obj._highlightResult.text.matchedWords,
-                            obj._highlightResult.title.matchedWords,
-                          ]}
-                          contentById={contentById}
-                          hideDocumentTitle
-                        />
-                      ));
-                  })}
-              </ul>
+                      // should be true for WSC and WLC
+                      if (isResultChapter || areResultsPristine) {
+                        return (
+                          <ConfessionChapterResult
+                            title={contentById[chapterId].title}
+                            data={chaptersById[chapterId]
+                              .map((obj) => ({
+                                ...obj,
+                                searchTerms: getSearchTerms(obj, searchTerm),
+                                hideChapterTitle: true,
+                                hideDocumentTitle: true,
+                              }))
+                              .sort(handleSortById)}
+                            contentById={contentById}
+                          />
+                        );
+                      }
+                      return groupedByChapter[chapterId]
+                        .map((obj) => (
+                          <ConfessionTextResult
+                            {...obj}
+                            searchTerms={getSearchTerms(obj, searchTerm)}
+                            contentById={contentById}
+                            hideDocumentTitle
+                          />
+                        ));
+                    })}
+                </ul>
+              )}
             </li>,
           ])
         );
@@ -296,7 +359,7 @@ const HomePage = ({
       <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
         Confessional Christianity
       </h1>
-      <div className="w-full lg:w-1/2 my-24 mx-auto sticky top-0 pt-10 pb-5 z-10 bg-white">
+      <div className="w-full lg:w-1/2 mt-24 mx-auto sticky top-0 pt-10 pb-5 z-10 bg-white">
         <input
           ref={searchRef}
           type="text"
@@ -306,26 +369,31 @@ const HomePage = ({
           onKeyDown={handleSubmit}
         />
       </div>
+      {!isLoading && (
+        <span className="w-full text-center mb-24">
+          {`SHOWING ${getResultsLength(searchResults)} of ${totals.bible + totals.confession} TOTAL MATCHES`}
+            {hasMore && !isLoading && (
+              <button type="submit" className="w-full" onClick={handleLoadMore}>LOAD MORE</button>
+            )}
+        </span>
+      )}
       {isLoading && (
-        <p className="text-xl w-full text-center">
+        <p className="text-xl w-full text-center mb-24">
           <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
           Fetching your search results...
         </p>
       )}
       {renderResults()}
-      {isLoading && searchResults.length && (
-      <p className="text-xl w-full text-center">
-        <FontAwesomeIcon icon={faSpinner} spin className="text-xl mr-4" />
-        Loading more...
-      </p>
+      {isLoading && getResultsLength(searchResults) && (
+        <p className="text-xl w-full text-center">
+          <FontAwesomeIcon icon={faSpinner} spin className="text-xl" />
+          Loading more...
+        </p>
       )}
-      {!isLoading && !areResultsPristine && !searchResults.length && (
+      {!isLoading && !areResultsPristine && !getResultsLength(searchResults) && (
         <p className="text-xl w-full text-center">
           No results found.
         </p>
-      )}
-      {hasMore && !isLoading && (
-        <button type="submit" onClick={handleLoadMore}>LOAD MORE</button>
       )}
     </div>
   );
