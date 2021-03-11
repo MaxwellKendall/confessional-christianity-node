@@ -15,14 +15,15 @@ html {
     h1 {
         font-family: 'Cinzel Decorative', cursive;
     }
-    h2, h3, h4, h5 {
-        font-family: 'Cinzel', serif;
-    }
+
     p,
     span,
     button,
     strong {
         font-family: 'Marcellus', serif;
+    }
+    h2, h3, h4, h5, .header span {
+        font-family: 'Cinzel', serif;
     }
     .home-pg-search {
         background: url('./search.png') no-repeat;
@@ -32,7 +33,6 @@ html {
         font-size: 1.1rem;
     }
     .search-result-matched-word {
-        background-color: #FEF3C7
-;
+        background-color: #FEF3C7;
     }
 }

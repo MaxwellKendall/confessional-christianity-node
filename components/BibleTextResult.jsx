@@ -70,6 +70,7 @@ const BibleTextResult = ({
       />
       <Highlighter
         className="mt-4"
+        highlightClassName="search-result-matched-word"
         textToHighlight={bibleText}
         searchWords={_highlightResult.bibleText.matchedWords}
       />

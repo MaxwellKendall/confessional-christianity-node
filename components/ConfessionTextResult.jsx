@@ -4,7 +4,6 @@ import Highlighter from 'react-highlight-words';
 import fetch from 'isomorphic-fetch';
 import queryString from 'query-string';
 import { trim, trimStart, uniqueId } from 'lodash';
-
 import { parseOsisBibleReference } from '../scripts/helpers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -22,13 +21,12 @@ const getQueryParams = (bibleText) => queryString.stringify({
 
 const ConfessionTextResult = ({
   contentById,
-  _highlightResult = null,
+  searchTerms,
   document = '',
   text = '',
   title,
   id: confessionId,
   parent: parentId,
-  hideDocumentTitle = false,
   hideChapterTitle = false,
   verses = {},
 }) => {
@@ -123,15 +121,14 @@ const ConfessionTextResult = ({
 
   return (
     <li key={uniqueId(confessionId)} className="w-full flex flex-col justify-center mb-24">
-      {/* {document && !hideDocumentTitle && <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">{`The ${document}`}</h2>}
-      {renderTitle()} */}
-      {_highlightResult && (
+      {renderTitle()}
+      {searchTerms.length && (
         <>
-          <Highlighter className="text-2xl" textToHighlight={title} searchWords={_highlightResult.title.matchedWords} highlightClassName="search-result-matched-word" />
-          <Highlighter className="mt-4" textToHighlight={text} searchWords={_highlightResult.text.matchedWords} highlightClassName="search-result-matched-word" />
+          <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+          <Highlighter className="mt-4" textToHighlight={text} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
         </>
       )}
-      {!_highlightResult && (
+      {!searchTerms.length && (
         <>
           <h4 className="text-2xl">{title}</h4>
           <p className="mt-4">{text}</p>

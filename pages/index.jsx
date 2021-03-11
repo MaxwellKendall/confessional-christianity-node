@@ -17,16 +17,16 @@ import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import BibleTextResult from '../components/BibleTextResult';
 import SEO from '../components/SEO';
 import {
-  allResultsAreSameConfession,
-  areResultsUniformChapter,
-  getUniformConfessionTitle,
   handleSortById,
   documentFacetRegex,
   chapterFacetRegex,
   articleFacetRegex,
   parseFacets,
-  parseConfessionId,
+  getUniformConfessionTitle,
+  getCitationContextById,
 } from '../helpers';
+
+import { getConfessionalAbbreviationId } from '../scripts/helpers';
 
 const client = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_API_KEY,
@@ -118,11 +118,9 @@ const HomePage = ({
   const { search } = router.query;
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState(search ? [] : prePopulatedSearchResults);
   const [areResultsPristine, setAreResultsPristine] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [areResultsUniform, setAreResultsUniform] = useState(false);
-  const [areResultsSameChapter, setAreResultsSameChapter] = useState(false);
+  const [isLoading, setIsLoading] = useState(!!search);
   const [currentPg, setCurrentPg] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [isSticky, setSticky] = useState(false);
@@ -149,8 +147,6 @@ const HomePage = ({
     setIsLoading(true);
     setAreResultsPristine(false);
     if (searchTerm !== search) setSearchTerm(search);
-    setAreResultsUniform(false);
-    setAreResultsSameChapter(false);
     const queryWithoutFacetFilters = search.replace(chapterFacetRegex, '').replace(documentFacetRegex, '').replace(articleFacetRegex, '');
     client.multipleQueries(defaultQueries.map((obj) => ({
       ...obj,
@@ -172,14 +168,6 @@ const HomePage = ({
           setSearchResults(searchResults.concat(parsedResults));
         } else {
           setSearchResults(parsedResults);
-        }
-        if (allResultsAreSameConfession(parsedResults)) {
-          setAreResultsUniform(true);
-          if (areResultsUniformChapter(parsedResults)) {
-            setAreResultsSameChapter(true);
-          }
-        } else {
-          setAreResultsUniform(false);
         }
       });
   }, 300);
@@ -220,42 +208,74 @@ const HomePage = ({
       return 'bible';
     });
 
+    console.log('results', groupedResults);
+
     const groupedListOfResults = Object
       .entries(groupedResults)
       .reduce((acc, [documentTitle, results]) => {
-        if (documentTitle === 'bible') return acc.concat(results.map((result) => <BibleTextResult contentById={contentById} {...result} />));
+        console.log('test documentTitle', documentTitle);
+        if (documentTitle === 'bible') {
+          console.log('acc', acc, results);
+          return acc
+            .concat(
+              results
+                .map((result) => <BibleTextResult contentById={contentById} {...result} />),
+            );
+        }
         const groupedByChapter = groupBy(results, (obj) => obj.parent);
+        const documentId = getConfessionalAbbreviationId(documentTitle);
         return (
-          <li>
-            <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">
-              {documentTitle}
-            </h2>
-            <ul>
-              {Object
-                .keys(groupedByChapter)
-                .map((chapterId) => {
-                  const chapterTitle = getUniformConfessionTitle(groupedByChapter[chapterId], 2);
-                  // should be true for WSC and WLC
-                  if (chapterTitle.toUpperCase() === documentTitle.toUpperCase()) {
-                    return results
-                      .map((result) => (
+          acc.concat([
+            <li>
+              <h2 className="text-3xl lg:text-4xl w-full text-center mb-24">
+                {documentTitle}
+              </h2>
+              <ul>
+                {Object
+                  .keys(groupedByChapter)
+                  .sort((a, b) => handleSortById({ id: a }, { id: b }))
+                  .filter((key) => key.includes(documentId))
+                  .map((chapterId) => {
+                    const isResultChapter = (
+                      chapterId.split('-').length === 1
+                      && !chapterId.includes('WSC')
+                      && !chapterId.includes('WLC')
+                    );
+                    // should be true for WSC and WLC
+                    if (isResultChapter) {
+                      console.log('chapterId', chapterId);
+                      return (
+                        <ConfessionChapterResult
+                          title={contentById[chapterId].title}
+                          searchTerm={search}
+                          data={chaptersById[chapterId]
+                            .map((obj) => ({
+                              ...obj,
+                              hideChapterTitle: true,
+                              hideDocumentTitle: true,
+                            }))
+                            .sort(handleSortById)}
+                          contentById={contentById}
+                        />
+                      );
+                    }
+                    return groupedByChapter[chapterId]
+                      .map((obj) => (
                         <ConfessionTextResult
-                          {...result}
-                          hideChapterTitle
+                          {...obj}
+                          searchTerms={[
+                            search,
+                            obj._highlightResult.text.matchedWords,
+                            obj._highlightResult.title.matchedWords,
+                          ]}
+                          contentById={contentById}
                           hideDocumentTitle
                         />
                       ));
-                  }
-                  return (
-                    <ConfessionChapterResult
-                      title={chapterTitle}
-                      data={results.sort(handleSortById)}
-                      contentById={contentById}
-                    />
-                  );
-                })}
-            </ul>
-          </li>
+                  })}
+              </ul>
+            </li>,
+          ])
         );
       }, []);
     return (
