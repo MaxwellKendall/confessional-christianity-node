@@ -26,11 +26,21 @@ html {
         font-family: 'Cinzel', serif;
     }
     .home-pg-search {
-        background: url('./search.png') no-repeat;
-        background-position-y: center;
-        background-position-x: 20px;
         font-family: 'Marcellus', serif;
         font-size: 1.1rem;
+    }
+    .home-pg-search-btn {
+        background: url('./search.png') no-repeat;
+        background-position-x: 8px;
+        background-position-y: center;
+        top: 45%;
+        width: 2rem;
+        left: 7px;
+        height: 2rem;
+    }
+    .home-pg-clear-search {
+        top: 52%;
+        right: 1.5rem;
     }
     .search-result-matched-word {
         background-color: #FEF3C7;

@@ -9,7 +9,7 @@ import algoliasearch from 'algoliasearch';
 import { groupBy, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
- faMinus, faPlus, faSpinner,
+ faMinus, faPlus, faSpinner, faTimes, faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { confessionPathByName } from '../dataMapping';
@@ -233,16 +233,20 @@ const HomePage = ({
     }
   }, [search]);
 
-  const handleSubmit = (e) => {
+  const submitSearch = () => {
+    setCurrentPg(0);
+    router.push({
+      pathname: '',
+      query: {
+        search: searchTerm,
+      },
+    });
+  };
+
+  const handleKeyDown = (e) => {
     e.persist();
     if (e.keyCode === 13) {
-      setCurrentPg(0);
-      router.push({
-        pathname: '',
-        query: {
-          search: searchTerm,
-        },
-      });
+      submitSearch();
     }
   };
 
@@ -286,14 +290,16 @@ const HomePage = ({
         return (
           acc.concat([
             <li>
-              <h2 className="text-3xl lg:text-4xl w-full mb-24 flex sticky top-0">
+              <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
                 {documentTitle}
-                <span className="text-xl lg:text-lg ml-10 my-auto">{`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}</span>
-                <FontAwesomeIcon
-                  className="ml-auto my-auto text-xl lg:text-lg"
-                  icon={isExpanded ? faMinus : faPlus}
-                  onClick={() => handleExpand(documentId)}
-                />
+                <span className="text-xl lg:text-lg my-auto mx-auto md:ml-auto">
+                  {`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}
+                  <FontAwesomeIcon
+                    className="ml-5 my-auto text-xl lg:text-lg"
+                    icon={isExpanded ? faMinus : faPlus}
+                    onClick={() => handleExpand(documentId)}
+                  />
+                </span>
               </h2>
               {isExpanded && (
                 <ul>
@@ -363,11 +369,13 @@ const HomePage = ({
         <input
           ref={searchRef}
           type="text"
-          className={`${isSticky ? ' shadow-lg' : ''} home-pg-search border border-gray-500 rounded-full leading-10 outline-none w-full pl-12 pr-12 py-2`}
+          className={`${isSticky ? ' shadow-lg' : ''} home-pg-search border border-gray-500 rounded-full leading-10 outline-none w-full pl-12 pr-12 py-2 relative`}
           value={searchTerm}
           onChange={handleSearchInput}
-          onKeyDown={handleSubmit}
+          onKeyDown={handleKeyDown}
         />
+        <button className="absolute home-pg-search-btn" onClick={submitSearch} type="submit" />
+        <FontAwesomeIcon icon={faTimes} onClick={() => setSearchTerm('')} className="home-pg-clear-search absolute" />
       </div>
       {!isLoading && (
         <span className="w-full text-center mb-24">
