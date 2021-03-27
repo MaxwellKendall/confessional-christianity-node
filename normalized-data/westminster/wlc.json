@@ -11,6 +11,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 1,
       "id": "WLC-1"
     },
     {
@@ -22,6 +23,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 2,
       "id": "WLC-2"
     },
     {
@@ -41,6 +43,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 3,
       "id": "WLC-3"
     },
     {
@@ -69,6 +72,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 4,
       "id": "WLC-4"
     },
     {
@@ -77,6 +81,7 @@
       "verses": { "1": ["2Tim.1.13"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 5,
       "id": "WLC-5"
     },
     {
@@ -90,6 +95,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 6,
       "id": "WLC-6"
     },
     {
@@ -115,6 +121,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 7,
       "id": "WLC-7"
     },
     {
@@ -123,6 +130,7 @@
       "verses": { "1": ["Deut.6.4", "1Cor.8.4", "1Cor.8.6", "Jer.10.10"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 8,
       "id": "WLC-8"
     },
     {
@@ -133,6 +141,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 9,
       "id": "WLC-9"
     },
     {
@@ -145,6 +154,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 10,
       "id": "WLC-10"
     },
     {
@@ -171,6 +181,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 11,
       "id": "WLC-11"
     },
     {
@@ -182,6 +193,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 12,
       "id": "WLC-12"
     },
     {
@@ -201,6 +213,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 13,
       "id": "WLC-13"
     },
     {
@@ -209,6 +222,7 @@
       "verses": { "1": ["Eph.1.11"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 14,
       "id": "WLC-14"
     },
     {
@@ -217,6 +231,7 @@
       "verses": { "1": ["Gen.1", "Heb.11.3", "Prov.16.4"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 15,
       "id": "WLC-15"
     },
     {
@@ -234,6 +249,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 16,
       "id": "WLC-16"
     },
     {
@@ -254,6 +270,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 17,
       "id": "WLC-17"
     },
     {
@@ -269,6 +286,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 18,
       "id": "WLC-18"
     },
     {
@@ -283,6 +301,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 19,
       "id": "WLC-19"
     },
     {
@@ -300,6 +319,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 20,
       "id": "WLC-20"
     },
     {
@@ -308,6 +328,7 @@
       "verses": { "1": ["Gen.3.6-Gen.3.8", "Gen.3.13"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 21,
       "id": "WLC-21"
     },
     {
@@ -319,6 +340,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 22,
       "id": "WLC-22"
     },
     {
@@ -327,6 +349,7 @@
       "verses": { "1": ["Rom.5.12"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 23,
       "id": "WLC-23"
     },
     {
@@ -335,6 +358,7 @@
       "verses": { "1": ["1John.3.4", "Gal.3.10", "Gal.3.12"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 24,
       "id": "WLC-24"
     },
     {
@@ -353,6 +377,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 25,
       "id": "WLC-25"
     },
     {
@@ -361,6 +386,7 @@
       "verses": { "1": ["Ps.51.5", "Job.14.4", "John.3.6"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 26,
       "id": "WLC-26"
     },
     {
@@ -381,6 +407,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 27,
       "id": "WLC-27"
     },
     {
@@ -399,6 +426,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 28,
       "id": "WLC-28"
     },
     {
@@ -409,6 +437,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 29,
       "id": "WLC-29"
     },
     {
@@ -421,6 +450,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 30,
       "id": "WLC-30"
     },
     {
@@ -431,6 +461,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 31,
       "id": "WLC-31"
     },
     {
@@ -450,6 +481,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 32,
       "id": "WLC-32"
     },
     {
@@ -458,6 +490,7 @@
       "verses": { "1": ["2Cor.3.6-2Cor.3.9"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 33,
       "id": "WLC-33"
     },
     {
@@ -474,6 +507,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 34,
       "id": "WLC-34"
     },
     {
@@ -487,6 +521,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 35,
       "id": "WLC-35"
     },
     {
@@ -500,6 +535,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 36,
       "id": "WLC-36"
     },
     {
@@ -512,6 +548,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 37,
       "id": "WLC-37"
     },
     {
@@ -529,6 +566,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 38,
       "id": "WLC-38"
     },
     {
@@ -544,6 +582,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 39,
       "id": "WLC-39"
     },
     {
@@ -555,6 +594,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 40,
       "id": "WLC-40"
     },
     {
@@ -563,6 +603,7 @@
       "verses": { "1": ["Matt.1.21"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 41,
       "id": "WLC-41"
     },
     {
@@ -577,6 +618,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 42,
       "id": "WLC-42"
     },
     {
@@ -591,6 +633,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 43,
       "id": "WLC-43"
     },
     {
@@ -603,6 +646,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 44,
       "id": "WLC-44"
     },
     {
@@ -624,6 +668,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 45,
       "id": "WLC-45"
     },
     {
@@ -634,6 +679,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 46,
       "id": "WLC-46"
     },
     {
@@ -642,6 +688,7 @@
       "verses": { "1": ["John.1.14", "John.1.18", "Gal.4.4", "Luke.2.7"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 47,
       "id": "WLC-47"
     },
     {
@@ -656,6 +703,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 48,
       "id": "WLC-48"
     },
     {
@@ -672,6 +720,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 49,
       "id": "WLC-49"
     },
     {
@@ -689,6 +738,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 50,
       "id": "WLC-50"
     },
     {
@@ -702,6 +752,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 51,
       "id": "WLC-51"
     },
     {
@@ -725,6 +776,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 52,
       "id": "WLC-52"
     },
     {
@@ -742,6 +794,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 53,
       "id": "WLC-53"
     },
     {
@@ -757,6 +810,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 54,
       "id": "WLC-54"
     },
     {
@@ -774,6 +828,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 55,
       "id": "WLC-55"
     },
     {
@@ -788,6 +843,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 56,
       "id": "WLC-56"
     },
     {
@@ -796,6 +852,7 @@
       "verses": { "1": ["Heb.9.12"], "2": ["2Cor.1.20"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 57,
       "id": "WLC-57"
     },
     {
@@ -804,6 +861,7 @@
       "verses": { "1": ["John.1.11-John.1.12"], "2": ["Titus.3.5-Titus.3.6"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 58,
       "id": "WLC-58"
     },
     {
@@ -820,6 +878,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 59,
       "id": "WLC-59"
     },
     {
@@ -836,6 +895,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 60,
       "id": "WLC-60"
     },
     {
@@ -852,6 +912,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 61,
       "id": "WLC-61"
     },
     {
@@ -873,6 +934,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 62,
       "id": "WLC-62"
     },
     {
@@ -898,6 +960,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 63,
       "id": "WLC-63"
     },
     {
@@ -908,6 +971,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 64,
       "id": "WLC-64"
     },
     {
@@ -916,6 +980,7 @@
       "verses": { "1": ["John.17.21", "Eph.2.5-Eph.2.6", "John.17.24"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 65,
       "id": "WLC-65"
     },
     {
@@ -928,6 +993,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 66,
       "id": "WLC-66"
     },
     {
@@ -953,6 +1019,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 67,
       "id": "WLC-67"
     },
     {
@@ -971,6 +1038,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 68,
       "id": "WLC-68"
     },
     {
@@ -979,6 +1047,7 @@
       "verses": { "1": ["Rom.8.30"], "2": ["Eph.1.5"], "3": ["1Cor.1.30"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 69,
       "id": "WLC-69"
     },
     {
@@ -999,6 +1068,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 70,
       "id": "WLC-70"
     },
     {
@@ -1025,6 +1095,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 71,
       "id": "WLC-71"
     },
     {
@@ -1048,6 +1119,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 72,
       "id": "WLC-72"
     },
     {
@@ -1060,6 +1132,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 73,
       "id": "WLC-73"
     },
     {
@@ -1076,6 +1149,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 74,
       "id": "WLC-74"
     },
     {
@@ -1096,6 +1170,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 75,
       "id": "WLC-75"
     },
     {
@@ -1121,6 +1196,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 76,
       "id": "WLC-76"
     },
     {
@@ -1139,6 +1215,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 77,
       "id": "WLC-77"
     },
     {
@@ -1151,6 +1228,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 78,
       "id": "WLC-78"
     },
     {
@@ -1167,6 +1245,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 79,
       "id": "WLC-79"
     },
     {
@@ -1189,6 +1268,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 80,
       "id": "WLC-80"
     },
     {
@@ -1216,6 +1296,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 81,
       "id": "WLC-81"
     },
     {
@@ -1228,6 +1309,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 82,
       "id": "WLC-82"
     },
     {
@@ -1241,6 +1323,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 83,
       "id": "WLC-83"
     },
     {
@@ -1249,6 +1332,7 @@
       "verses": { "1": ["Rom.6.23"], "2": ["Heb.9.27"], "3": ["Rom.5.12"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 84,
       "id": "WLC-84"
     },
     {
@@ -1262,6 +1346,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 85,
       "id": "WLC-85"
     },
     {
@@ -1286,6 +1371,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 86,
       "id": "WLC-86"
     },
     {
@@ -1303,6 +1389,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 87,
       "id": "WLC-87"
     },
     {
@@ -1319,6 +1406,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 88,
       "id": "WLC-88"
     },
     {
@@ -1332,6 +1420,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 89,
       "id": "WLC-89"
     },
     {
@@ -1349,6 +1438,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 90,
       "id": "WLC-90"
     },
     {
@@ -1357,6 +1447,7 @@
       "verses": { "1": ["Rom.12.1-Rom.12.2", "Mic.6.8", "1Sam.15.22"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 91,
       "id": "WLC-91"
     },
     {
@@ -1367,6 +1458,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 92,
       "id": "WLC-92"
     },
     {
@@ -1385,6 +1477,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 93,
       "id": "WLC-93"
     },
     {
@@ -1393,6 +1486,7 @@
       "verses": { "1": ["Rom.8.3", "Gal.2.16"], "2": ["1Tim.1.8"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 94,
       "id": "WLC-94"
     },
     {
@@ -1408,6 +1502,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 95,
       "id": "WLC-95"
     },
     {
@@ -1421,6 +1516,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 96,
       "id": "WLC-96"
     },
     {
@@ -1440,6 +1536,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 97,
       "id": "WLC-97"
     },
     {
@@ -1451,6 +1548,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 98,
       "id": "WLC-98"
     },
     {
@@ -1508,6 +1606,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 99,
       "id": "WLC-99"
     },
     {
@@ -1516,6 +1615,7 @@
       "verses": {},
       "isParent": false,
       "parent": "WLC",
+      "number": 100,
       "id": "WLC-100"
     },
     {
@@ -1533,6 +1633,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 101,
       "id": "WLC-101"
     },
     {
@@ -1541,6 +1642,7 @@
       "verses": { "1": ["Luke.10.27"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 102,
       "id": "WLC-102"
     },
     {
@@ -1549,6 +1651,7 @@
       "verses": { "1": ["Exod.20.3"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 103,
       "id": "WLC-103"
     },
     {
@@ -1581,6 +1684,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 104,
       "id": "WLC-104"
     },
     {
@@ -1644,6 +1748,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 105,
       "id": "WLC-105"
     },
     {
@@ -1655,6 +1760,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 106,
       "id": "WLC-106"
     },
     {
@@ -1663,6 +1769,7 @@
       "verses": { "1": ["Exod.20.4-Exod.20.6"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 107,
       "id": "WLC-107"
     },
     {
@@ -1693,6 +1800,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 108,
       "id": "WLC-108"
     },
     {
@@ -1732,6 +1840,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 109,
       "id": "WLC-109"
     },
     {
@@ -1747,6 +1856,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 110,
       "id": "WLC-110"
     },
     {
@@ -1755,6 +1865,7 @@
       "verses": { "1": ["Exod.20.7"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 111,
       "id": "WLC-111"
     },
     {
@@ -1788,6 +1899,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 112,
       "id": "WLC-112"
     },
     {
@@ -1861,6 +1973,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 113,
       "id": "WLC-113"
     },
     {
@@ -1878,6 +1991,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 114,
       "id": "WLC-114"
     },
     {
@@ -1886,6 +2000,7 @@
       "verses": { "1": ["Exod.20.8-Exod.20.11"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 115,
       "id": "WLC-115"
     },
     {
@@ -1905,6 +2020,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 116,
       "id": "WLC-116"
     },
     {
@@ -1939,6 +2055,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 117,
       "id": "WLC-117"
     },
     {
@@ -1956,6 +2073,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 118,
       "id": "WLC-118"
     },
     {
@@ -1975,6 +2093,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 119,
       "id": "WLC-119"
     },
     {
@@ -1987,6 +2106,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 120,
       "id": "WLC-120"
     },
     {
@@ -2011,6 +2131,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 121,
       "id": "WLC-121"
     },
     {
@@ -2019,6 +2140,7 @@
       "verses": { "1": ["Matt.22.39"], "2": ["Matt.7.12"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 122,
       "id": "WLC-122"
     },
     {
@@ -2027,6 +2149,7 @@
       "verses": { "1": ["Exod.20.12"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 123,
       "id": "WLC-123"
     },
     {
@@ -2042,6 +2165,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 124,
       "id": "WLC-124"
     },
     {
@@ -2059,6 +2183,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 125,
       "id": "WLC-125"
     },
     {
@@ -2067,6 +2192,7 @@
       "verses": { "1": ["Eph.5.21", "1Pet.2.17", "Rom.12.10"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 126,
       "id": "WLC-126"
     },
     {
@@ -2105,6 +2231,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 127,
       "id": "WLC-127"
     },
     {
@@ -2123,6 +2250,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 128,
       "id": "WLC-128"
     },
     {
@@ -2148,6 +2276,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 129,
       "id": "WLC-129"
     },
     {
@@ -2176,6 +2305,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 130,
       "id": "WLC-130"
     },
     {
@@ -2188,6 +2318,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 131,
       "id": "WLC-131"
     },
     {
@@ -2202,6 +2333,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 132,
       "id": "WLC-132"
     },
     {
@@ -2213,6 +2345,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 133,
       "id": "WLC-133"
     },
     {
@@ -2221,6 +2354,7 @@
       "verses": { "1": ["Exod.20.13"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 134,
       "id": "WLC-134"
     },
     {
@@ -2270,6 +2404,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 135,
       "id": "WLC-135"
     },
     {
@@ -2303,6 +2438,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 136,
       "id": "WLC-136"
     },
     {
@@ -2311,6 +2447,7 @@
       "verses": { "1": ["Exod.20.14"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 137,
       "id": "WLC-137"
     },
     {
@@ -2333,6 +2470,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 138,
       "id": "WLC-138"
     },
     {
@@ -2376,6 +2514,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 139,
       "id": "WLC-139"
     },
     {
@@ -2384,6 +2523,7 @@
       "verses": { "1": ["Exod.20.15"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 140,
       "id": "WLC-140"
     },
     {
@@ -2421,6 +2561,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 141,
       "id": "WLC-141"
     },
     {
@@ -2456,6 +2597,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 142,
       "id": "WLC-142"
     },
     {
@@ -2464,6 +2606,7 @@
       "verses": { "1": ["Exod.20.16"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 143,
       "id": "WLC-143"
     },
     {
@@ -2497,6 +2640,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 144,
       "id": "WLC-144"
     },
     {
@@ -2590,6 +2734,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 145,
       "id": "WLC-145"
     },
     {
@@ -2598,6 +2743,7 @@
       "verses": { "1": ["Exod.20.17"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 146,
       "id": "WLC-146"
     },
     {
@@ -2615,6 +2761,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 147,
       "id": "WLC-147"
     },
     {
@@ -2628,6 +2775,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 148,
       "id": "WLC-148"
     },
     {
@@ -2647,6 +2795,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 149,
       "id": "WLC-149"
     },
     {
@@ -2666,6 +2815,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 150,
       "id": "WLC-150"
     },
     {
@@ -2746,6 +2896,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 151,
       "id": "WLC-151"
     },
     {
@@ -2763,6 +2914,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 152,
       "id": "WLC-152"
     },
     {
@@ -2782,6 +2934,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 153,
       "id": "WLC-153"
     },
     {
@@ -2792,6 +2945,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 154,
       "id": "WLC-154"
     },
     {
@@ -2832,6 +2986,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 155,
       "id": "WLC-155"
     },
     {
@@ -2857,6 +3012,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 156,
       "id": "WLC-156"
     },
     {
@@ -2883,6 +3039,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 157,
       "id": "WLC-157"
     },
     {
@@ -2909,6 +3066,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 158,
       "id": "WLC-158"
     },
     {
@@ -2935,6 +3093,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 159,
       "id": "WLC-159"
     },
     {
@@ -2957,6 +3116,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 160,
       "id": "WLC-160"
     },
     {
@@ -2973,6 +3133,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 161,
       "id": "WLC-161"
     },
     {
@@ -2990,6 +3151,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 162,
       "id": "WLC-162"
     },
     {
@@ -2998,6 +3160,7 @@
       "verses": { "1": ["Matt.3.11", "1Pet.3.21", "Rom.2.28-Rom.2.29"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 163,
       "id": "WLC-163"
     },
     {
@@ -3008,6 +3171,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 164,
       "id": "WLC-164"
     },
     {
@@ -3025,6 +3189,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 165,
       "id": "WLC-165"
     },
     {
@@ -3048,6 +3213,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 166,
       "id": "WLC-166"
     },
     {
@@ -3066,6 +3232,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 167,
       "id": "WLC-167"
     },
     {
@@ -3081,6 +3248,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 168,
       "id": "WLC-168"
     },
     {
@@ -3096,6 +3264,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 169,
       "id": "WLC-169"
     },
     {
@@ -3109,6 +3278,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 170,
       "id": "WLC-170"
     },
     {
@@ -3138,6 +3308,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 171,
       "id": "WLC-171"
     },
     {
@@ -3175,6 +3346,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 172,
       "id": "WLC-172"
     },
     {
@@ -3192,6 +3364,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 173,
       "id": "WLC-173"
     },
     {
@@ -3222,6 +3395,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 174,
       "id": "WLC-174"
     },
     {
@@ -3246,6 +3420,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 175,
       "id": "WLC-175"
     },
     {
@@ -3260,6 +3435,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 176,
       "id": "WLC-176"
     },
     {
@@ -3274,6 +3450,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 177,
       "id": "WLC-177"
     },
     {
@@ -3288,6 +3465,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 178,
       "id": "WLC-178"
     },
     {
@@ -3306,6 +3484,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 179,
       "id": "WLC-179"
     },
     {
@@ -3318,6 +3497,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 180,
       "id": "WLC-180"
     },
     {
@@ -3330,6 +3510,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 181,
       "id": "WLC-181"
     },
     {
@@ -3338,6 +3519,7 @@
       "verses": { "1": ["Rom.8.26-Rom.8.27", "Ps.10.17", "Zech.12.10"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 182,
       "id": "WLC-182"
     },
     {
@@ -3357,6 +3539,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 183,
       "id": "WLC-183"
     },
     {
@@ -3371,6 +3554,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 184,
       "id": "WLC-184"
     },
     {
@@ -3395,6 +3579,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 185,
       "id": "WLC-185"
     },
     {
@@ -3406,6 +3591,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 186,
       "id": "WLC-186"
     },
     {
@@ -3414,6 +3600,7 @@
       "verses": { "1": ["Matt.6.9", "Luke.11.2"] },
       "isParent": false,
       "parent": "WLC",
+      "number": 187,
       "id": "WLC-187"
     },
     {
@@ -3422,6 +3609,7 @@
       "verses": {},
       "isParent": false,
       "parent": "WLC",
+      "number": 188,
       "id": "WLC-188"
     },
     {
@@ -3437,6 +3625,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 189,
       "id": "WLC-189"
     },
     {
@@ -3472,6 +3661,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 190,
       "id": "WLC-190"
     },
     {
@@ -3501,6 +3691,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 191,
       "id": "WLC-191"
     },
     {
@@ -3528,6 +3719,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 192,
       "id": "WLC-192"
     },
     {
@@ -3560,6 +3752,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 193,
       "id": "WLC-193"
     },
     {
@@ -3577,6 +3770,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 194,
       "id": "WLC-194"
     },
     {
@@ -3617,6 +3811,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 195,
       "id": "WLC-195"
     },
     {
@@ -3635,6 +3830,7 @@
       },
       "isParent": false,
       "parent": "WLC",
+      "number": 196,
       "id": "WLC-196"
     }
   ]

@@ -1,6 +1,6 @@
 import fs, { readdir } from 'fs';
 import path from 'path';
-import { flattenDeep } from 'lodash';
+import { flattenDeep, includes } from 'lodash';
 import YAML from 'yaml';
 
 import removeFormatting from './helpers/formatHelper';
@@ -41,7 +41,11 @@ const enforceJSONShape = (json, confession = '', childrenType = '') => {
     return {
       title: json.name,
       type: json.type,
-      content: enforceJSONShape(json[getChildrenType(json)], getConfessionalAbbreviationId(json.name), getChildrenType(json)),
+      content: enforceJSONShape(
+        json[getChildrenType(json)],
+        getConfessionalAbbreviationId(json.name),
+        getChildrenType(json),
+      ),
     };
   }
 
@@ -51,28 +55,44 @@ const enforceJSONShape = (json, confession = '', childrenType = '') => {
   }, null);
 
   if (grandChildrenType) {
-    return json
+    const flattened = json
       .map((obj) => ({
         title: getTitle(obj, childrenType),
-        number: obj.number,
         isParent: true,
         parent: confession,
         id: `${confession}-${obj.number}`,
       }))
-      .concat(flattenDeep(
+      .concat(
         json
-          .map((obj) => (
-            obj[grandChildrenType]
-              .map((innerObj) => ({
-                title: getTitle(innerObj, grandChildrenType),
-                text: innerObj.text || innerObj.answer,
-                verses: innerObj.verses,
-                isParent: false,
-                parent: `${confession}-${obj.number}`,
-                id: `${confession}-${obj.number}-${innerObj.number}`,
-              }))
-          )),
-      ));
+          .reduce((acc, obj) => (
+            acc.concat(
+              obj[grandChildrenType]
+                .map((innerObj) => ({
+                  title: getTitle(innerObj, grandChildrenType),
+                  text: innerObj.text || innerObj.answer,
+                  verses: innerObj.verses,
+                  isParent: false,
+                  parent: `${confession}-${obj.number}`,
+                  id: `${confession}-${obj.number}-${innerObj.number}`,
+                })),
+            )
+          ), []),
+      )
+      .sort((a, b) => {
+        const chapterIdA = parseInt(a.id.split('-')[1], 10);
+        const chapterIdB = parseInt(b.id.split('-')[1], 10);
+        if (chapterIdB > chapterIdA) return -1;
+        if (chapterIdA > chapterIdB) return 1;
+        if (chapterIdB === chapterIdA) {
+          const articleIdA = parseInt(a.id.split('-')[2], 10);
+          const articleIdIdB = parseInt(b.id.split('-')[2], 10);
+          if (articleIdIdB > articleIdA) return -1;
+          if (articleIdA > articleIdIdB) return 1;
+        }
+        return 0;
+      })
+      .map((obj, i) => ({ ...obj, number: i + 1 }));
+    return flattened;
   }
   // BC, WSC, & WLC
   return json.map((obj) => ({
@@ -81,6 +101,7 @@ const enforceJSONShape = (json, confession = '', childrenType = '') => {
     verses: obj.verses || {},
     isParent: false,
     parent: confession,
+    number: obj.number,
     id: `${confession}-${obj.number}`,
   }));
 };
@@ -103,37 +124,39 @@ const writeFile = async (path, json) => {
   }
 };
 
-const readFileAndWriteUnformattedJSON = async (pathToSubDir, pathToFile) => {
-  const readFilePath = `${readFileRoot}/${pathToSubDir}/${pathToFile}`;
+const readFileAndWriteUnformattedJSON = async (relativePath) => {
+  const readFilePath = `${readFileRoot}/${relativePath}`;
   const json = await fileToJson(readFilePath);
   const unFormattedJson = removeFormatting(json);
-  const writeFilePath = `${writeFileRoot}/${pathToSubDir}/${pathToFile.replace(yamlExtensionRegExp, '.json')}`;
+  const writeFilePath = `${writeFileRoot}/${relativePath.replace(yamlExtensionRegExp, '.json')}`;
   writeFile(writeFilePath, unFormattedJson);
 };
 
 const readDirectoryAndWriteFiles = async (subDirPath = '') => {
-  const fullDirPath = subDirPath.includes(readFileRoot)
-    ? subDirPath
-    : `${readFileRoot}/${subDirPath}`;
-  fs.readdir(fullDirPath, 'utf-8', (err, files) => {
-    files
-      .forEach(async (file) => {
-        const pathToFile = `${fullDirPath}/${file}`;
-        const isDir = fs.lstatSync(pathToFile).isDirectory();
-        if (isDir) {
+  const readPath = `${readFileRoot}/${subDirPath}`;
+  const fullDirPath = path.resolve(__dirname, readPath);
+  const isDirectory = subDirPath
+    ? fs.lstatSync(fullDirPath).isDirectory()
+    : true;
+  if (isDirectory) {
+    try {
+      const files = await fs.promises.readdir(fullDirPath);
+      const arr = Array.from(files);
+      arr.forEach((file) => {
+        if (subDirPath) {
+          readDirectoryAndWriteFiles(`${subDirPath}/${file}`);
+        } else {
           readDirectoryAndWriteFiles(file);
-        } else if (includedFiles.includes(file)) {
-          readFileAndWriteUnformattedJSON(subDirPath, file);
         }
       });
-  });
+    } catch (err) {
+      console.error('Error: ', err);
+      throw err;
+    }
+  } else if (includedFiles.some((file) => subDirPath.includes(file))) {
+    console.log(`yo ${subDirPath}`);
+    readFileAndWriteUnformattedJSON(subDirPath);
+  }
 };
 
-readDirectoryAndWriteFiles()
-  .then(() => {
-    const files = await readdir(readFileRoot);
-    const read = fs.createReadStream(path.resolve(__dirname, readFileRoot));
-    read.on('data', (d) => {
-      console.log('d', d);
-    })
-  });
+readDirectoryAndWriteFiles();
