@@ -392,6 +392,9 @@ const HomePage = ({
         </p>
       )}
       {renderResults()}
+      {!isLoading && hasMore && getResultsLength(searchResults) && (
+        <button type="submit" className="w-full" onClick={handleLoadMore}>LOAD MORE</button>
+      )}
       {isLoading && getResultsLength(searchResults) && (
         <p className="text-xl w-full text-center">
           <FontAwesomeIcon icon={faSpinner} spin className="text-xl" />
