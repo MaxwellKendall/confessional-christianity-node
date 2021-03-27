@@ -11,14 +11,14 @@ const ConfessionChapterResult = ({
   title,
   data,
   contentById,
-  searchTerm = '',
+  searchTerms = '',
 }) => (
   <li key={uniqueId()} className="w-full flex flex-col justify-center mb-24">
-    {!searchTerm && (
+    {!searchTerms.length && (
       <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{title}</h3>
     )}
-    {searchTerm && (
-      <Highlighter className="header text-3xl lg:text-4xl w-full text-center mb-24" textToHighlight={title} searchWords={[searchTerm]} highlightClassName="search-result-matched-word" />
+    {searchTerms.length && (
+      <Highlighter className="header text-3xl lg:text-4xl w-full text-center mb-24 uppercase" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
     )}
     <ul>
       {data

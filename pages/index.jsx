@@ -159,7 +159,6 @@ const HomePage = ({
   prePopulatedSearchResults,
   prePopulatedQuery,
   contentById,
-  chaptersById,
 }) => {
   const router = useRouter();
   const { search } = router.query;
@@ -314,12 +313,15 @@ const HomePage = ({
                         && !chapterId.includes('WSC')
                         && !chapterId.includes('WLC')
                       );
-                      // should be true for WSC and WLC
+                      // No chapter results displayed.
+                      console.log('chapterId', chapterId);
                       if (isResultChapter || areResultsPristine) {
                         return (
                           <ConfessionChapterResult
                             title={contentById[chapterId].title}
-                            data={chaptersById[chapterId]
+                            searchTerms={searchTerm.split(' ')}
+                            data={groupedByChapter[chapterId]
+                              .filter((obj) => !obj.isParent)
                               .map((obj) => ({
                                 ...obj,
                                 searchTerms: getSearchTerms(obj, searchTerm),
