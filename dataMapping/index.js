@@ -5,6 +5,11 @@ export const confessionCitationByIndex = {
   HC: ['Heidelberg Catechism', 'LORD\'s Day', 'Question and Answer', 'Scripture Citation'],
   WSC: ['Westminster Shorter Catechism', 'Question and Answer', 'Scripture Citation'],
   WLC: ['Westminster Larger Catechism', 'Question and Answer', 'Scripture Citation'],
+  '39A': ['Thirty-nine Articles of Religion', 'Chapter'],
+  CD: ['Canons of Dort', 'Chapter'],
+  COD: ['Canons of Dort', 'Chapter'],
+  BCF: ['The Belgic Confession of Faith', 'Chapter'],
+  '95T': ['Martin Luther\'s 95 theses'],
 };
 
 export const confessionPathByName = {
@@ -20,15 +25,21 @@ export const confessionPathByName = {
 
 export const parentIdByAbbreviation = {
   WCF: 'WCoF',
-  'WCOF': 'WCoF',
-  'HC': 'HC',
-  'WLC': 'WLC',
-  'WSC': 'WSC',
+  WCOF: 'WCoF',
+  HC: 'HC',
+  WLC: 'WLC',
+  WSC: 'WSC',
+  CD: 'CoD',
+  COD: 'CoD',
+  BCF: 'TBCoF',
+  '39A': 'TAoR',
+  '95T': 'ML9t',
 };
 
 export const confessionIdsWithoutTitles = [
   'WSC',
   'WLC',
+  'CoD',
   'BCoF',
   'TAoR',
   'ML9t',

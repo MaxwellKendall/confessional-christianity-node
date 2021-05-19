@@ -8,9 +8,7 @@ import { promises as fs } from 'fs';
 import algoliasearch from 'algoliasearch';
 import { groupBy, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
- faMinus, faPlus, faSpinner, faTimes, faTimesCircle,
-} from '@fortawesome/free-solid-svg-icons';
+import { faMinus, faPlus, faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { confessionPathByName } from '../dataMapping';
 

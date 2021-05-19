@@ -82,24 +82,30 @@ export const handleSortById = (a, b) => {
   return 0;
 };
 
-export const documentFacetRegex = new RegExp(/document:(WCF|Westminster\sConfession\sof\sFaith|westminster\sconfession\sof\sfaith|HC|Heidelberg\sCatechism|heidelberg\scatechism|WSC|Westminster\sShorter\sCatechism|westminster\sshorter\scatechism|WLC|Westminster\sLarger\sCatechism|westminster\slarger\scatechism)/);
+export const documentFacetRegex = new RegExp(/document:(WCF|wcf|Westminster\sConfession\sof\sFaith|westminster\sconfession\sof\sfaith|HC|hc|Heidelberg\sCatechism|heidelberg\scatechism|wsc|WSC|Westminster\sShorter\sCatechism|westminster\sshorter\scatechism|WLC|wlc|Westminster\sLarger\sCatechism|westminster\slarger\scatechism|39A|39a|bcf|BCF|COD|CD|cod|cd|95T|95t)/);
 export const chapterFacetRegex = new RegExp(/chapter:([0-9]*|lord's\sday:[0-9]*|lords\sday:[0-9]*|question:[0-9]*|Question:[0-9]*|answer:[0-9]*|Answer:[0-9]*)/);
 export const articleFacetRegex = new RegExp(/Article|article:([0-9]*)/);
-
-const confessions = ['wcf', 'wlc', 'wsc', 'hc'];
 
 export const parseFacets = (str) => {
   const document = documentFacetRegex.exec(str)
     ? documentFacetRegex.exec(str)[1]
-      .split(' ')
-      .map((s) => {
-        if (confessions.includes(s.toLowerCase())) return s.toUpperCase();
-        return s[0].toUpperCase();
-      })
+      .split('')
+      .map((s) => s.toUpperCase())
       .join('')
     : null;
   const chapter = chapterFacetRegex.exec(str);
   const article = articleFacetRegex.exec(str);
+  if ((document === 'CD' || document === 'COD') && chapter) {
+    return [
+      [
+        `parent:${parentIdByAbbreviation[document]}-${chapter[1]}-articles`,
+        `parent:${parentIdByAbbreviation[document]}-${chapter[1]}-rejections`,
+      ],
+    ];
+  }
+  if ((document === '95T' || document === 'BCF') && chapter) {
+    return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}`];
+  }
   if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}-${article[1]}`];
   if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter[1]}`];
   if (document) return [`document:${confessionCitationByIndex[document][0]}`];
