@@ -2,7 +2,9 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative&family=Marcellus&family=Cinzel&display=swap');
+@import "~@fontsource/cinzel-decorative/index.css"; // Weight 400.
+@import "~@fontsource/cinzel/index.css"; // Weight 400.
+@import "~@fontsource/marcellus/index.css";
 
 html {
     font-size: 16px;
