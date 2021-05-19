@@ -39,7 +39,6 @@ export const parentIdByAbbreviation = {
 export const confessionIdsWithoutTitles = [
   'WSC',
   'WLC',
-  'CoD',
   'BCoF',
   'TAoR',
   'ML9t',

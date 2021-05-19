@@ -281,6 +281,9 @@ const HomePage = ({
         const isExpanded = expanded.includes(documentId);
         const groupedByChapter = groupBy(results, (obj) => {
           if (obj.parent === documentId) return obj.id;
+          if (documentId === 'CoD') {
+            return `CoD-${obj.parent.split('-')[1]}`;
+          }
           return obj.parent;
         });
 
@@ -289,7 +292,7 @@ const HomePage = ({
             <li>
               <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
                 {documentTitle}
-                <span className="text-xl lg:text-lg my-auto mx-auto md:ml-auto">
+                <span className="text-xl lg:text-lg my-auto mx-auto md:ml-auto md:mr-0">
                   {`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}
                   <FontAwesomeIcon
                     className="ml-5 my-auto text-xl lg:text-lg"

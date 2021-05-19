@@ -114,7 +114,7 @@ const ConfessionTextResult = ({
 
   const renderTitle = () => {
     if (confessionIdsWithoutTitles.some((str) => confessionId.includes(str))) return null;
-    if (!hideChapterTitle && document.toUpperCase() !== contentById[parentId].title.toUpperCase()) {
+    if (!hideChapterTitle && document.toUpperCase() !== contentById[parentId]?.title.toUpperCase()) {
       return <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{contentById[parentId].title}</h3>;
     }
     return null;
