@@ -312,9 +312,9 @@ const HomePage = ({
                         chapterId.split('-').length === 2
                         && !chapterId.includes('WSC')
                         && !chapterId.includes('WLC')
+                        && contentById[chapterId].isParent
                       );
                       // No chapter results displayed.
-                      console.log('chapterId', chapterId);
                       if (isResultChapter || areResultsPristine) {
                         return (
                           <ConfessionChapterResult

@@ -4,9 +4,10 @@ import Highlighter from 'react-highlight-words';
 import fetch from 'isomorphic-fetch';
 import queryString from 'query-string';
 import { trim, trimStart, uniqueId } from 'lodash';
-import { parseOsisBibleReference } from '../scripts/helpers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { parseOsisBibleReference } from '../scripts/helpers';
+import { confessionIdsWithoutTitles } from '../dataMapping';
 
 const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
 const baseUrl = 'https://api.esv.org/v3/passage/text';
@@ -112,7 +113,7 @@ const ConfessionTextResult = ({
     });
 
   const renderTitle = () => {
-    if (confessionId.includes('WSC') || confessionId.includes('WLC')) return null;
+    if (confessionIdsWithoutTitles.some((str) => confessionId.includes(str))) return null;
     if (!hideChapterTitle && document.toUpperCase() !== contentById[parentId].title.toUpperCase()) {
       return <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{contentById[parentId].title}</h3>;
     }
@@ -122,19 +123,19 @@ const ConfessionTextResult = ({
   return (
     <li key={uniqueId(confessionId)} className="w-full flex flex-col justify-center mb-24">
       {renderTitle()}
-      {searchTerms.length && (
+      {searchTerms.length > 0 && (
         <>
           <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
           <Highlighter className="mt-4" textToHighlight={text} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
         </>
       )}
-      {!searchTerms.length && (
+      {searchTerms.length === 0 && (
         <>
           <h4 className="text-2xl">{title}</h4>
           <p className="mt-4">{text}</p>
         </>
       )}
-      {Object.keys(verses).length && (
+      {Object.keys(verses).length > 0 && ( 
         <ul className="mt-12">
           <li key={uniqueId()}>
             {renderVerses(verses)}

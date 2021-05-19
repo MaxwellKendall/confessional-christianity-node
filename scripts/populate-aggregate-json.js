@@ -10,7 +10,7 @@ const readFileRoot = '../compendium/data';
 const writeFileRoot = '../normalized-data';
 const yamlExtensionRegExp = RegExp(/.yaml/);
 
-const includedFiles = ['wsc.yaml', 'wlc.yaml', 'wcf.yaml', 'heidelberg-catechism.yaml'];
+const includedFiles = ['95-theses.yaml'];
 const prettyChildrenTitleByChildrenType = {
   articles: 'Article',
   chapters: 'Chapter',
@@ -49,61 +49,65 @@ const enforceJSONShape = (json, confession = '', childrenType = '') => {
     };
   }
 
-  const grandChildrenType = json.reduce((grandChildName, obj) => {
-    if (grandChildName) return grandChildName;
-    return getChildrenType(obj);
-  }, null);
-
-  if (grandChildrenType) {
-    const flattened = json
-      .map((obj) => ({
+  const rtrn = json
+    .map((obj, i) => {
+      if (typeof obj === 'string') {
+        return {
+          title: `Thesis ${i + 1}`,
+          parent: confession,
+          id: `${confession}-${i + 1}`,
+          text: obj
+        }
+      }
+      return {
         title: getTitle(obj, childrenType),
-        isParent: true,
+        isParent: !!getChildrenType(obj),
         parent: confession,
         id: `${confession}-${obj.number}`,
-      }))
-      .concat(
-        json
-          .reduce((acc, obj) => (
-            acc.concat(
-              obj[grandChildrenType]
-                .map((innerObj) => ({
-                  title: getTitle(innerObj, grandChildrenType),
-                  text: innerObj.text || innerObj.answer,
-                  verses: innerObj.verses,
-                  isParent: false,
-                  parent: `${confession}-${obj.number}`,
-                  id: `${confession}-${obj.number}-${innerObj.number}`,
-                })),
-            )
-          ), []),
-      )
-      .sort((a, b) => {
-        const chapterIdA = parseInt(a.id.split('-')[1], 10);
-        const chapterIdB = parseInt(b.id.split('-')[1], 10);
-        if (chapterIdB > chapterIdA) return -1;
-        if (chapterIdA > chapterIdB) return 1;
-        if (chapterIdB === chapterIdA) {
-          const articleIdA = parseInt(a.id.split('-')[2], 10);
-          const articleIdIdB = parseInt(b.id.split('-')[2], 10);
-          if (articleIdIdB > articleIdA) return -1;
-          if (articleIdA > articleIdIdB) return 1;
-        }
-        return 0;
-      })
-      .map((obj, i) => ({ ...obj, number: i + 1 }));
-    return flattened;
-  }
-  // BC, WSC, & WLC
-  return json.map((obj) => ({
-    title: getTitle(obj, childrenType),
-    text: obj.text || obj.answer,
-    verses: obj.verses || {},
-    isParent: false,
-    parent: confession,
-    number: obj.number,
-    id: `${confession}-${obj.number}`,
-  }));
+        text: obj?.text,
+      }
+    })
+    .concat(
+      json
+        .filter((obj) => (
+          Object
+            .entries(obj)
+            .reduce((acc, [key, value]) => {
+              if (acc) return acc;
+              return (
+                key !== 'verses'
+                && key !== 'recommended_reading'
+                && Array.isArray(value)
+              );
+            }, false)
+        ))
+        .map((obj) => {
+          const test = '';
+          return Object
+            .entries(obj)
+            .filter(([, value]) => Array.isArray(value))
+            .reduce((acc, [k, value]) => {
+              return acc.concat(enforceJSONShape(value, `${confession}-${obj.number}-${k.toLowerCase()}`, k));
+            }, [])
+        })
+        .flat(),
+    )
+    .sort((a, b) => {
+      const chapterIdA = parseInt(a.id.split('-')[1], 10);
+      const chapterIdB = parseInt(b.id.split('-')[1], 10);
+      if (chapterIdB > chapterIdA) return -1;
+      if (chapterIdA > chapterIdB) return 1;
+      if (chapterIdB === chapterIdA) {
+        const articleIdA = parseInt(a.id.split('-')[2], 10);
+        const articleIdIdB = parseInt(b.id.split('-')[2], 10);
+        if (articleIdIdB > articleIdA) return -1;
+        if (articleIdA > articleIdIdB) return 1;
+      }
+      return 0;
+    })
+    .map((obj, i) => ({ ...obj, number: i + 1 }));
+  
+  return rtrn;
 };
 
 const fileToJson = async (file) => {

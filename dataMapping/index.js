@@ -12,6 +12,10 @@ export const confessionPathByName = {
   'westminster-larger-catechism': 'normalized-data/westminster/wlc.json',
   'westminster-shorter-catechism': 'normalized-data/westminster/wsc.json',
   'heidelberg-catechism': 'normalized-data/three-forms-of-unity/heidelberg-catechism.json',
+  'canons-of-dort': 'normalized-data/three-forms-of-unity/canons-of-dort.json',
+  'belgic-confession': 'normalized-data/three-forms-of-unity/belgic-confession.json',
+  '39-articles': 'normalized-data/anglican/39-articles.json',
+  '95-theses': 'normalized-data/reformation/95-theses.json',
 };
 
 export const parentIdByAbbreviation = {
@@ -21,3 +25,11 @@ export const parentIdByAbbreviation = {
   'WLC': 'WLC',
   'WSC': 'WSC',
 };
+
+export const confessionIdsWithoutTitles = [
+  'WSC',
+  'WLC',
+  'BCoF',
+  'TAoR',
+  'ML9t',
+];
