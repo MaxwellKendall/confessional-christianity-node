@@ -10,8 +10,8 @@ const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SE
 const aggIndex = client.initIndex('aggregate');
 
 const readDir = path.resolve(__dirname, '../normalized-data');
-const includedDirs = ['three-forms-of-unity', 'westminster'];
-const includedFiles = ['wlc.json', 'wcf.json', 'wsc.json', 'heidelberg-catechism.json'];
+const includedDirs = ['three-forms-of-unity', 'reformation', 'anglican'];
+const includedFiles = ['canons-of-dort.json', 'belgic-confession.json', '95-theses.json', '39-articles.json'];
 
 const addFileContentsToIndex = (filePath) => new Promise((resolve) => {
   const stream = fs.createReadStream(filePath);
