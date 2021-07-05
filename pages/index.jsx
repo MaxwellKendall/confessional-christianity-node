@@ -5,8 +5,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import path from 'path';
 import { promises as fs } from 'fs';
+import Link from 'next/link'
+
 import algoliasearch from 'algoliasearch';
-import { groupBy, throttle } from 'lodash';
+import { groupBy, kebabCase, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -289,7 +291,9 @@ const HomePage = ({
           acc.concat([
             <li>
               <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
-                {documentTitle}
+                <Link href={kebabCase(documentTitle).toLowerCase()}>
+                  {documentTitle}
+                </Link>
                 <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
                   {`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}
                   <FontAwesomeIcon

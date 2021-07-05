@@ -112,8 +112,8 @@ const Confession = ({
   return (
     <div className="home flex flex-col p-8 w-full my-24">
       <h1 className="text-center text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
-      <h2 className="my-24 text-3xl mx-auto text-center w-full">{title}</h2>
-      <ul className="w-full max-4xl lg:px-48">
+      <h2 className="text-3xl lg:text-4xl my-24 flex flex-wrap justify-center w-full lg:w-1/2 mx-auto">{title}</h2>
+      <ul className="results w-full lg:w-1/2 mx-auto">
         {renderContent()}
       </ul>
     </div>

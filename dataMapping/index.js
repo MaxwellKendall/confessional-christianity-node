@@ -18,9 +18,9 @@ export const confessionPathByName = {
   'westminster-shorter-catechism': 'normalized-data/westminster/wsc.json',
   'heidelberg-catechism': 'normalized-data/three-forms-of-unity/heidelberg-catechism.json',
   'canons-of-dort': 'normalized-data/three-forms-of-unity/canons-of-dort.json',
-  'belgic-confession': 'normalized-data/three-forms-of-unity/belgic-confession.json',
-  '39-articles': 'normalized-data/anglican/39-articles.json',
-  '95-theses': 'normalized-data/reformation/95-theses.json',
+  'the-belgic-confession-of-faith': 'normalized-data/three-forms-of-unity/belgic-confession.json',
+  'thirty-nine-articles-of-religion': 'normalized-data/anglican/39-articles.json',
+  'martin-luthers-95-theses': 'normalized-data/reformation/95-theses.json',
 };
 
 export const parentIdByAbbreviation = {
