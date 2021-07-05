@@ -22,9 +22,13 @@ import {
   chapterFacetRegex,
   articleFacetRegex,
   parseFacets,
+  isChapter,
+  groupContentByChapter
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
+
+const HITS_PER_PAGE = 25;
 
 const client = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_API_KEY,
@@ -40,7 +44,7 @@ const defaultQueries = [
     indexName: 'aggregate',
     query: '',
     params: {
-      hitsPerPage: 10,
+      hitsPerPage: HITS_PER_PAGE,
       attributesToHighlight: [
         'text',
         'title',
@@ -51,7 +55,7 @@ const defaultQueries = [
     indexName: 'bible verses',
     query: '',
     params: {
-      hitsPerPage: 10,
+      hitsPerPage: HITS_PER_PAGE,
       attributesToHighlight: [
         'citation',
         'bibleText',
@@ -279,20 +283,14 @@ const HomePage = ({
 
         const documentId = getConfessionalAbbreviationId(documentTitle);
         const isExpanded = expanded.includes(documentId);
-        const groupedByChapter = groupBy(results, (obj) => {
-          if (obj.parent === documentId) return obj.id;
-          if (documentId === 'CoD') {
-            return `CoD-${obj.parent.split('-')[1]}`;
-          }
-          return obj.parent;
-        });
+        const groupedByChapter = groupContentByChapter(results);
 
         return (
           acc.concat([
             <li>
               <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
                 {documentTitle}
-                <span className="text-xl lg:text-lg my-auto mx-auto mt-4 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
+                <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
                   {`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}
                   <FontAwesomeIcon
                     className="ml-5 my-auto text-xl lg:text-lg"
@@ -308,13 +306,7 @@ const HomePage = ({
                     .sort((a, b) => handleSortById({ id: a }, { id: b }))
                     .filter((key) => key.includes(documentId))
                     .map((chapterId) => {
-                      const isResultChapter = (
-                        // parent would then be the document
-                        chapterId.split('-').length === 2
-                        && !chapterId.includes('WSC')
-                        && !chapterId.includes('WLC')
-                        && contentById[chapterId].isParent
-                      );
+                      const isResultChapter = isChapter(chapterId, contentById);
                       // No chapter results displayed.
                       if (isResultChapter || areResultsPristine) {
                         return (
@@ -395,16 +387,16 @@ const HomePage = ({
         </p>
       )}
       {renderResults()}
-      {!isLoading && hasMore && getResultsLength(searchResults) && (
+      {!isLoading && hasMore && getResultsLength(searchResults) > 0 && (
         <button type="submit" className="w-full" onClick={handleLoadMore}>LOAD MORE</button>
       )}
-      {isLoading && getResultsLength(searchResults) && (
+      {isLoading && getResultsLength(searchResults) > 0 && (
         <p className="text-xl w-full text-center">
           <FontAwesomeIcon icon={faSpinner} spin className="text-xl" />
           Loading more...
         </p>
       )}
-      {!isLoading && !areResultsPristine && !getResultsLength(searchResults) && (
+      {!isLoading && !areResultsPristine && getResultsLength(searchResults) < 0 && (
         <p className="text-xl w-full text-center">
           No results found.
         </p>

@@ -1,4 +1,5 @@
-import { confessionCitationByIndex, parentIdByAbbreviation } from '../dataMapping';
+import { groupBy } from 'lodash';
+import { confessionCitationByIndex, confessionPathByName, parentIdByAbbreviation } from '../dataMapping';
 
 /**
  * parseConfessionId
@@ -82,8 +83,8 @@ export const handleSortById = (a, b) => {
   return 0;
 };
 
-export const documentFacetRegex = new RegExp(/document:(WCF|wcf|Westminster\sConfession\sof\sFaith|westminster\sconfession\sof\sfaith|HC|hc|Heidelberg\sCatechism|heidelberg\scatechism|wsc|WSC|Westminster\sShorter\sCatechism|westminster\sshorter\scatechism|WLC|wlc|Westminster\sLarger\sCatechism|westminster\slarger\scatechism|39A|39a|bcf|BCF|COD|CD|cod|cd|95T|95t)/);
-export const chapterFacetRegex = new RegExp(/chapter:([0-9]*|lord's\sday:[0-9]*|lords\sday:[0-9]*|question:[0-9]*|Question:[0-9]*|answer:[0-9]*|Answer:[0-9]*)/);
+export const documentFacetRegex = new RegExp(/[d,D]ocument:(WCF|wcf|Westminster\sConfession\sof\sFaith|westminster\sconfession\sof\sfaith|HC|hc|Heidelberg\sCatechism|heidelberg\scatechism|wsc|WSC|Westminster\sShorter\sCatechism|westminster\sshorter\scatechism|WLC|wlc|Westminster\sLarger\sCatechism|westminster\slarger\scatechism|39A|39a|bcf|BCF|COD|CD|cod|cd|95T|95t)/);
+export const chapterFacetRegex = new RegExp(/[c,C]hapter:([0-9]*|lord's\sday:[0-9]*|lords\sday:[0-9]*|question:[0-9]*|Question:[0-9]*|answer:[0-9]*|Answer:[0-9]*)/);
 export const articleFacetRegex = new RegExp(/Article|article:([0-9]*)/);
 
 export const parseFacets = (str) => {
@@ -111,3 +112,25 @@ export const parseFacets = (str) => {
   if (document) return [`document:${confessionCitationByIndex[document][0]}`];
   return [];
 };
+
+export const getDocumentId = (id) => id.split('-')[0];
+
+export const isDocumentId = (id) => !id.includes('-');
+
+export const groupContentByChapter = (content) => {
+  return groupBy(content, (obj) => {
+    if (isDocumentId(obj.parent)) return obj.id;
+    if (getDocumentId(obj.id) === 'CoD') {
+      return `CoD-${obj.parent.split('-')[1]}`;
+    }
+    return obj.parent;
+  });
+}
+
+export const isChapter = (chapterId, contentById) => (
+    // parent would then be the document
+    chapterId.split('-').length === 2
+    && !chapterId.includes('WSC')
+    && !chapterId.includes('WLC')
+    && contentById[chapterId].isParent
+);

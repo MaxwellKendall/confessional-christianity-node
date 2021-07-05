@@ -40,6 +40,7 @@ export const confessionIdsWithoutTitles = [
   'WSC',
   'WLC',
   'BCoF',
+  'TBCoF',
   'TAoR',
   'ML9t',
 ];
