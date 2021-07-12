@@ -44,3 +44,8 @@ export const confessionIdsWithoutTitles = [
   'TAoR',
   'ML9t',
 ];
+
+export const excludedWordsInDocumentId = [
+  'OF',
+  'THE',
+];

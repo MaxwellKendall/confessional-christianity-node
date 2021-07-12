@@ -315,6 +315,8 @@ const HomePage = ({
                       if (isResultChapter || areResultsPristine) {
                         return (
                           <ConfessionChapterResult
+                            docTitle={documentTitle}
+                            chapterId={chapterId}
                             title={contentById[chapterId].title}
                             searchTerms={searchTerm.split(' ')}
                             data={groupedByChapter[chapterId]

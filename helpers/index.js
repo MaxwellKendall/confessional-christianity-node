@@ -1,5 +1,5 @@
 import { groupBy } from 'lodash';
-import { confessionCitationByIndex, confessionPathByName, parentIdByAbbreviation } from '../dataMapping';
+import { confessionCitationByIndex, excludedWordsInDocumentId, parentIdByAbbreviation } from '../dataMapping';
 
 /**
  * parseConfessionId
@@ -87,17 +87,12 @@ export const documentFacetRegex = new RegExp(/document:(wcf|Westminster\sConfess
 export const chapterFacetRegex = new RegExp(/chapter:([0-9]*)|lord's\sday:([0-9]*)|lords\sday:([0-9]*)/i);
 export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)|question:([0-9]*)/i);
 
-const excludedWords = [
-  'OF',
-  'THE',
-];
-
 export const parseFacets = (str) => {
   const document = documentFacetRegex.test(str)
     ? documentFacetRegex.exec(str)[1]
       .toUpperCase()
       .split(' ')
-      .filter((w) => !excludedWords.includes(w))
+      .filter((w) => !excludedWordsInDocumentId.includes(w))
       .map((s, i, arr) => {
         if (arr.length === 1) return s;
         // in this case, the document is the full text vs the abbreviation.
