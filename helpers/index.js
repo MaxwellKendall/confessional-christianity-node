@@ -83,20 +83,46 @@ export const handleSortById = (a, b) => {
   return 0;
 };
 
-export const documentFacetRegex = new RegExp(/[d,D]ocument:(WCF|wcf|Westminster\sConfession\sof\sFaith|westminster\sconfession\sof\sfaith|HC|hc|Heidelberg\sCatechism|heidelberg\scatechism|wsc|WSC|Westminster\sShorter\sCatechism|westminster\sshorter\scatechism|WLC|wlc|Westminster\sLarger\sCatechism|westminster\slarger\scatechism|39A|39a|bcf|BCF|COD|CD|cod|cd|95T|95t)/);
-export const chapterFacetRegex = new RegExp(/[c,C]hapter:([0-9]*|lord's\sday:[0-9]*|lords\sday:[0-9]*|question:[0-9]*|Question:[0-9]*|answer:[0-9]*|Answer:[0-9]*)/);
-export const articleFacetRegex = new RegExp(/Article|article:([0-9]*)/);
+export const documentFacetRegex = new RegExp(/document:(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses)/i);
+export const chapterFacetRegex = new RegExp(/chapter:([0-9]*)|lord's\sday:([0-9]*)|lords\sday:([0-9]*)/i);
+export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)|question:([0-9]*)/i);
+
+const excludedWords = [
+  'OF',
+  'THE',
+];
 
 export const parseFacets = (str) => {
-  const document = documentFacetRegex.exec(str)
+  const document = documentFacetRegex.test(str)
     ? documentFacetRegex.exec(str)[1]
-      .split('')
-      .map((s) => s.toUpperCase())
+      .toUpperCase()
+      .split(' ')
+      .filter((w) => !excludedWords.includes(w))
+      .map((s, i, arr) => {
+        if (arr.length === 1) return s;
+        // in this case, the document is the full text vs the abbreviation.
+        return s[0];
+      })
       .join('')
     : null;
-  const chapter = chapterFacetRegex.exec(str);
-  const article = articleFacetRegex.exec(str);
+  const chapter = chapterFacetRegex.exec(str)
+    ? chapterFacetRegex.exec(str).filter((v) => !!v)
+    : null;
+  const article = articleFacetRegex.exec(str)
+    ? articleFacetRegex.exec(str).filter((v) => !!v)
+    : null;
+
   if ((document === 'CD' || document === 'COD') && chapter) {
+    if (article && article[0].toLowerCase().includes('rejection')) {
+      return [
+        `id:${parentIdByAbbreviation[document]}-${chapter[1]}-rejections-${article[1]}`,
+      ];
+    }
+    if (article && !article[0].toLowerCase().includes('rejection')) {
+      return [
+        `id:${parentIdByAbbreviation[document]}-${chapter[1]}-articles-${article[1]}`,
+      ];
+    }
     return [
       [
         `parent:${parentIdByAbbreviation[document]}-${chapter[1]}-articles`,
@@ -109,6 +135,7 @@ export const parseFacets = (str) => {
   }
   if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}-${article[1]}`];
   if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter[1]}`];
+  if (document && article) return [`id:${parentIdByAbbreviation[document]}-${article[1]}`];
   if (document) return [`document:${confessionCitationByIndex[document][0]}`];
   return [];
 };
@@ -117,19 +144,17 @@ export const getDocumentId = (id) => id.split('-')[0];
 
 export const isDocumentId = (id) => !id.includes('-');
 
-export const groupContentByChapter = (content) => {
-  return groupBy(content, (obj) => {
-    if (isDocumentId(obj.parent)) return obj.id;
-    if (getDocumentId(obj.id) === 'CoD') {
-      return `CoD-${obj.parent.split('-')[1]}`;
-    }
-    return obj.parent;
-  });
-}
+export const groupContentByChapter = (content) => groupBy(content, (obj) => {
+  if (isDocumentId(obj.parent)) return obj.id;
+  if (getDocumentId(obj.id) === 'CoD') {
+    return `CoD-${obj.parent.split('-')[1]}`;
+  }
+  return obj.parent;
+});
 
 export const isChapter = (chapterId, contentById) => (
-    // parent would then be the document
-    chapterId.split('-').length === 2
+  // parent would then be the document
+  chapterId.split('-').length === 2
     && !chapterId.includes('WSC')
     && !chapterId.includes('WLC')
     && contentById[chapterId].isParent
