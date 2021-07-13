@@ -95,7 +95,6 @@ const Confession = ({
         return (
           <ConfessionChapterResult
             title={contentById[key].title}
-            searchTerms={[]}
             data={children
               .map((c) => ({
                 ...c,

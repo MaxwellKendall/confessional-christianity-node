@@ -8,51 +8,84 @@ import Link from 'next/link';
 
 import { excludedWordsInDocumentId } from '../dataMapping';
 import ConfessionTextResult from './ConfessionTextResult';
+import { getConfessionalAbbreviationId } from '../scripts/helpers';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
-const generateLink = (docTitle, chapterId) => {
-  const docId = docTitle
-    .toUpperCase()
-    .split(' ')
-    .filter((w) => !excludedWordsInDocumentId.includes(w))
-    .reduce((acc, str) => `${acc}${str[0]}`, '');
-
+const generateLink = (docId, chapterId) => {
   return {
     pathname: '/',
     query: {
-      search: `document:${docId} chapter:${chapterId.split('-')[1]}`,
+      search: `document:${docId} chapter:${chapterId}`,
     },
   };
 };
 
 const ConfessionChapterResult = ({
-  docTitle = null,
+  docId = null,
   chapterId = null,
+  docTitle = null,
+  showNav = false,
   title,
   data,
   contentById,
   searchTerms = '',
-}) => (
-  <li key={uniqueId()} className="w-full flex flex-col justify-center mb-24">
-    {docTitle && chapterId && searchTerms.length > 0 && (
-      <Link href={generateLink(docTitle, chapterId)}>
-        <Highlighter className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
-      </Link>
-    )}
-    {docTitle && chapterId && !searchTerms && (
-      <Link href={generateLink(docTitle, chapterId)}>
-        <h3 className="cursor-pointer text-3xl lg:text-4xl w-full text-center mb-24">{title}</h3>
-      </Link>
-    )}
-    <ul>
-      {data
-        .map((d) => (
-          <ConfessionTextResult
-            {...d}
-            contentById={contentById}
-          />
-        ))}
-    </ul>
-  </li>
-);
+}) => {
+  const elaborateId = docTitle ? getConfessionalAbbreviationId(docTitle) : null;
+  const chapterIdAsInt = parseInt(chapterId, 10);
+  const hasPrevious = elaborateId && !!contentById[`${elaborateId}-${chapterIdAsInt - 1}-1`];
+  const hasNext = elaborateId && !!contentById[`${elaborateId}-${chapterIdAsInt + 1}-1`];
+
+  const renderNav = () => [{ direction: 1, show: hasNext }, { direction: -1, show: hasPrevious }]
+    .filter(({ show }) => show)
+    .map((obj) => (
+      <li className={obj.direction > 0 ? 'absolute top-2.5 left-full' : 'absolute top-2.5 right-full'}>
+        <Link href={generateLink(docId, chapterIdAsInt + obj.direction)} className="relative left-full">
+          {obj.direction > 0
+            ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} />
+            : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} />}
+        </Link>
+      </li>
+    ));
+
+  return (
+    <li key={uniqueId()} className={`w-full flex flex-col justify-center mb-24 ${showNav ? ' absolute' : ''}`}>
+      <>
+        {docId && chapterId && searchTerms.length > 0 && (
+          <Link href={generateLink(docId, chapterId)}>
+            <>
+              <Highlighter className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+              <ul>
+                {renderNav()}
+              </ul>
+            </>
+          </Link>
+        )}
+        {docId && chapterId && !searchTerms && (
+          <Link href={generateLink(docId, chapterId)}>
+            <>
+              <h3 className="cursor-pointer text-3xl lg:text-4xl w-full text-center mb-24">{title}</h3>
+              <ul>
+                {renderNav()}
+              </ul>
+            </>
+          </Link>
+        )}
+        {!docId && !chapterId && !searchTerms && (
+          <h3 className="cursor-pointer text-3xl lg:text-4xl w-full text-center mb-24">{title}</h3>
+        )}
+      </>
+      <ul>
+        {data
+          .map((d) => (
+            <ConfessionTextResult
+              {...d}
+              contentById={contentById}
+            />
+          ))}
+      </ul>
+    </li>
+  );
+}
 
 export default ConfessionChapterResult;

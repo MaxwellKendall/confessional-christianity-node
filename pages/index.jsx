@@ -25,7 +25,8 @@ import {
   articleFacetRegex,
   parseFacets,
   isChapter,
-  groupContentByChapter
+  groupContentByChapter,
+  getConciseDocId
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -304,7 +305,7 @@ const HomePage = ({
                 </span>
               </h2>
               {isExpanded && (
-                <ul>
+                <ul className="relative">
                   {Object
                     .keys(groupedByChapter)
                     .sort((a, b) => handleSortById({ id: a }, { id: b }))
@@ -316,7 +317,9 @@ const HomePage = ({
                         return (
                           <ConfessionChapterResult
                             docTitle={documentTitle}
-                            chapterId={chapterId}
+                            docId={getConciseDocId(documentTitle)}
+                            showNav
+                            chapterId={chapterId.split('-')[1]}
                             title={contentById[chapterId].title}
                             searchTerms={searchTerm.split(' ')}
                             data={groupedByChapter[chapterId]

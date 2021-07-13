@@ -154,3 +154,10 @@ export const isChapter = (chapterId, contentById) => (
     && !chapterId.includes('WLC')
     && contentById[chapterId].isParent
 );
+
+// returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
+export const getConciseDocId = (docTitle) => docTitle
+  .toUpperCase()
+  .split(' ')
+  .filter((w) => !excludedWordsInDocumentId.includes(w))
+  .reduce((acc, str) => `${acc}${str[0]}`, '');
