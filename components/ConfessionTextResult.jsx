@@ -6,8 +6,12 @@ import queryString from 'query-string';
 import { trim, trimStart, uniqueId } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { parseOsisBibleReference } from '../scripts/helpers';
-import { confessionIdsWithoutTitles } from '../dataMapping';
+import Link from 'next/link';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+
+import { parseOsisBibleReference, getConfessionalAbbreviationId } from '../scripts/helpers';
+import { confessionIdsWithoutTitles, secondFacetByConciseDocId } from '../dataMapping';
+import { generateLink } from '../helpers';
 
 const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
 const baseUrl = 'https://api.esv.org/v3/passage/text';
@@ -30,9 +34,17 @@ const ConfessionTextResult = ({
   parent: parentId,
   hideChapterTitle = false,
   verses = {},
+  showNav = false,
+  docTitle,
+  chapterId,
+  docId
 }) => {
   const [bibleTextById, setBibleTextById] = useState({});
   const [loadingTexts, setLoadingTexts] = useState([]);
+  const elaborateId = docTitle ? getConfessionalAbbreviationId(docTitle) : null;
+  const chapterIdAsInt = parseInt(chapterId, 10);
+  const hasPrevious = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt - 1}`));
+  const hasNext = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt + 1}`));
 
   const parseBibleText = (t) => {
     const textAsArr = t.split('(ESV)');
@@ -115,24 +127,63 @@ const ConfessionTextResult = ({
   const renderTitle = () => {
     if (confessionIdsWithoutTitles.some((str) => confessionId.includes(str))) return null;
     if (!hideChapterTitle && document.toUpperCase() !== contentById[parentId]?.title.toUpperCase()) {
-      return <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{contentById[parentId].title}</h3>;
+      return (
+        <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{contentById[parentId].title}</h3>
+      );
     }
     return null;
   };
 
+  // Refactor to be its own component.
+  const renderNav = () => [{ direction: 1, show: hasNext }, { direction: -1, show: hasPrevious }]
+    .filter(({ show }) => show)
+    .map((obj) => (
+      <li className={obj.direction > 0 ? 'absolute top-0 left-full ml-2 lg:ml-5' : 'absolute top-0 right-full mr-2 lg:mr-5'}>
+        <Link scroll={false} href={generateLink(docId, chapterIdAsInt + obj.direction, secondFacetByConciseDocId[docId])} className="relative left-full">
+          {obj.direction > 0
+            ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} size="xs" />
+            : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} size="xs" />}
+        </Link>
+      </li>
+    ));
+
   return (
-    <li key={uniqueId(confessionId)} className="w-full flex flex-col justify-center mb-24">
+    <li key={uniqueId(confessionId)} className={`w-full flex flex-col justify-center mb-24 ${showNav ? ' absolute' : ''}`}>
       {renderTitle()}
       {searchTerms.length > 0 && (
         <>
-          <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+          <Link
+            scroll={false}
+            href={generateLink(docId, chapterIdAsInt, secondFacetByConciseDocId[docId])}
+            className="relative left-full">
+              <a className="cursor-pointer">
+                <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+              </a>
+          </Link>
           <Highlighter className="mt-4" textToHighlight={text} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+          {showNav && (
+            <ul>
+              {renderNav()}
+            </ul>
+          )}
         </>
       )}
       {searchTerms.length === 0 && (
         <>
-          <h4 className="text-2xl">{title}</h4>
+        <Link
+          scroll={false}
+          href={generateLink(docId, chapterIdAsInt, secondFacetByConciseDocId[docId])}
+          className="relative left-full">
+            <a className="cursor-pointer">
+              <h4 className="text-2xl">{title}</h4>
+            </a>
+          </Link>
           <p className="mt-4">{text}</p>
+          {showNav && (
+            <ul>
+              {renderNav()}
+            </ul>
+          )}
         </>
       )}
       {Object.keys(verses).length > 0 && ( 

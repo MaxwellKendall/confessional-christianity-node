@@ -1,6 +1,29 @@
 import { groupBy } from 'lodash';
 import { confessionCitationByIndex, excludedWordsInDocumentId, parentIdByAbbreviation } from '../dataMapping';
 
+export const generateLink = (docId, secondFacetValue, secondFacetName = 'chapter') => ({
+  pathname: '/',
+  query: {
+    search: `document:${docId} ${secondFacetName}:${secondFacetValue}`,
+  },
+});
+
+// returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
+export const getConciseDocId = (docTitle) => docTitle
+  .toUpperCase()
+  .split(' ')
+  .filter((w) => !excludedWordsInDocumentId.includes(w))
+  .reduce((acc, str) => `${acc}${str[0]}`, '');
+
+export const getCanonicalDocId = (docTitleOrId) => {
+  const arr = docTitleOrId.split(' ');
+  if (arr.length === 1) {
+    // we have some weird ID... get the doc name & derive ID from that.
+    return getConciseDocId(confessionCitationByIndex[docTitleOrId][0]);
+  }
+  return getConciseDocId(docTitleOrId);
+};
+
 /**
  * parseConfessionId
  * @return {string} pretty version of the ID
@@ -83,8 +106,8 @@ export const handleSortById = (a, b) => {
   return 0;
 };
 
-export const documentFacetRegex = new RegExp(/document:(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses)/i);
-export const chapterFacetRegex = new RegExp(/chapter:([0-9]*)|lord's\sday:([0-9]*)|lords\sday:([0-9]*)/i);
+export const documentFacetRegex = new RegExp(/document:(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T)/i);
+export const chapterFacetRegex = new RegExp(/chapter:([0-9]*)|lord's\sday:([0-9]*)|lords\sday:([0-9]*)|thesis:([0-9])/i);
 export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)|question:([0-9]*)/i);
 
 export const parseFacets = (str) => {
@@ -107,7 +130,9 @@ export const parseFacets = (str) => {
     ? articleFacetRegex.exec(str).filter((v) => !!v)
     : null;
 
-  if ((document === 'CD' || document === 'COD') && chapter) {
+  const documentId = document ? getCanonicalDocId(document) : null;
+
+  if ((documentId === 'CD') && chapter) {
     if (article && article[0].toLowerCase().includes('rejection')) {
       return [
         `id:${parentIdByAbbreviation[document]}-${chapter[1]}-rejections-${article[1]}`,
@@ -125,7 +150,7 @@ export const parseFacets = (str) => {
       ],
     ];
   }
-  if ((document === '95T' || document === 'BCF') && chapter) {
+  if ((documentId === 'ML9T' || documentId === 'BCF' || documentId === 'TAR') && chapter) {
     return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}`];
   }
   if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}-${article[1]}`];
@@ -154,10 +179,3 @@ export const isChapter = (chapterId, contentById) => (
     && !chapterId.includes('WLC')
     && contentById[chapterId].isParent
 );
-
-// returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
-export const getConciseDocId = (docTitle) => docTitle
-  .toUpperCase()
-  .split(' ')
-  .filter((w) => !excludedWordsInDocumentId.includes(w))
-  .reduce((acc, str) => `${acc}${str[0]}`, '');

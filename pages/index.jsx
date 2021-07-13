@@ -5,12 +5,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import path from 'path';
 import { promises as fs } from 'fs';
-import Link from 'next/link'
+import Link from 'next/link';
 
 import algoliasearch from 'algoliasearch';
 import { groupBy, kebabCase, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMinus, faPlus, faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
+import {
+  faMinus, faPlus, faSpinner, faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { confessionPathByName } from '../dataMapping';
 
@@ -26,7 +28,7 @@ import {
   parseFacets,
   isChapter,
   groupContentByChapter,
-  getConciseDocId
+  getConciseDocId,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -292,7 +294,7 @@ const HomePage = ({
           acc.concat([
             <li>
               <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
-                <Link href={kebabCase(documentTitle).toLowerCase()}>
+                <Link href={{ pathname: '/', query: { search: `document:${getConciseDocId(documentTitle)}` } }}>
                   {documentTitle}
                 </Link>
                 <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
@@ -318,8 +320,8 @@ const HomePage = ({
                           <ConfessionChapterResult
                             docTitle={documentTitle}
                             docId={getConciseDocId(documentTitle)}
-                            showNav
                             chapterId={chapterId.split('-')[1]}
+                            showNav={chapterFacetRegex.test(searchTerm)}
                             title={contentById[chapterId].title}
                             searchTerms={searchTerm.split(' ')}
                             data={groupedByChapter[chapterId]
@@ -339,6 +341,14 @@ const HomePage = ({
                         .map((obj) => (
                           <ConfessionTextResult
                             {...obj}
+                            chapterId={chapterId.split('-')[1]}
+                            docTitle={documentTitle}
+                            docId={getConciseDocId(documentTitle)}
+                            linkToChapter
+                            showNav={(
+                              articleFacetRegex.test(searchTerm)
+                              || chapterFacetRegex.test(searchTerm)
+                            )}
                             searchTerms={getSearchTerms(obj, searchTerm)}
                             contentById={contentById}
                             hideDocumentTitle
@@ -396,15 +406,6 @@ const HomePage = ({
         </p>
       )}
       {renderResults()}
-      {!isLoading && hasMore && getResultsLength(searchResults) > 0 && (
-        <button type="submit" className="w-full" onClick={handleLoadMore}>LOAD MORE</button>
-      )}
-      {isLoading && getResultsLength(searchResults) > 0 && (
-        <p className="text-xl w-full text-center">
-          <FontAwesomeIcon icon={faSpinner} spin className="text-xl" />
-          Loading more...
-        </p>
-      )}
       {!isLoading && !areResultsPristine && getResultsLength(searchResults) < 0 && (
         <p className="text-xl w-full text-center">
           No results found.

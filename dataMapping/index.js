@@ -6,10 +6,13 @@ export const confessionCitationByIndex = {
   WSC: ['Westminster Shorter Catechism', 'Question and Answer', 'Scripture Citation'],
   WLC: ['Westminster Larger Catechism', 'Question and Answer', 'Scripture Citation'],
   '39A': ['Thirty-nine Articles of Religion', 'Chapter'],
+  TAR: ['Thirty-nine Articles of Religion', 'Chapter'],
   CD: ['Canons of Dort', 'Chapter'],
   COD: ['Canons of Dort', 'Chapter'],
   BCF: ['The Belgic Confession of Faith', 'Chapter'],
+  BC: ['The Belgic Confession of Faith', 'Chapter'],
   '95T': ['Martin Luther\'s 95 theses'],
+  ML9T: ['Martin Luther\'s 95 theses'],
 };
 
 export const confessionPathByName = {
@@ -23,6 +26,7 @@ export const confessionPathByName = {
   'martin-luthers-95-theses': 'normalized-data/reformation/95-theses.json',
 };
 
+// canonical docIds in algolia 🤦
 export const parentIdByAbbreviation = {
   WCF: 'WCoF',
   WCOF: 'WCoF',
@@ -32,8 +36,10 @@ export const parentIdByAbbreviation = {
   CD: 'CoD',
   COD: 'CoD',
   BCF: 'TBCoF',
+  TAR: 'TAoR',
   '39A': 'TAoR',
   '95T': 'ML9t',
+  ML9T: 'ML9t',
 };
 
 export const confessionIdsWithoutTitles = [
@@ -49,3 +55,14 @@ export const excludedWordsInDocumentId = [
   'OF',
   'THE',
 ];
+
+export const secondFacetByConciseDocId = {
+  WCF: 'chapter',
+  BC: 'chapter',
+  HC: 'chapter',
+  CD: 'chapter',
+  '39A': 'chapter',
+  ML9T: 'thesis',
+  WLC: 'question',
+  WSC: 'question',
+};
