@@ -1,13 +1,6 @@
 import { groupBy } from 'lodash';
 import { confessionCitationByIndex, excludedWordsInDocumentId, parentIdByAbbreviation } from '../dataMapping';
 
-export const generateLink = (docId, secondFacetValue, secondFacetName = 'chapter') => ({
-  pathname: '/',
-  query: {
-    search: `document:${docId} ${secondFacetName}:${secondFacetValue}`,
-  },
-});
-
 // returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
 export const getConciseDocId = (docTitle) => docTitle
   .toUpperCase()
@@ -17,11 +10,56 @@ export const getConciseDocId = (docTitle) => docTitle
 
 export const getCanonicalDocId = (docTitleOrId) => {
   const arr = docTitleOrId.split(' ');
+  console.log('docTitle', docTitleOrId);
   if (arr.length === 1) {
     // we have some weird ID... get the doc name & derive ID from that.
-    return getConciseDocId(confessionCitationByIndex[docTitleOrId][0]);
+    return getConciseDocId(confessionCitationByIndex[docTitleOrId.toUpperCase()][0]);
   }
   return getConciseDocId(docTitleOrId);
+};
+
+export const generateLink = (confessionId, facetNames = ['chapter', 'article']) => {
+  const idAsArr = confessionId.split('-');
+  const [id, chapterOrQuestion] = idAsArr;
+  const docId = getCanonicalDocId(id);
+  if (docId === 'CD') {
+    // handle canons of dordt chapter
+    if (idAsArr.length < 4) {
+      return {
+        pathname: '',
+        query: {
+          // arbitrarily always choosing articles for now rather than rejections...
+          search: `document:${docId} chapter:${chapterOrQuestion}`,
+        },
+      };
+    }
+    // handle canons of dordt articles/rejections
+    const articleOrRejection = idAsArr[2] === 'rejections'
+      ? 'rejection'
+      : 'article';
+    return {
+      pathname: '',
+      query: {
+        // arbitrarily always choosing articles for now rather than rejections...
+        search: `document:${docId} chapter:${chapterOrQuestion} ${articleOrRejection}:${idAsArr[3]}`,
+      },
+    };
+  }
+  if (idAsArr.length === 2) {
+    return {
+      pathname: '/',
+      query: {
+        search: `document:${docId} ${facetNames[0]}:${chapterOrQuestion}`,
+      },
+    };
+  }
+  const article = idAsArr[2];
+  return {
+    pathname: '/',
+    query: {
+      search: `document:${docId} ${facetNames[0]}:${chapterOrQuestion} ${facetNames[1]}:${article}`,
+    },
+  };
 };
 
 /**

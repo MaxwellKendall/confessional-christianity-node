@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 import { parseOsisBibleReference, getConfessionalAbbreviationId } from '../scripts/helpers';
-import { confessionIdsWithoutTitles, secondFacetByConciseDocId } from '../dataMapping';
+import { confessionIdsWithoutTitles, facetNamesByCanonicalDocId } from '../dataMapping';
 import { generateLink } from '../helpers';
 
 const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
@@ -43,6 +43,8 @@ const ConfessionTextResult = ({
   const [loadingTexts, setLoadingTexts] = useState([]);
   const elaborateId = docTitle ? getConfessionalAbbreviationId(docTitle) : null;
   const chapterIdAsInt = parseInt(chapterId, 10);
+  const nextConfessionId = `${docId}-${chapterIdAsInt + 1}`;
+  const prevConfessionId = `${docId}-${chapterIdAsInt - 1}`;
   const hasPrevious = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt - 1}`));
   const hasNext = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt + 1}`));
 
@@ -139,7 +141,12 @@ const ConfessionTextResult = ({
     .filter(({ show }) => show)
     .map((obj) => (
       <li className={obj.direction > 0 ? 'absolute top-0 left-full ml-2 lg:ml-5' : 'absolute top-0 right-full mr-2 lg:mr-5'}>
-        <Link scroll={false} href={generateLink(docId, chapterIdAsInt + obj.direction, secondFacetByConciseDocId[docId])} className="relative left-full">
+        <Link
+          scroll={false}
+          href={obj.direction > 0
+            ? generateLink(nextConfessionId, facetNamesByCanonicalDocId[docId])
+            : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}
+          className="relative left-full">
           {obj.direction > 0
             ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} size="xs" />
             : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} size="xs" />}
@@ -154,7 +161,7 @@ const ConfessionTextResult = ({
         <>
           <Link
             scroll={false}
-            href={generateLink(docId, chapterIdAsInt, secondFacetByConciseDocId[docId])}
+            href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
             className="relative left-full">
               <a className="cursor-pointer">
                 <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
@@ -172,7 +179,7 @@ const ConfessionTextResult = ({
         <>
         <Link
           scroll={false}
-          href={generateLink(docId, chapterIdAsInt, secondFacetByConciseDocId[docId])}
+          href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
           className="relative left-full">
             <a className="cursor-pointer">
               <h4 className="text-2xl">{title}</h4>

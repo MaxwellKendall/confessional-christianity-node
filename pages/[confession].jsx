@@ -1,12 +1,10 @@
 import React from 'react';
-import { capitalize, groupBy } from 'lodash';
+import { capitalize } from 'lodash';
 import path from 'path';
 import { promises } from 'fs';
 
-import { confessionPathByName, confessionCitationByIndex, confessionIdsWithoutTitles } from '../dataMapping';
-import { parseOsisBibleReference } from '../scripts/helpers';
-import { getContentById } from './index';
-import { getDocumentId, handleSortById, isChapter } from '../helpers';
+import { confessionPathByName, confessionIdsWithoutTitles } from '../dataMapping';
+import { isChapter } from '../helpers';
 import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import ConfessionTextResult from '../components/ConfessionTextResult';
 
@@ -70,6 +68,9 @@ const Confession = ({
           return (
             <ConfessionTextResult
               {...obj}
+              docId={documentId}
+              chapterId={obj.id.split('-')[1]}
+              docTitle={title}
               contentById={contentById}
               searchTerms={[]}
             />
@@ -94,13 +95,16 @@ const Confession = ({
 
         return (
           <ConfessionChapterResult
+            docId={documentId}
+            chapterId={key.split('-')[1]}
+            docTitle={title}
             title={contentById[key].title}
             data={children
               .map((c) => ({
                 ...c,
                 searchTerms: [],
                 hideChapterTitle: true,
-                hideDocumentTitle: true
+                hideDocumentTitle: true,
               }))}
             contentById={contentById}
           />

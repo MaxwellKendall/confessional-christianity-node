@@ -7,9 +7,12 @@ export const confessionCitationByIndex = {
   WLC: ['Westminster Larger Catechism', 'Question and Answer', 'Scripture Citation'],
   '39A': ['Thirty-nine Articles of Religion', 'Chapter'],
   TAR: ['Thirty-nine Articles of Religion', 'Chapter'],
+  TAOR: ['Thirty-nine Articles of Religion', 'Chapter'],
   CD: ['Canons of Dort', 'Chapter'],
   COD: ['Canons of Dort', 'Chapter'],
   BCF: ['The Belgic Confession of Faith', 'Chapter'],
+  TBCoF: ['The Belgic Confession of Faith', 'Chapter'],
+  TBCOF: ['The Belgic Confession of Faith', 'Chapter'],
   BC: ['The Belgic Confession of Faith', 'Chapter'],
   '95T': ['Martin Luther\'s 95 theses'],
   ML9T: ['Martin Luther\'s 95 theses'],
@@ -56,13 +59,13 @@ export const excludedWordsInDocumentId = [
   'THE',
 ];
 
-export const secondFacetByConciseDocId = {
-  WCF: 'chapter',
-  BC: 'chapter',
-  HC: 'chapter',
-  CD: 'chapter',
-  '39A': 'chapter',
-  ML9T: 'thesis',
-  WLC: 'question',
-  WSC: 'question',
+export const facetNamesByCanonicalDocId = {
+  WCF: ['chapter', 'article'],
+  BC: ['chapter'],
+  HC: ['lords day', 'question'],
+  CD: [['chapter', 'rejection'], ['chapter', 'article']],
+  '39A': ['chapter'],
+  ML9T: ['thesis'],
+  WLC: ['question'],
+  WSC: ['question'],
 };
