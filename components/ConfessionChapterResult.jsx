@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/interactive-supports-focus */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable react/jsx-props-no-spreading */
@@ -7,7 +9,9 @@ import { uniqueId } from 'lodash';
 import Highlighter from 'react-highlight-words';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import {
+  faChevronLeft, faChevronRight, faMinus, faPlus,
+} from '@fortawesome/free-solid-svg-icons';
 
 import ConfessionTextResult from './ConfessionTextResult';
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -22,6 +26,8 @@ const ConfessionChapterResult = ({
   title,
   data,
   contentById,
+  collapsedChapters,
+  setCollapsed,
   searchTerms = '',
 }) => {
   const elaborateId = docTitle ? getConfessionalAbbreviationId(docTitle) : null;
@@ -40,28 +46,95 @@ const ConfessionChapterResult = ({
         <Link
           scroll={false}
           className="relative left-full"
+          onClick={() => {
+            if (obj.direction > 0) {
+              setCollapsed({ [nextConfessionId]: false });
+            } else {
+              setCollapsed({ [prevConfessionId]: false });
+            }
+          }}
           href={obj.direction > 0
             ? generateLink(nextConfessionId, facetNamesByCanonicalDocId[docId])
             : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}
         >
           {obj.direction > 0
-            ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} size="xs" />
-            : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} size="xs" />}
+            ? (
+              <FontAwesomeIcon
+                className="cursor-pointer"
+                onClick={() => setCollapsed({ [nextConfessionId]: false })}
+                icon={faChevronRight}
+                size="xs"
+              />
+            )
+            : (
+              <FontAwesomeIcon
+                className="cursor-pointer"
+                onClick={() => setCollapsed({ [prevConfessionId]: false })}
+                icon={faChevronLeft}
+                size="xs"
+              />
+            )}
         </Link>
       </li>
     ));
+
+  const isCollapsed = !!collapsedChapters[confessionId];
+  const expandCollapseIcon = isCollapsed ? faPlus : faMinus;
 
   return (
     <li key={uniqueId()} className={`w-full flex flex-col justify-center mb-24 ${showNav ? ' absolute' : ''}`}>
       <>
         {docId && chapterId && (
           <Link scroll={false} href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}>
-            <a className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase">
+            <a
+              role="button"
+              onClick={() => setCollapsed({ [confessionId]: false })}
+              className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase">
               {searchTerms && (
-                <Highlighter textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+                <>
+                  <Highlighter textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+                  {!showNav && (
+                    <FontAwesomeIcon
+                      className="p-2"
+                      size="sm"
+                      icon={expandCollapseIcon}
+                      onClick={isCollapsed
+                        ? (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCollapsed({ ...collapsedChapters, [confessionId]: false });
+                        }
+                        : (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCollapsed({ ...collapsedChapters, [confessionId]: true });
+                        }}
+                    />
+                  )}
+                </>
               )}
               {!searchTerms && (
-                <h3>{title}</h3>
+                <>
+                  <h3>{title}</h3>
+                  {!showNav && (
+                    <FontAwesomeIcon
+                      className="p-2"
+                      size="sm"
+                      icon={expandCollapseIcon}
+                      onClick={isCollapsed
+                        ? (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCollapsed({ ...collapsedChapters, [confessionId]: false });
+                        }
+                        : (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCollapsed({ ...collapsedChapters, [confessionId]: true });
+                        }}
+                    />
+                  )}
+                </>
               )}
               {showNav && (
                 <ul>
@@ -77,6 +150,7 @@ const ConfessionChapterResult = ({
       </>
       <ul>
         {data
+          .filter(() => !isCollapsed)
           .map((d) => (
             <ConfessionTextResult
               {...d}

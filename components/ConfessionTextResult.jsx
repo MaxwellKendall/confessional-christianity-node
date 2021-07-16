@@ -37,7 +37,8 @@ const ConfessionTextResult = ({
   showNav = false,
   docTitle,
   chapterId,
-  docId
+  docId,
+  setCollapsed
 }) => {
   const [bibleTextById, setBibleTextById] = useState({});
   const [loadingTexts, setLoadingTexts] = useState([]);
@@ -143,6 +144,13 @@ const ConfessionTextResult = ({
       <li className={obj.direction > 0 ? 'absolute top-0 left-full ml-2 lg:ml-5' : 'absolute top-0 right-full mr-2 lg:mr-5'}>
         <Link
           scroll={false}
+          onClick={() => {
+            if (obj.direction > 0) {
+              setCollapsed({ [nextConfessionId]: false })
+            } else {
+              setCollapsed({ [prevConfessionId]: false })
+            }
+          }}
           href={obj.direction > 0
             ? generateLink(nextConfessionId, facetNamesByCanonicalDocId[docId])
             : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}
@@ -161,6 +169,7 @@ const ConfessionTextResult = ({
         <>
           <Link
             scroll={false}
+            setCollapsed={() => setCollapsed({ [confessionId]: false })}
             href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
             className="relative left-full">
               <a className="cursor-pointer">
@@ -177,20 +186,21 @@ const ConfessionTextResult = ({
       )}
       {searchTerms.length === 0 && (
         <>
-        <Link
-          scroll={false}
-          href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
-          className="relative left-full">
-            <a className="cursor-pointer">
-              <h4 className="text-2xl">{title}</h4>
-            </a>
+          <Link
+            scroll={false}
+            setCollapsed={() => setCollapsed({ [confessionId]: false })}
+            href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
+            className="relative left-full">
+              <a className="cursor-pointer">
+                <h4 className="text-2xl">{title}</h4>
+              </a>
           </Link>
-          <p className="mt-4">{text}</p>
-          {showNav && (
-            <ul>
-              {renderNav()}
-            </ul>
-          )}
+            <p className="mt-4">{text}</p>
+            {showNav && (
+              <ul>
+                {renderNav()}
+              </ul>
+            )}
         </>
       )}
       {Object.keys(verses).length > 0 && ( 

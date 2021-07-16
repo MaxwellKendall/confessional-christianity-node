@@ -8,7 +8,7 @@ import { promises as fs } from 'fs';
 import Link from 'next/link';
 
 import algoliasearch from 'algoliasearch';
-import { groupBy, kebabCase, throttle } from 'lodash';
+import { groupBy, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMinus, faPlus, faSpinner, faTimes,
@@ -171,7 +171,10 @@ const HomePage = ({
   const { search } = router.query;
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
+  // expanded documents, collapsed by default.
   const [expanded, setExpanded] = useState(['WCoF']);
+  // collapsed chapters, expanded by default.
+  const [collapsed, setCollapsed] = useState({});
   const [searchResults, setSearchResults] = useState(search ? [] : prePopulatedSearchResults);
   const [areResultsPristine, setAreResultsPristine] = useState(true);
   const [isLoading, setIsLoading] = useState(!!search);
@@ -200,7 +203,7 @@ const HomePage = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const fetchResults = throttle(() => {
+  const fetchResults = throttle((clearExisting = false) => {
     const facetFilters = parseFacets(search);
     setIsLoading(true);
     setAreResultsPristine(false);
@@ -209,7 +212,7 @@ const HomePage = ({
     client.multipleQueries(defaultQueries.map((obj) => ({
       ...obj,
       query: queryWithoutFacetFilters,
-      page: currentPg,
+      page: clearExisting ? 0 : currentPg,
       facetFilters,
     })))
       .then(({ results }) => {
@@ -223,7 +226,10 @@ const HomePage = ({
           confession: results.find((o) => o.index === 'aggregate').nbHits,
         });
         setHasMore(hasMoreData);
-        setSearchResults(parseResults(results, searchResults, currentPg));
+        setSearchResults(parseResults(results, clearExisting ? [] : searchResults, currentPg));
+        if (clearExisting) {
+          setCurrentPg(0);
+        }
       });
   }, 300);
 
@@ -235,7 +241,7 @@ const HomePage = ({
 
   useEffect(() => {
     if (search) {
-      fetchResults();
+      fetchResults(true);
     }
   }, [search]);
 
@@ -324,6 +330,8 @@ const HomePage = ({
                             showNav={chapterFacetRegex.test(searchTerm)}
                             title={contentById[chapterId].title}
                             searchTerms={searchTerm.split(' ')}
+                            collapsedChapters={collapsed}
+                            setCollapsed={setCollapsed}
                             data={groupedByChapter[chapterId]
                               .filter((obj) => !obj.isParent)
                               .map((obj) => ({
@@ -331,6 +339,7 @@ const HomePage = ({
                                 searchTerms: getSearchTerms(obj, searchTerm),
                                 hideChapterTitle: true,
                                 hideDocumentTitle: true,
+                                setCollapsed,
                               }))
                               .sort(handleSortById)}
                             contentById={contentById}
@@ -410,6 +419,9 @@ const HomePage = ({
         <p className="text-xl w-full text-center">
           No results found.
         </p>
+      )}
+      {hasMore && !isLoading && (
+        <button type="submit" className="w-full" onClick={handleLoadMore}>LOAD MORE</button>
       )}
     </div>
   );

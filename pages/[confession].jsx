@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { capitalize } from 'lodash';
 import path from 'path';
 import { promises } from 'fs';
@@ -51,6 +51,7 @@ const Confession = ({
   contentById,
   documentId
 }) => {
+  const [collapsed, setCollapsed] = useState({});
   const renderContent = () => {
     const chapters = Object
       .keys(contentById)
@@ -91,13 +92,15 @@ const Confession = ({
           })
           .reduce((acc, [k, v]) => {
             return acc.concat(v);
-          }, []);
+        }, []);
 
         return (
           <ConfessionChapterResult
             docId={documentId}
             chapterId={key.split('-')[1]}
             docTitle={title}
+            collapsedChapters={collapsed}
+            setCollapsed={setCollapsed}
             title={contentById[key].title}
             data={children
               .map((c) => ({
