@@ -163,7 +163,7 @@ const ConfessionTextResult = ({
     ));
 
   return (
-    <li key={uniqueId(confessionId)} className={`w-full flex flex-col justify-center mb-24 ${showNav ? ' absolute' : ''}`}>
+    <li key={uniqueId(confessionId)} className={`w-full flex flex-col justify-center pb-24 ${showNav ? ' absolute' : ''}`}>
       {renderTitle()}
       {searchTerms.length > 0 && (
         <>
