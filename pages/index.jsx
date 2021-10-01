@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect, useRef } from 'react';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -384,6 +385,11 @@ const HomePage = ({
   const pgTitle = search ? `Confessional Christianity | ${searchTerm}` : 'Confessional Christianity | Historic Creeds & Catechisms';
   return (
     <div className="home flex flex-col p-8 w-full my-24">
+      <Head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
+      </Head>
       <SEO title={pgTitle} />
       <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
         Confessional Christianity
