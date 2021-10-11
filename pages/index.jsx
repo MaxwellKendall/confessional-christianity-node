@@ -2,13 +2,14 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect, useRef } from 'react';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import path from 'path';
 import { promises as fs } from 'fs';
 import Link from 'next/link';
 
 import algoliasearch from 'algoliasearch';
-import { groupBy, kebabCase, throttle } from 'lodash';
+import { groupBy, throttle } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMinus, faPlus, faSpinner, faTimes,
@@ -171,7 +172,10 @@ const HomePage = ({
   const { search } = router.query;
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
+  // expanded documents, collapsed by default.
   const [expanded, setExpanded] = useState(['WCoF']);
+  // collapsed chapters, expanded by default.
+  const [collapsed, setCollapsed] = useState({});
   const [searchResults, setSearchResults] = useState(search ? [] : prePopulatedSearchResults);
   const [areResultsPristine, setAreResultsPristine] = useState(true);
   const [isLoading, setIsLoading] = useState(!!search);
@@ -200,7 +204,7 @@ const HomePage = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const fetchResults = throttle(() => {
+  const fetchResults = throttle((clearExisting = false) => {
     const facetFilters = parseFacets(search);
     setIsLoading(true);
     setAreResultsPristine(false);
@@ -209,7 +213,7 @@ const HomePage = ({
     client.multipleQueries(defaultQueries.map((obj) => ({
       ...obj,
       query: queryWithoutFacetFilters,
-      page: currentPg,
+      page: clearExisting ? 0 : currentPg,
       facetFilters,
     })))
       .then(({ results }) => {
@@ -223,7 +227,10 @@ const HomePage = ({
           confession: results.find((o) => o.index === 'aggregate').nbHits,
         });
         setHasMore(hasMoreData);
-        setSearchResults(parseResults(results, searchResults, currentPg));
+        setSearchResults(parseResults(results, clearExisting ? [] : searchResults, currentPg));
+        if (clearExisting) {
+          setCurrentPg(0);
+        }
       });
   }, 300);
 
@@ -235,7 +242,7 @@ const HomePage = ({
 
   useEffect(() => {
     if (search) {
-      fetchResults();
+      fetchResults(true);
     }
   }, [search]);
 
@@ -294,7 +301,7 @@ const HomePage = ({
           acc.concat([
             <li>
               <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
-                <Link href={{ pathname: '/', query: { search: `document:${getConciseDocId(documentTitle)}` }}}>
+                <Link href={{ pathname: '/', query: { search: `document:${getConciseDocId(documentTitle)}` } }}>
                   {documentTitle}
                 </Link>
                 <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
@@ -324,6 +331,8 @@ const HomePage = ({
                             showNav={chapterFacetRegex.test(searchTerm)}
                             title={contentById[chapterId].title}
                             searchTerms={searchTerm.split(' ')}
+                            collapsedChapters={collapsed}
+                            setCollapsed={setCollapsed}
                             data={groupedByChapter[chapterId]
                               .filter((obj) => !obj.isParent)
                               .map((obj) => ({
@@ -331,6 +340,7 @@ const HomePage = ({
                                 searchTerms: getSearchTerms(obj, searchTerm),
                                 hideChapterTitle: true,
                                 hideDocumentTitle: true,
+                                setCollapsed,
                               }))
                               .sort(handleSortById)}
                             contentById={contentById}
@@ -341,6 +351,14 @@ const HomePage = ({
                         .map((obj) => (
                           <ConfessionTextResult
                             {...obj}
+                            chapterId={chapterId.split('-')[1]}
+                            docTitle={documentTitle}
+                            docId={getConciseDocId(documentTitle)}
+                            linkToChapter
+                            showNav={(
+                              articleFacetRegex.test(searchTerm)
+                              || chapterFacetRegex.test(searchTerm)
+                            )}
                             searchTerms={getSearchTerms(obj, searchTerm)}
                             contentById={contentById}
                             hideDocumentTitle
@@ -367,6 +385,11 @@ const HomePage = ({
   const pgTitle = search ? `Confessional Christianity | ${searchTerm}` : 'Confessional Christianity | Historic Creeds & Catechisms';
   return (
     <div className="home flex flex-col p-8 w-full my-24">
+      <Head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
+      </Head>
       <SEO title={pgTitle} />
       <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
         Confessional Christianity
@@ -402,6 +425,9 @@ const HomePage = ({
         <p className="text-xl w-full text-center">
           No results found.
         </p>
+      )}
+      {hasMore && !isLoading && (
+        <button type="submit" className="w-full" onClick={handleLoadMore}>LOAD MORE</button>
       )}
     </div>
   );

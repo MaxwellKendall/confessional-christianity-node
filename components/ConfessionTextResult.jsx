@@ -5,9 +5,12 @@ import fetch from 'isomorphic-fetch';
 import queryString from 'query-string';
 import { trim, trimStart, uniqueId } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { parseOsisBibleReference } from '../scripts/helpers';
-import { confessionIdsWithoutTitles } from '../dataMapping';
+import { faSpinner, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import Link from 'next/link';
+
+import { parseOsisBibleReference, getConfessionalAbbreviationId } from '../scripts/helpers';
+import { confessionIdsWithoutTitles, facetNamesByCanonicalDocId } from '../dataMapping';
+import { generateLink } from '../helpers';
 
 const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
 const baseUrl = 'https://api.esv.org/v3/passage/text';
@@ -30,9 +33,20 @@ const ConfessionTextResult = ({
   parent: parentId,
   hideChapterTitle = false,
   verses = {},
+  showNav = false,
+  docTitle,
+  chapterId,
+  docId,
+  setCollapsed,
 }) => {
   const [bibleTextById, setBibleTextById] = useState({});
   const [loadingTexts, setLoadingTexts] = useState([]);
+  const elaborateId = docTitle ? getConfessionalAbbreviationId(docTitle) : null;
+  const chapterIdAsInt = parseInt(chapterId, 10);
+  const nextConfessionId = `${docId}-${chapterIdAsInt + 1}`;
+  const prevConfessionId = `${docId}-${chapterIdAsInt - 1}`;
+  const hasPrevious = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt - 1}`));
+  const hasNext = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt + 1}`));
 
   const parseBibleText = (t) => {
     const textAsArr = t.split('(ESV)');
@@ -114,28 +128,84 @@ const ConfessionTextResult = ({
 
   const renderTitle = () => {
     if (confessionIdsWithoutTitles.some((str) => confessionId.includes(str))) return null;
-    if (!hideChapterTitle && document.toUpperCase() !== contentById[parentId]?.title.toUpperCase()) {
-      return <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{contentById[parentId].title}</h3>;
+    if (!hideChapterTitle && document.toUpperCase() !== contentById[parentId].title.toUpperCase()) {
+      return (
+        <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{contentById[parentId].title}</h3>
+      );
     }
     return null;
   };
 
+  // Refactor to be its own component.
+  const renderNav = () => [{ direction: 1, show: hasNext }, { direction: -1, show: hasPrevious }]
+    .filter(({ show }) => show)
+    .map((obj) => (
+      <li className={obj.direction > 0 ? 'absolute top-0 left-full ml-2 lg:ml-5' : 'absolute top-0 right-full mr-2 lg:mr-5'}>
+        <Link
+          scroll={false}
+          onClick={() => {
+            if (obj.direction > 0) {
+              setCollapsed({ [nextConfessionId]: false });
+            } else {
+              setCollapsed({ [prevConfessionId]: false });
+            }
+          }}
+          href={obj.direction > 0
+            ? generateLink(nextConfessionId, facetNamesByCanonicalDocId[docId])
+            : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}
+          className="relative left-full"
+        >
+          {obj.direction > 0
+            ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} size="xs" />
+            : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} size="xs" />}
+        </Link>
+      </li>
+    ));
+
   return (
-    <li key={uniqueId(confessionId)} className="w-full flex flex-col justify-center mb-24">
+    <li key={uniqueId(confessionId)} className={`w-full flex flex-col justify-center pb-24 ${showNav ? ' absolute' : ''}`}>
       {renderTitle()}
       {searchTerms.length > 0 && (
         <>
-          <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+          <Link
+            scroll={false}
+            setCollapsed={() => setCollapsed({ [confessionId]: false })}
+            href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
+            className="relative left-full"
+          >
+            <a className="cursor-pointer">
+              <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+            </a>
+          </Link>
           <Highlighter className="mt-4" textToHighlight={text} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+          {showNav && (
+            <ul>
+              {renderNav()}
+            </ul>
+          )}
         </>
       )}
       {searchTerms.length === 0 && (
         <>
-          <h4 className="text-2xl">{title}</h4>
+          <Link
+            scroll={false}
+            setCollapsed={() => setCollapsed({ [confessionId]: false })}
+            href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
+            className="relative left-full"
+          >
+            <a className="cursor-pointer">
+              <h4 className="text-2xl">{title}</h4>
+            </a>
+          </Link>
           <p className="mt-4">{text}</p>
+            {showNav && (
+              <ul>
+                {renderNav()}
+              </ul>
+            )}
         </>
       )}
-      {Object.keys(verses).length > 0 && ( 
+      {Object.keys(verses).length > 0 && (
         <ul className="mt-12">
           <li key={uniqueId()}>
             {renderVerses(verses)}
