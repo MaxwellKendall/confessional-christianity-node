@@ -10,7 +10,6 @@ export const getConciseDocId = (docTitle) => docTitle
 
 export const getCanonicalDocId = (docTitleOrId) => {
   const arr = docTitleOrId.split(' ');
-  console.log('docTitle', docTitleOrId);
   if (arr.length === 1) {
     // we have some weird ID... get the doc name & derive ID from that.
     return getConciseDocId(confessionCitationByIndex[docTitleOrId.toUpperCase()][0]);
@@ -144,11 +143,22 @@ export const handleSortById = (a, b) => {
   return 0;
 };
 
-export const documentFacetRegex = new RegExp(/document:(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T)/i);
+export const documentFacetRegex = new RegExp(/document:(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|all|\*)/i);
 export const chapterFacetRegex = new RegExp(/chapter:([0-9]*)|lord's\sday:([0-9]*)|lords\sday:([0-9]*)|thesis:([0-9])/i);
 export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)|question:([0-9]*)/i);
+export const wildCardFacetRegex = new RegExp(/document:(all|\*)/i);
 
+// 2d array is like an OR
 export const parseFacets = (str) => {
+  if (wildCardFacetRegex.test(str)) {
+    return [
+      Array
+        .from(
+          new Set(Object.values(parentIdByAbbreviation)),
+        )
+        .map((id) => `document:${confessionCitationByIndex[id.toUpperCase()][0]}`)
+    ];
+  }
   const document = documentFacetRegex.test(str)
     ? documentFacetRegex.exec(str)[1]
       .toUpperCase()

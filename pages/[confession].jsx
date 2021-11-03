@@ -26,7 +26,7 @@ export const getStaticProps = async (context) => {
         ...asObject,
       });
     }), Promise.resolve({}));
-  
+
   return {
     props: {
       contentById,

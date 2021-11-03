@@ -429,6 +429,10 @@ const HomePage = ({
       {hasMore && !isLoading && (
         <button type="submit" className="w-full" onClick={handleLoadMore}>LOAD MORE</button>
       )}
+      <footer>
+        <span>SOLI DEO GLORIA</span>
+        <a href="https://blog.confessionalchristianity.com">VISIT THE BLOG</a>
+      </footer>
     </div>
   );
 };
