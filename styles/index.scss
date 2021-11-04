@@ -12,7 +12,7 @@ html {
         width: 100%;
     }
     h1 {
-        font-family: 'Cinzel Decorative', cursive;
+        font-family: 'Cinzel', serif;
     }
 
     p,
@@ -43,5 +43,36 @@ html {
     }
     .search-result-matched-word {
         background-color: #FEF3C7;
+    }
+    footer {
+        a {
+            font-family: 'Cinzel', serif;
+        }
+    }
+
+    .about {
+        a {
+            text-decoration: underline;
+            opacity: 0.7;
+            font-style: italic;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 40px;
+        }
+        blockquote {
+            padding-left: 1rem;
+            border-left: 3px solid rgba(46,53,63,.3);
+            p {
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+        }
+        p {
+            @apply py-4;
+        }
+        h2 {
+            @apply pt-8;
+        }
     }
 }

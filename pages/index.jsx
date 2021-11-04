@@ -21,6 +21,8 @@ import ConfessionTextResult from '../components/ConfessionTextResult';
 import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import BibleTextResult from '../components/BibleTextResult';
 import SEO from '../components/SEO';
+import Footer from '../components/Footer';
+
 import {
   handleSortById,
   documentFacetRegex,
@@ -384,7 +386,7 @@ const HomePage = ({
 
   const pgTitle = search ? `Confessional Christianity | ${searchTerm}` : 'Confessional Christianity | Historic Creeds & Catechisms';
   return (
-    <div className="home flex flex-col p-8 w-full my-24">
+    <div className="home flex flex-col p-8 w-full mt-24">
       <Head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
@@ -427,12 +429,11 @@ const HomePage = ({
         </p>
       )}
       {hasMore && !isLoading && (
-        <button type="submit" className="w-full" onClick={handleLoadMore}>LOAD MORE</button>
+        <button type="submit" className="w-full mb-24" onClick={handleLoadMore}>LOAD MORE</button>
       )}
-      <footer>
-        <span>SOLI DEO GLORIA</span>
-        <a href="https://blog.confessionalchristianity.com">VISIT THE BLOG</a>
-      </footer>
+      <Footer
+        links={[{ link: "ABOUT", href: "/about" }, { link: "BLOG", href: "https://blog.confessionalchristianity.com" }]}
+        />
     </div>
   );
 };

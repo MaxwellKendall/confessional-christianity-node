@@ -82,7 +82,7 @@ const ConfessionChapterResult = ({
   const expandCollapseIcon = isCollapsed ? faPlus : faMinus;
 
   return (
-    <li key={uniqueId()} className={`w-full flex flex-col justify-center mb-24 ${showNav ? ' absolute' : ''}`}>
+    <li key={uniqueId()} className="w-full flex flex-col justify-center mb-24">
       <>
         {docId && chapterId && (
           <Link scroll={false} href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}>
