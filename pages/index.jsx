@@ -44,8 +44,8 @@ const client = algoliasearch(
 );
 
 const aggIndex = client.initIndex('aggregate');
-const facets = ['parent:WCoF-3'];
-const prePopulatedSearch = { query: 'What is thy only comfort in life and death', index: 'aggregate' };
+const prePopulatedSearch = { query: 'document:all', index: 'aggregate' };
+const prePopulatedExpanded = [];
 
 const defaultQueries = [
   {
@@ -103,7 +103,7 @@ export async function getStaticProps() {
   (obj) => obj.parent);
 
   const resp = await aggIndex.search('', {
-    facetFilters: facets,
+    facetFilters: parseFacets(prePopulatedSearch.query),
     attributesToHighlight: [
       'text',
       'title',
@@ -116,7 +116,7 @@ export async function getStaticProps() {
       prePopulatedSearchResults: groupByDocument(
         resp.hits.map((obj) => ({ ...obj, index: prePopulatedSearch.index })),
       ),
-      prePopulatedQuery: 'document:WCF chapter:3',
+      prePopulatedQuery: prePopulatedSearch.query,
       contentById,
     },
   };
@@ -175,7 +175,7 @@ const HomePage = ({
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   // expanded documents, collapsed by default.
-  const [expanded, setExpanded] = useState(['WCoF']);
+  const [expanded, setExpanded] = useState(prePopulatedExpanded);
   // collapsed chapters, expanded by default.
   const [collapsed, setCollapsed] = useState({});
   const [searchResults, setSearchResults] = useState(search ? [] : prePopulatedSearchResults);
