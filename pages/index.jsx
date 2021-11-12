@@ -179,7 +179,6 @@ const HomePage = ({
   // collapsed chapters, expanded by default.
   const [collapsed, setCollapsed] = useState({});
   const [searchResults, setSearchResults] = useState(search ? [] : prePopulatedSearchResults);
-  const [areResultsPristine, setAreResultsPristine] = useState(true);
   const [isLoading, setIsLoading] = useState(!!search);
   const [totals, setTotals] = useState({
     bible: 0,
@@ -209,7 +208,6 @@ const HomePage = ({
   const fetchResults = throttle((clearExisting = false) => {
     const facetFilters = parseFacets(search);
     setIsLoading(true);
-    setAreResultsPristine(false);
     if (searchTerm !== search) setSearchTerm(search);
     const queryWithoutFacetFilters = search.replace(chapterFacetRegex, '').replace(documentFacetRegex, '').replace(articleFacetRegex, '');
     client.multipleQueries(defaultQueries.map((obj) => ({
@@ -324,7 +322,7 @@ const HomePage = ({
                     .map((chapterId) => {
                       const isResultChapter = isChapter(chapterId, contentById);
                       // No chapter results displayed.
-                      if (isResultChapter || areResultsPristine) {
+                      if (isResultChapter) {
                         return (
                           <ConfessionChapterResult
                             docTitle={documentTitle}
@@ -423,7 +421,7 @@ const HomePage = ({
         </p>
       )}
       {renderResults()}
-      {!isLoading && !areResultsPristine && getResultsLength(searchResults) < 0 && (
+      {!isLoading && getResultsLength(searchResults) < 0 && (
         <p className="text-xl w-full text-center">
           No results found.
         </p>
