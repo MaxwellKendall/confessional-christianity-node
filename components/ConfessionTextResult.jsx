@@ -54,18 +54,20 @@ const ConfessionTextResult = ({
   const parseBibleText = (t) => {
     const textAsArr = t.split('(ESV)');
     const citationSummary = textAsArr[textAsArr.length - 1].split(';');
-    const cleanCitation = new RegExp(/^[\s,(]|^[,]|[,)\s]$/);
+    const cleanCitation = new RegExp(/^[\s,(]|^[,]|[,)\s]$/g);
     const cleanVerse = new RegExp(/^[\s,]/);
     return textAsArr
       .slice(0, textAsArr.length - 1)
-      .map((str, i) => (
-        <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
-          {trimStart(str).replace(cleanVerse, '')}
-          <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
-            {`~ ${trim(citationSummary[i]).replace(cleanCitation, '')} (ESV)`}
-          </strong>
-        </p>
-      ));
+      .map((str, i) => {
+        return (
+          <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
+            {trimStart(str).replace(cleanVerse, '')}
+            <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
+              {`~ ${trim(citationSummary[i]).replaceAll(cleanCitation, '')} (ESV)`}
+            </strong>
+          </p>
+        )
+      });
   };
 
   const handleFetchCitation = (bibleText, id) => {
