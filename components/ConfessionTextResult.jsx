@@ -14,14 +14,17 @@ import { generateLink } from '../helpers';
 
 const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
 const baseUrl = 'https://api.esv.org/v3/passage/text';
-const getQueryParams = (bibleText) => queryString.stringify({
-  q: bibleText,
-  'content-type': 'json',
-  'include-passage-references': false,
-  'include-footnotes': false,
-  'include-footnote-body': false,
-  'include-headings': false,
-});
+const getQueryParams = (bibleText) => {
+  console.log('bibleText', bibleText);
+  return queryString.stringify({
+    q: bibleText,
+    'content-type': 'json',
+    'include-passage-references': false,
+    'include-footnotes': false,
+    'include-footnote-body': false,
+    'include-headings': false,
+  });
+};
 
 const ConfessionTextResult = ({
   contentById,
@@ -107,7 +110,7 @@ const ConfessionTextResult = ({
                 );
               })
               .concat([
-                <button type="submit" className="cursor-pointer mx-1 text-base focus:outline-none" onClick={() => handleFetchCitation(value.join(','), citationId)}>
+                <button type="submit" className="cursor-pointer mx-1 text-base focus:outline-none" onClick={() => handleFetchCitation(value.join(';'), citationId)}>
                   {Object.keys(bibleTextById).includes(citationId) ? '(SHOW LESS)' : '(SHOW MORE)'}
                 </button>,
               ])}
