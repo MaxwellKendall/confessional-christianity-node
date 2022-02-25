@@ -10,14 +10,22 @@ export const parseOsisBibleReference = (osisStr) => {
   }
   const splitStr = osisStr.split('-');
   return splitStr
-    .reduce((acc, str, i) => {
+    .reduce((acc, str, i, srcArr) => {
+      // This scares me, assuming that bookChapterVerse always has 3 items.
       const bookChapterVerse = str.split('.');
       const book = bibleBookByAbbreviation[bookChapterVerse[0]];
       const chapterVerse = bookChapterVerse.slice(1).join(':');
-      if (i !== 0) {
-        return `${acc} - ${book} ${chapterVerse}`;
+      if (i === 0) {
+        return `${book} ${chapterVerse}`;
       }
-      return `${book} ${chapterVerse} `;
+      const [prevBook, prevChapter] = srcArr[i - 1].split('.');
+      if (prevBook === bookChapterVerse[0] && prevChapter === bookChapterVerse[1]) {
+        return `${acc}-${bookChapterVerse[2]}`;
+      }
+      if (prevBook === bookChapterVerse[0]) {
+        return `${acc}-${chapterVerse}`;
+      }
+      return `${acc} - ${book} ${chapterVerse}`;
     }, '');
 };
 
