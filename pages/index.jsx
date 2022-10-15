@@ -110,6 +110,10 @@ export async function getStaticProps() {
     ],
   });
 
+  const prepopulatedTotals = {
+    confession: resp.nbHits,
+  };
+
   return {
     props: {
       chaptersById,
@@ -118,6 +122,7 @@ export async function getStaticProps() {
       ),
       prePopulatedQuery: prePopulatedSearch.query,
       contentById,
+      prepopulatedTotals,
     },
   };
 }
@@ -169,9 +174,10 @@ const HomePage = ({
   prePopulatedSearchResults,
   prePopulatedQuery,
   contentById,
+  prepopulatedTotals,
 }) => {
   const router = useRouter();
-  const { search } = router.query;
+  const search = ('search' in router.query) ? router.query.search : prePopulatedQuery;
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   // expanded documents, collapsed by default.
@@ -182,10 +188,12 @@ const HomePage = ({
   const [isLoading, setIsLoading] = useState(!!search);
   const [totals, setTotals] = useState({
     bible: 0,
-    confession: getResultsLength(prePopulatedSearchResults),
+    confession: prepopulatedTotals.confession,
   });
   const [currentPg, setCurrentPg] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState(
+    prepopulatedTotals.confession > getResultsLength(prePopulatedSearchResults),
+  );
   const [isSticky, setSticky] = useState(false);
   const searchRef = useRef();
 
@@ -430,8 +438,8 @@ const HomePage = ({
         <button type="submit" className="w-full mb-24" onClick={handleLoadMore}>LOAD MORE</button>
       )}
       <Footer
-        links={[{ link: "ABOUT", href: "/about" }, { link: "BLOG", href: "https://blog.confessionalchristianity.com" }]}
-        />
+        links={[{ link: 'ABOUT', href: '/about' }, { link: 'BLOG', href: 'https://blog.confessionalchristianity.com' }]}
+      />
     </div>
   );
 };
