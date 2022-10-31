@@ -146,10 +146,18 @@ export const handleSortById = (a, b) => {
 export const documentFacetRegex = new RegExp(/document:(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|all|\*)/i);
 export const chapterFacetRegex = new RegExp(/chapter:([0-9]*)|lord's\sday:([0-9]*)|lords\sday:([0-9]*)|thesis:([0-9])/i);
 export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)|question:([0-9]*)/i);
-export const wildCardFacetRegex = new RegExp(/document:(all|\*)/i);
+// export const wildCardFacetRegex = new RegExp(/document:(all|\*)/i);
 
+const wildCardFacetRegex = new RegExp(/\*/);
+const removeDot = (str) => str && str.replaceAll('.', '');
+export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|all|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})/ig;
 // 2d array is like an OR
 export const parseFacets = (str) => {
+  const result = str.match(regexV2); 
+  const doc = result && result.length && result[0] || null;
+  const chap = result && result.length > 1 && result[1] || null;
+  const art = result && result.length > 2 && result[2] || null;
+
   if (wildCardFacetRegex.test(str)) {
     return [
       Array
@@ -159,8 +167,8 @@ export const parseFacets = (str) => {
         .map((id) => `document:${confessionCitationByIndex[id.toUpperCase()][0]}`)
     ];
   }
-  const document = documentFacetRegex.test(str)
-    ? documentFacetRegex.exec(str)[1]
+  const document = doc
+    ? doc
       .toUpperCase()
       .split(' ')
       .filter((w) => !excludedWordsInDocumentId.includes(w))
@@ -171,40 +179,39 @@ export const parseFacets = (str) => {
       })
       .join('')
     : null;
-  const chapter = chapterFacetRegex.exec(str)
-    ? chapterFacetRegex.exec(str).filter((v) => !!v)
-    : null;
-  const article = articleFacetRegex.exec(str)
-    ? articleFacetRegex.exec(str).filter((v) => !!v)
-    : null;
 
   const documentId = document ? getCanonicalDocId(document) : null;
+  const chapter = chap && removeDot(chap);
+  const article = art && removeDot(art);
 
   if ((documentId === 'CD') && chapter) {
-    if (article && article[0].toLowerCase().includes('rejection')) {
+    if (article && article.toLowerCase().includes('rejection')) {
       return [
-        `id:${parentIdByAbbreviation[document]}-${chapter[1]}-rejections-${article[1]}`,
+        `id:${parentIdByAbbreviation[document]}-${chapter}-rejections-${article}`,
       ];
     }
-    if (article && !article[0].toLowerCase().includes('rejection')) {
+    if (article && !article.toLowerCase().includes('rejection')) {
       return [
-        `id:${parentIdByAbbreviation[document]}-${chapter[1]}-articles-${article[1]}`,
+        `id:${parentIdByAbbreviation[document]}-${chapter}-articles-${article}`,
       ];
     }
     return [
       [
-        `parent:${parentIdByAbbreviation[document]}-${chapter[1]}-articles`,
-        `parent:${parentIdByAbbreviation[document]}-${chapter[1]}-rejections`,
+        `parent:${parentIdByAbbreviation[document]}-${chapter}-articles`,
+        `parent:${parentIdByAbbreviation[document]}-${chapter}-rejections`,
       ],
     ];
   }
   if ((documentId === 'ML9T' || documentId === 'BCF' || documentId === 'TAR') && chapter) {
-    return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}`];
+    return [`id:${parentIdByAbbreviation[document]}-${chapter}`];
   }
-  if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter[1]}-${article[1]}`];
-  if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter[1]}`];
-  if (document && article) return [`id:${parentIdByAbbreviation[document]}-${article[1]}`];
-  if (document) return [`document:${confessionCitationByIndex[document][0]}`];
+  if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter}-${article}`];
+  if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter}`];
+  // if (document && article) return [`id:${parentIdByAbbreviation[document]}-${article}`];
+  if (document) {
+    console.log('helloooo??????', document);
+    return [`document:${confessionCitationByIndex[document][0]}`];
+  }
   return [];
 };
 
