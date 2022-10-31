@@ -16,6 +16,7 @@ export const confessionCitationByIndex = {
   BC: ['The Belgic Confession of Faith', 'Chapter'],
   '95T': ['Martin Luther\'s 95 theses'],
   ML9T: ['Martin Luther\'s 95 theses'],
+  ALL: ['ALL']
 };
 
 export const confessionPathByName = {
