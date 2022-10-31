@@ -32,6 +32,7 @@ import {
   isChapter,
   groupContentByChapter,
   getConciseDocId,
+  regexV2,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -44,7 +45,7 @@ const client = algoliasearch(
 );
 
 const aggIndex = client.initIndex('aggregate');
-const prePopulatedSearch = { query: 'document:all', index: 'aggregate' };
+const prePopulatedSearch = { query: 'wcf', index: 'aggregate' };
 const prePopulatedExpanded = [];
 
 const defaultQueries = [
@@ -215,9 +216,11 @@ const HomePage = ({
 
   const fetchResults = throttle((clearExisting = false) => {
     const facetFilters = parseFacets(search);
+    console.log('hellooos', facetFilters);
     setIsLoading(true);
     if (searchTerm !== search) setSearchTerm(search);
-    const queryWithoutFacetFilters = search.replace(chapterFacetRegex, '').replace(documentFacetRegex, '').replace(articleFacetRegex, '');
+    // const queryWithoutFacetFilters = search.replace(chapterFacetRegex, '').replace(documentFacetRegex, '').replace(articleFacetRegex, '');
+    const queryWithoutFacetFilters = search.replace(regexV2, '');
     client.multipleQueries(defaultQueries.map((obj) => ({
       ...obj,
       query: queryWithoutFacetFilters,
