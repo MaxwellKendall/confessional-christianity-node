@@ -1,5 +1,10 @@
 import { groupBy } from 'lodash';
-import { confessionCitationByIndex, excludedWordsInDocumentId, parentIdByAbbreviation } from '../dataMapping';
+import {
+  confessionCitationByIndex,
+  DOCUMENTS_WITHOUT_ARTICLES,
+  excludedWordsInDocumentId,
+  parentIdByAbbreviation,
+} from '../dataMapping';
 
 // returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
 export const getConciseDocId = (docTitle) => docTitle
@@ -150,13 +155,13 @@ export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)
 
 const wildCardFacetRegex = new RegExp(/\*/);
 const removeDot = (str) => str && str.replaceAll('.', '');
-export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|all|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})/ig;
+export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|all|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})|(\1\2\.r[0-9]{1,})/ig;
 // 2d array is like an OR
 export const parseFacets = (str) => {
   const result = str.match(regexV2);
-  const doc = result && result.length && result[0] || null;
-  const chap = result && result.length > 1 && result[1] || null;
-  const art = result && result.length > 2 && result[2] || null;
+  const doc = (result && result.length && result[0]) || null;
+  const chap = (result && result.length > 1 && result[1]) || null;
+  const art = (result && result.length > 2 && result[2]) || null;
 
   if (wildCardFacetRegex.test(str)) {
     return [
@@ -185,12 +190,12 @@ export const parseFacets = (str) => {
   const article = art && removeDot(art);
 
   if ((documentId === 'CD') && chapter) {
-    if (article && article.toLowerCase().includes('rejection')) {
+    if (article && article.toLowerCase().includes('r')) {
       return [
-        `id:${parentIdByAbbreviation[document]}-${chapter}-rejections-${article}`,
+        `id:${parentIdByAbbreviation[document]}-${chapter}-rejections-${article.split('').slice(1).join('')}`,
       ];
     }
-    if (article && !article.toLowerCase().includes('rejection')) {
+    if (article && !article.toLowerCase().includes('r')) {
       return [
         `id:${parentIdByAbbreviation[document]}-${chapter}-articles-${article}`,
       ];
@@ -202,16 +207,12 @@ export const parseFacets = (str) => {
       ],
     ];
   }
-  if ((documentId === 'ML9T' || documentId === 'BCF' || documentId === 'TAR') && chapter) {
+  if (chapter && DOCUMENTS_WITHOUT_ARTICLES.includes(documentId)) {
     return [`id:${parentIdByAbbreviation[document]}-${chapter}`];
   }
   if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter}-${article}`];
   if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter}`];
-  // if (document && article) return [`id:${parentIdByAbbreviation[document]}-${article}`];
-  if (document) {
-    console.log('helloooo??????', document);
-    return [`document:${confessionCitationByIndex[document][0]}`];
-  }
+  if (document) return [`document:${confessionCitationByIndex[document][0]}`];
   return [];
 };
 

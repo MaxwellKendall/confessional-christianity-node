@@ -16,7 +16,7 @@ export const confessionCitationByIndex = {
   BC: ['The Belgic Confession of Faith', 'Chapter'],
   '95T': ['Martin Luther\'s 95 theses'],
   ML9T: ['Martin Luther\'s 95 theses'],
-  ALL: ['ALL']
+  ALL: ['ALL'],
 };
 
 export const confessionPathByName = {
@@ -45,6 +45,14 @@ export const parentIdByAbbreviation = {
   '95T': 'ML9t',
   ML9T: 'ML9t',
 };
+
+export const DOCUMENTS_WITHOUT_ARTICLES = [
+  'ML9T',
+  'BCF',
+  'TAR',
+  'WLC',
+  'WSC',
+];
 
 export const confessionIdsWithoutTitles = [
   'WSC',
