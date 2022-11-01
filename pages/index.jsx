@@ -15,7 +15,7 @@ import {
   faMinus, faPlus, faSpinner, faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { confessionPathByName } from '../dataMapping';
+import { confessionPathByName, DOCUMENTS_WITHOUT_ARTICLES } from '../dataMapping';
 
 import ConfessionTextResult from '../components/ConfessionTextResult';
 import ConfessionChapterResult from '../components/ConfessionChapterResult';
@@ -25,9 +25,6 @@ import Footer from '../components/Footer';
 
 import {
   handleSortById,
-  documentFacetRegex,
-  chapterFacetRegex,
-  articleFacetRegex,
   parseFacets,
   isChapter,
   groupContentByChapter,
@@ -216,10 +213,8 @@ const HomePage = ({
 
   const fetchResults = throttle((clearExisting = false) => {
     const facetFilters = parseFacets(search);
-    console.log('hellooos', facetFilters);
     setIsLoading(true);
     if (searchTerm !== search) setSearchTerm(search);
-    // const queryWithoutFacetFilters = search.replace(chapterFacetRegex, '').replace(documentFacetRegex, '').replace(articleFacetRegex, '');
     const queryWithoutFacetFilters = search.replace(regexV2, '');
     client.multipleQueries(defaultQueries.map((obj) => ({
       ...obj,
@@ -307,12 +302,26 @@ const HomePage = ({
         const documentId = getConfessionalAbbreviationId(documentTitle);
         const isExpanded = expanded.includes(documentId);
         const groupedByChapter = groupContentByChapter(results);
-
+        const showArticleNav = (
+          // wcf.1.2
+          (regexV2.test(searchTerm) && searchTerm.split('.').length > 2)
+          || (
+            // wsc.1
+            searchTerm.match(regexV2)
+            && searchTerm.split('.').length > 1
+            && DOCUMENTS_WITHOUT_ARTICLES.includes(searchTerm.match(regexV2)[0])
+          )
+        );
+        const showChapterNav = (
+          (regexV2.test(searchTerm) && searchTerm.split('.').length > 1)
+          && searchTerm.match(regexV2)
+          && !DOCUMENTS_WITHOUT_ARTICLES.includes(searchTerm.match(regexV2)[0])
+        );
         return (
           acc.concat([
             <li>
               <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
-                <Link href={{ pathname: '/', query: { search: `document:${getConciseDocId(documentTitle)}` } }}>
+                <Link href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}>
                   {documentTitle}
                 </Link>
                 <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
@@ -339,7 +348,7 @@ const HomePage = ({
                             docTitle={documentTitle}
                             docId={getConciseDocId(documentTitle)}
                             chapterId={chapterId.split('-')[1]}
-                            showNav={chapterFacetRegex.test(searchTerm)}
+                            showNav={showChapterNav}
                             title={contentById[chapterId].title}
                             searchTerms={searchTerm.split(' ')}
                             collapsedChapters={collapsed}
@@ -348,6 +357,7 @@ const HomePage = ({
                               .filter((obj) => !obj.isParent)
                               .map((obj) => ({
                                 ...obj,
+                                showNav: showArticleNav,
                                 searchTerms: getSearchTerms(obj, searchTerm),
                                 hideChapterTitle: true,
                                 hideDocumentTitle: true,
@@ -366,10 +376,7 @@ const HomePage = ({
                             docTitle={documentTitle}
                             docId={getConciseDocId(documentTitle)}
                             linkToChapter
-                            showNav={(
-                              articleFacetRegex.test(searchTerm)
-                              || chapterFacetRegex.test(searchTerm)
-                            )}
+                            showNav={showArticleNav}
                             searchTerms={getSearchTerms(obj, searchTerm)}
                             contentById={contentById}
                             hideDocumentTitle
