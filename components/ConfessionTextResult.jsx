@@ -10,20 +10,38 @@ import Link from 'next/link';
 
 import { parseOsisBibleReference, getConfessionalAbbreviationId } from '../scripts/helpers';
 import { confessionIdsWithoutTitles, facetNamesByCanonicalDocId } from '../dataMapping';
-import { generateLink } from '../helpers';
+import { generateLink, regexV2 } from '../helpers';
 
 const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
 const baseUrl = 'https://api.esv.org/v3/passage/text';
-const getQueryParams = (bibleText) => {
-  console.log('bibleText', bibleText);
-  return queryString.stringify({
-    q: bibleText,
-    'content-type': 'json',
-    'include-passage-references': false,
-    'include-footnotes': false,
-    'include-footnote-body': false,
-    'include-headings': false,
-  });
+const getQueryParams = (bibleText) => queryString.stringify({
+  q: bibleText,
+  'content-type': 'json',
+  'include-passage-references': false,
+  'include-footnotes': false,
+  'include-footnote-body': false,
+  'include-headings': false,
+});
+
+// return next position in confession
+const getNextConfessionId = (id, contentById, searchTerms, direction = 1) => {
+  const isArticle = searchTerms.some((str) => regexV2.test(str) && str.split('.').length >= 3);
+  const fragments = id.split('-');
+  const nextChapterId = Number(fragments[1]) + direction;
+  if (isArticle) {
+    const [docId, chapterId, articleId] = fragments;
+    const nextArticle = Number(articleId) + direction;
+    const nextArticleId = `${docId}-${chapterId}-${nextArticle}`;
+    // go to next article, if does not exist, go to next chapter
+    const hasNextArticleInChapter = Object
+      .keys(contentById)
+      .some((key) => key === nextArticleId);
+    if (hasNextArticleInChapter) return nextArticleId;
+    // we're drilled down to the article, so display next chapter only with the first article
+    return `${docId}-${nextChapterId}-1`;
+  }
+  // we're not drilled down to the article, so we display the whole chapter
+  return `${fragments[0]}-${nextChapterId}`;
 };
 
 const ConfessionTextResult = ({
@@ -38,18 +56,22 @@ const ConfessionTextResult = ({
   verses = {},
   showNav = false,
   docTitle,
-  chapterId,
   docId,
   setCollapsed,
 }) => {
   const [bibleTextById, setBibleTextById] = useState({});
   const [loadingTexts, setLoadingTexts] = useState([]);
   const elaborateId = docTitle ? getConfessionalAbbreviationId(docTitle) : null;
-  const chapterIdAsInt = parseInt(chapterId, 10);
-  const nextConfessionId = `${docId}-${chapterIdAsInt + 1}`;
-  const prevConfessionId = `${docId}-${chapterIdAsInt - 1}`;
-  const hasPrevious = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt - 1}`));
-  const hasNext = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt + 1}`));
+  const nextConfessionId = getNextConfessionId(confessionId, contentById, searchTerms, 1);
+  const prevConfessionId = getNextConfessionId(confessionId, contentById, searchTerms, -1);
+  const hasPrevious = (
+    elaborateId
+    && Object.keys(contentById).some((k) => k.includes(prevConfessionId))
+  );
+  const hasNext = (
+    elaborateId
+    && Object.keys(contentById).some((k) => k.includes(nextConfessionId))
+  );
 
   const parseBibleText = (t) => {
     const textAsArr = t.split('(ESV)');
@@ -58,16 +80,14 @@ const ConfessionTextResult = ({
     const cleanVerse = new RegExp(/^[\s,]/);
     return textAsArr
       .slice(0, textAsArr.length - 1)
-      .map((str, i) => {
-        return (
-          <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
-            {trimStart(str).replace(cleanVerse, '')}
-            <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
-              {`~ ${trim(citationSummary[i]).replaceAll(cleanCitation, '')} (ESV)`}
-            </strong>
-          </p>
-        )
-      });
+      .map((str, i) => (
+        <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
+          {trimStart(str).replace(cleanVerse, '')}
+          <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
+            {`~ ${trim(citationSummary[i]).replaceAll(cleanCitation, '')} (ESV)`}
+          </strong>
+        </p>
+      ));
   };
 
   const handleFetchCitation = (bibleText, id) => {
@@ -168,7 +188,7 @@ const ConfessionTextResult = ({
     ));
 
   return (
-    <li key={uniqueId(confessionId)} className="w-full flex flex-col justify-center pb-24">
+    <li key={confessionId} className="w-full flex flex-col justify-center pb-24">
       {renderTitle()}
       {searchTerms.length > 0 && (
         <>
