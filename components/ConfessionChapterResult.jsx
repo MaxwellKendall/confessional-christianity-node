@@ -82,7 +82,7 @@ const ConfessionChapterResult = ({
   const expandCollapseIcon = isCollapsed ? faPlus : faMinus;
 
   return (
-    <li key={uniqueId()} className="w-full flex flex-col justify-center mb-24">
+    <li key={`${docId}-${chapterId}`} className="w-full flex flex-col justify-center mb-24">
       <>
         {docId && chapterId && (
           <Link scroll={false} href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}>
@@ -91,52 +91,24 @@ const ConfessionChapterResult = ({
               onClick={() => setCollapsed({ [confessionId]: false })}
               className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase"
             >
-              {searchTerms && (
-                <>
-                  <Highlighter textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
-                  {!showNav && (
-                    <FontAwesomeIcon
-                      className="p-2"
-                      size="sm"
-                      icon={expandCollapseIcon}
-                      onClick={isCollapsed
-                        ? (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setCollapsed({ ...collapsedChapters, [confessionId]: false });
-                        }
-                        : (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setCollapsed({ ...collapsedChapters, [confessionId]: true });
-                        }}
-                    />
-                  )}
-                </>
-              )}
-              {!searchTerms && (
-                <>
-                  <h3>{title}</h3>
-                  {!showNav && (
-                    <FontAwesomeIcon
-                      className="p-2"
-                      size="sm"
-                      icon={expandCollapseIcon}
-                      onClick={isCollapsed
-                        ? (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setCollapsed({ ...collapsedChapters, [confessionId]: false });
-                        }
-                        : (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setCollapsed({ ...collapsedChapters, [confessionId]: true });
-                        }}
-                    />
-                  )}
-                </>
-              )}
+              <Highlighter textToHighlight={title} searchWords={searchTerms || []} highlightClassName="search-result-matched-word" />
+              {/* {!showNav && ( */}
+              <FontAwesomeIcon
+                className="p-2"
+                size="sm"
+                icon={expandCollapseIcon}
+                onClick={isCollapsed
+                  ? (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setCollapsed({ ...collapsedChapters, [confessionId]: false });
+                  }
+                  : (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setCollapsed({ ...collapsedChapters, [confessionId]: true });
+                  }}
+              />
               {showNav && (
                 <ul>
                   {renderNav()}
@@ -149,7 +121,7 @@ const ConfessionChapterResult = ({
           <h3 className="cursor-pointer text-3xl lg:text-4xl w-full text-center mb-24">{title}</h3>
         )}
       </>
-      <ul>
+      <ul className="relative">
         {data
           .filter(() => !isCollapsed)
           .map((d) => (
