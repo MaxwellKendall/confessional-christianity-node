@@ -228,10 +228,9 @@ export const groupContentByChapter = (content) => groupBy(content, (obj) => {
   return obj.parent;
 });
 
-export const isChapter = (chapterId, contentById) => (
+export const isChapter = (confessionId, contentById) => (
   // parent would then be the document
-  chapterId.split('-').length === 2
-    && !chapterId.includes('WSC')
-    && !chapterId.includes('WLC')
-    && contentById[chapterId].isParent
+  confessionId.split('-').length === 2
+    && contentById[confessionId].isParent
+    && !DOCUMENTS_WITHOUT_ARTICLES.includes(confessionId)
 );

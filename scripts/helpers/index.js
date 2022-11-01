@@ -1,4 +1,4 @@
-import { bibleBookByAbbreviation } from '../dataMapping';
+import { bibleBookByAbbreviation, bibleApiAbbrByOsis } from '../dataMapping';
 
 export const parseOsisBibleReference = (osisStr) => {
   if (!osisStr) return '';
