@@ -17,7 +17,7 @@ export const getCanonicalDocId = (docTitleOrId) => {
   return getConciseDocId(docTitleOrId);
 };
 
-export const generateLink = (confessionId, facetNames = ['chapter', 'article']) => {
+export const generateLink = (confessionId) => {
   const idAsArr = confessionId.split('-');
   const [id, chapterOrQuestion] = idAsArr;
   const docId = getCanonicalDocId(id);
@@ -28,19 +28,19 @@ export const generateLink = (confessionId, facetNames = ['chapter', 'article']) 
         pathname: '',
         query: {
           // arbitrarily always choosing articles for now rather than rejections...
-          search: `document:${docId} chapter:${chapterOrQuestion}`,
+          search: `${docId}.${chapterOrQuestion}`,
         },
       };
     }
     // handle canons of dordt articles/rejections
-    const articleOrRejection = idAsArr[2] === 'rejections'
-      ? 'rejection'
-      : 'article';
+    // const articleOrRejection = idAsArr[2] === 'rejections'
+    //   ? 'rejection'
+    //   : 'article';
     return {
       pathname: '',
       query: {
         // arbitrarily always choosing articles for now rather than rejections...
-        search: `document:${docId} chapter:${chapterOrQuestion} ${articleOrRejection}:${idAsArr[3]}`,
+        search: `${docId}.${chapterOrQuestion}.${idAsArr[3]}`,
       },
     };
   }
@@ -48,7 +48,7 @@ export const generateLink = (confessionId, facetNames = ['chapter', 'article']) 
     return {
       pathname: '/',
       query: {
-        search: `document:${docId} ${facetNames[0]}:${chapterOrQuestion}`,
+        search: `${docId}.${chapterOrQuestion}`,
       },
     };
   }
@@ -56,7 +56,7 @@ export const generateLink = (confessionId, facetNames = ['chapter', 'article']) 
   return {
     pathname: '/',
     query: {
-      search: `document:${docId} ${facetNames[0]}:${chapterOrQuestion} ${facetNames[1]}:${article}`,
+      search: `${docId}.${chapterOrQuestion}.${article}`,
     },
   };
 };
@@ -153,7 +153,7 @@ const removeDot = (str) => str && str.replaceAll('.', '');
 export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|all|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})/ig;
 // 2d array is like an OR
 export const parseFacets = (str) => {
-  const result = str.match(regexV2); 
+  const result = str.match(regexV2);
   const doc = result && result.length && result[0] || null;
   const chap = result && result.length > 1 && result[1] || null;
   const art = result && result.length > 2 && result[2] || null;
@@ -164,7 +164,7 @@ export const parseFacets = (str) => {
         .from(
           new Set(Object.values(parentIdByAbbreviation)),
         )
-        .map((id) => `document:${confessionCitationByIndex[id.toUpperCase()][0]}`)
+        .map((id) => `document:${confessionCitationByIndex[id.toUpperCase()][0]}`),
     ];
   }
   const document = doc
