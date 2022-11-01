@@ -409,9 +409,18 @@ const HomePage = ({
         <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
       </Head>
       <SEO title={pgTitle} />
-      <h1 className="text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
-        Confessional Christianity
-      </h1>
+      <Link
+        href={{
+          pathname: '',
+          query: {
+            search: '*',
+          },
+        }}
+      >
+        <h1 className="cursor-pointer text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
+          Confessional Christianity
+        </h1>
+      </Link>
       <div className="w-full lg:w-1/2 mt-24 mx-auto sticky top-0 pt-10 pb-5 z-10 bg-white">
         <input
           ref={searchRef}
