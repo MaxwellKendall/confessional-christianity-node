@@ -78,3 +78,13 @@ export const facetNamesByCanonicalDocId = {
   WLC: ['question'],
   WSC: ['question'],
 };
+
+export const KEYWORDS = [
+  'westminster',
+  'westminster standards',
+  'three forms',
+  '3 forms',
+  '3 forms of unity',
+  'six forms',
+  '6 forms'
+]
