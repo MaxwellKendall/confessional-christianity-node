@@ -30,6 +30,7 @@ import {
   groupContentByChapter,
   getConciseDocId,
   regexV2,
+  keyWords,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -216,7 +217,8 @@ const HomePage = ({
     const facetFilters = parseFacets(search);
     setIsLoading(true);
     if (searchTerm !== search) setSearchTerm(search);
-    const queryWithoutFacetFilters = search.replace(regexV2, '');
+    let queryWithoutFacetFilters = search.replace(regexV2, '');
+    queryWithoutFacetFilters = queryWithoutFacetFilters.replace(keyWords, '');
     client.multipleQueries(defaultQueries.map((obj) => ({
       ...obj,
       query: queryWithoutFacetFilters,
@@ -274,6 +276,8 @@ const HomePage = ({
   };
 
   const handleExpand = (id) => {
+    console.log('id', id);
+    console.log('expanded', expanded);
     if (expanded.includes(id)) {
       setExpanded(expanded.filter((s) => s !== id));
     } else {
@@ -317,7 +321,8 @@ const HomePage = ({
         );
         const isExpanded = (
           expanded.includes(documentId)
-          || (searchTerm && searchTerm.match(regexV2))
+          || (searchTerm && searchTerm.match(regexV2) && !keyWords.test(searchTerm))
+
         );
         return (
           acc.concat([

@@ -9,7 +9,7 @@ import { faSpinner, faChevronLeft, faChevronRight } from '@fortawesome/free-soli
 import Link from 'next/link';
 
 import { parseOsisBibleReference, getConfessionalAbbreviationId } from '../scripts/helpers';
-import { confessionIdsWithoutTitles, facetNamesByCanonicalDocId } from '../dataMapping';
+import { confessionIdsWithoutTitles } from '../dataMapping';
 import { generateLink, regexV2 } from '../helpers';
 
 const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
@@ -131,7 +131,7 @@ const ConfessionTextResult = ({
               .map((v) => {
                 if (v.length < 3) {
                   return (
-                    <li key={citation}>
+                    <li key={uniqueId(citation)}>
                       <Link href={{ path: '/', query: { search: citation } }}>
                         <a>
                           <p className="text-lg mx-1">
@@ -144,7 +144,7 @@ const ConfessionTextResult = ({
                 }
                 const parsedVerse = parseOsisBibleReference(v);
                 return (
-                  <li key={citation}>
+                  <li key={uniqueId(citation)}>
                     <Link href={{ path: '/', query: { search: parsedVerse } }}>
                       <a>
                         <p className="text-lg mx-1">
@@ -212,7 +212,7 @@ const ConfessionTextResult = ({
     ));
 
   return (
-    <li key={confessionId} className="w-full flex flex-col justify-center pb-24">
+    <li key={uniqueId(confessionId)} className="w-full flex flex-col justify-center pb-24">
       {renderTitle()}
       {searchTerms.length > 0 && (
         <>

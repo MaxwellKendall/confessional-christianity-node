@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronLeft, faChevronRight, faMinus, faPlus,
 } from '@fortawesome/free-solid-svg-icons';
+import { uniqueId } from 'lodash';
 
 import ConfessionTextResult from './ConfessionTextResult';
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -76,22 +77,16 @@ const ConfessionChapterResult = ({
         </Link>
       </li>
     ));
-
   const isCollapsed = !!collapsedChapters[confessionId];
   const expandCollapseIcon = isCollapsed ? faPlus : faMinus;
 
   return (
-    <li key={`${docId}-${chapterId}`} className="w-full flex flex-col justify-center mb-24">
+    <li key={uniqueId(`${docId}-${chapterId}`)} className="w-full flex flex-col justify-center mb-24">
       <>
         {docId && chapterId && (
           <Link scroll={false} href={generateLink(confessionId)}>
-            <a
-              role="button"
-              onClick={() => setCollapsed({ [confessionId]: false })}
-              className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase"
-            >
+            <a role="button" className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase">
               <Highlighter textToHighlight={title} searchWords={searchTerms || []} highlightClassName="search-result-matched-word" />
-              {/* {!showNav && ( */}
               <FontAwesomeIcon
                 className="p-2 cursor-pointer"
                 size="sm"
@@ -105,6 +100,7 @@ const ConfessionChapterResult = ({
                   : (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    console.log('setCollapsed', confessionId);
                     setCollapsed({ ...collapsedChapters, [confessionId]: true });
                   }}
               />
