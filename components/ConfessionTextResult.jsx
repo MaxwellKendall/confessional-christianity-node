@@ -176,8 +176,8 @@ const ConfessionTextResult = ({
             }
           }}
           href={obj.direction > 0
-            ? generateLink(nextConfessionId, facetNamesByCanonicalDocId[docId])
-            : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}
+            ? generateLink(nextConfessionId)
+            : generateLink(prevConfessionId)}
           className="relative left-full"
         >
           {obj.direction > 0
@@ -195,7 +195,7 @@ const ConfessionTextResult = ({
           <Link
             scroll={false}
             setCollapsed={() => setCollapsed({ [confessionId]: false })}
-            href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
+            href={generateLink(confessionId)}
             className="relative left-full cursor-pointer"
           >
             <a className="cursor-pointer">
@@ -215,7 +215,7 @@ const ConfessionTextResult = ({
           <Link
             scroll={false}
             setCollapsed={() => setCollapsed({ [confessionId]: false })}
-            href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
+            href={generateLink(confessionId)}
             className="relative left-full cursor-pointer"
           >
             <a className="cursor-pointer">

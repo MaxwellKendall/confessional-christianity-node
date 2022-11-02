@@ -5,7 +5,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { uniqueId } from 'lodash';
 import Highlighter from 'react-highlight-words';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -85,7 +84,7 @@ const ConfessionChapterResult = ({
     <li key={`${docId}-${chapterId}`} className="w-full flex flex-col justify-center mb-24">
       <>
         {docId && chapterId && (
-          <Link scroll={false} href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}>
+          <Link scroll={false} href={generateLink(confessionId)}>
             <a
               role="button"
               onClick={() => setCollapsed({ [confessionId]: false })}
