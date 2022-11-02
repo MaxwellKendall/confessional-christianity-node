@@ -196,7 +196,7 @@ const ConfessionTextResult = ({
             scroll={false}
             setCollapsed={() => setCollapsed({ [confessionId]: false })}
             href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
-            className="relative left-full"
+            className="relative left-full cursor-pointer"
           >
             <a className="cursor-pointer">
               <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
@@ -216,7 +216,7 @@ const ConfessionTextResult = ({
             scroll={false}
             setCollapsed={() => setCollapsed({ [confessionId]: false })}
             href={generateLink(confessionId, facetNamesByCanonicalDocId[docId])}
-            className="relative left-full"
+            className="relative left-full cursor-pointer"
           >
             <a className="cursor-pointer">
               <h4 className="text-2xl">{title}</h4>

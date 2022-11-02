@@ -94,7 +94,7 @@ const ConfessionChapterResult = ({
               <Highlighter textToHighlight={title} searchWords={searchTerms || []} highlightClassName="search-result-matched-word" />
               {/* {!showNav && ( */}
               <FontAwesomeIcon
-                className="p-2"
+                className="p-2 cursor-pointer"
                 size="sm"
                 icon={expandCollapseIcon}
                 onClick={isCollapsed

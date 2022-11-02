@@ -329,7 +329,7 @@ const HomePage = ({
                 <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
                   {`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}
                   <FontAwesomeIcon
-                    className="ml-5 my-auto text-xl lg:text-lg"
+                    className="ml-5 my-auto text-xl lg:text-lg cursor-pointer"
                     icon={isExpanded ? faMinus : faPlus}
                     onClick={() => handleExpand(documentId)}
                   />
