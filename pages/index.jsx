@@ -42,7 +42,7 @@ const client = algoliasearch(
 );
 
 const aggIndex = client.initIndex('aggregate');
-const prePopulatedSearch = { query: 'wcf', index: 'aggregate' };
+const prePopulatedSearch = { query: '', index: 'aggregate' };
 const prePopulatedExpanded = [];
 
 const defaultQueries = [
@@ -400,7 +400,7 @@ const HomePage = ({
     setCurrentPg(currentPg + 1);
   };
 
-  const pgTitle = search ? `Confessional Christianity | ${searchTerm}` : 'Confessional Christianity | Historic Creeds & Catechisms';
+  const pgTitle = search && searchTerm.length > 1 && searchTerm !== prePopulatedQuery ? `Confessional Christianity | ${searchTerm}` : 'Confessional Christianity';
   return (
     <div className="home flex flex-col p-8 w-full mt-24">
       <Head>
@@ -413,7 +413,7 @@ const HomePage = ({
         href={{
           pathname: '',
           query: {
-            search: '*',
+            search: '',
           },
         }}
       >
