@@ -4,7 +4,9 @@ import Highlighter from 'react-highlight-words';
 import { uniqueId } from 'lodash';
 
 import Link from 'next/link';
-import { parseConfessionId, getCitationContextById, generateLink } from '../helpers';
+import {
+  parseConfessionId, getCitationContextById, generateLink, sliceConfessionId,
+} from '../helpers';
 import { confessionCitationByIndex } from '../dataMapping';
 
 const BibleTextResult = ({
@@ -26,13 +28,17 @@ const BibleTextResult = ({
 
   const parseConfessionText = (obj, id) => (
     <div className="my-4 w-full ml-10 flex flex-col">
-      {Object.keys(obj).includes('title') && (
-        <h4 className="pl-4 border-l-4">{obj.title}</h4>
-      )}
-      {Object.keys(obj).includes('text') && (
-        <p className="pl-4 border-l-4">{obj.text}</p>
-      )}
-      <p className="pl-8 border-l-4 py-4 font-bold">{`~ ${parseConfessionId(id)}`}</p>
+      <Link href={generateLink(sliceConfessionId(id, id.split('-').length - 1))}>
+        <a>
+          {Object.keys(obj).includes('title') && (
+          <h4 className="pl-4 border-l-4">{obj.title}</h4>
+          )}
+          {Object.keys(obj).includes('text') && (
+          <p className="pl-4 border-l-4">{obj.text}</p>
+          )}
+          <p className="pl-8 border-l-4 py-4 font-bold">{`~ ${parseConfessionId(id)}`}</p>
+        </a>
+      </Link>
     </div>
   );
 

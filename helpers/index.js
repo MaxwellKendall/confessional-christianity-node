@@ -234,3 +234,8 @@ export const isChapter = (confessionId, contentById) => (
     && contentById[confessionId].isParent
     && !DOCUMENTS_WITHOUT_ARTICLES.includes(confessionId)
 );
+
+export const sliceConfessionId = (str, fragmentNumber) => {
+  const idAsArr = str.split('-');
+  return idAsArr.slice(0, fragmentNumber).join('-');
+};
