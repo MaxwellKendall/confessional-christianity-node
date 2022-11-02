@@ -49,18 +49,18 @@ const BibleTextResult = ({
           <Link className="cursor-pointer" href={generateLink(idWithoutCitation)}>
             <a className="cursor-pointer">
               {`${i + 1}. ${confessionName} ${citationTitle}`}
-              <button
-                type="submit"
-                className="cursor-pointer mx-1 text-base focus:outline-none"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleShowMore(id);
-                }}
-              >
-                {showMore.includes(id) ? '(SHOW LESS)' : '(SHOW MORE)'}
-              </button>
             </a>
           </Link>
+          <button
+            type="submit"
+            className="cursor-pointer mx-1 text-base focus:outline-none"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleShowMore(id);
+            }}
+          >
+            {showMore.includes(id) ? '(SHOW LESS)' : '(SHOW MORE)'}
+          </button>
         </p>
         {showMore.includes(id) && parseConfessionText(contentById[idWithoutCitation], id)}
       </div>
