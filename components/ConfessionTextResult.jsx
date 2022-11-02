@@ -56,7 +56,6 @@ const ConfessionTextResult = ({
   verses = {},
   showNav = false,
   docTitle,
-  docId,
   setCollapsed,
 }) => {
   const [bibleTextById, setBibleTextById] = useState({});
@@ -124,11 +123,28 @@ const ConfessionTextResult = ({
               .map((v) => {
                 if (v.length < 3) {
                   return (
-                    <p className="text-lg mx-1">{`${v}: `}</p>
+                    <li key={citation}>
+                      <Link href={{ path: '/', query: { search: citation } }}>
+                        <a>
+                          <p className="text-lg mx-1">
+                            {`${v}: `}
+                          </p>
+                        </a>
+                      </Link>
+                    </li>
                   );
                 }
+                const parsedVerse = parseOsisBibleReference(v);
                 return (
-                  <p className="text-lg mx-1">{parseOsisBibleReference(v)}</p>
+                  <li key={citation}>
+                    <Link href={{ path: '/', query: { search: parsedVerse } }}>
+                      <a>
+                        <p className="text-lg mx-1">
+                          {parsedVerse}
+                        </p>
+                      </a>
+                    </Link>
+                  </li>
                 );
               })
               .concat([
