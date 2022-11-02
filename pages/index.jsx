@@ -178,6 +178,7 @@ const HomePage = ({
   const search = ('search' in router.query) ? router.query.search : prePopulatedQuery;
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
+
   // expanded documents, collapsed by default.
   const [expanded, setExpanded] = useState(prePopulatedExpanded);
   // collapsed chapters, expanded by default.
@@ -247,9 +248,7 @@ const HomePage = ({
   }, [currentPg]);
 
   useEffect(() => {
-    if (search) {
-      fetchResults(true);
-    }
+    fetchResults(true);
   }, [search]);
 
   const submitSearch = () => {
@@ -300,7 +299,6 @@ const HomePage = ({
         }
 
         const documentId = getConfessionalAbbreviationId(documentTitle);
-        const isExpanded = expanded.includes(documentId);
         const groupedByChapter = groupContentByChapter(results);
         const showArticleNav = (
           // wcf.1.2
@@ -314,8 +312,12 @@ const HomePage = ({
         );
         const showChapterNav = (
           (regexV2.test(searchTerm) && searchTerm.split('.').length > 1)
-          && searchTerm.match(regexV2)
-          && !DOCUMENTS_WITHOUT_ARTICLES.includes(searchTerm.match(regexV2)[0])
+              && searchTerm.match(regexV2)
+              && !DOCUMENTS_WITHOUT_ARTICLES.includes(searchTerm.match(regexV2)[0])
+        );
+        const isExpanded = (
+          expanded.includes(documentId)
+          || (searchTerm && searchTerm.match(regexV2))
         );
         return (
           acc.concat([
