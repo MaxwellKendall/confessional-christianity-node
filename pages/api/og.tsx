@@ -16,10 +16,15 @@ export default async function (req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const fontData = await font;
-    const hasTitle = searchParams.has("title");
+    const hasTitle = searchParams.has("subTitle");
     const title = hasTitle
-      ? searchParams.get("title")?.slice(0, 100)
+      ? searchParams.get("subTitle")?.slice(0, 100)
       : "My default title";
+
+    const hasQuery = searchParams.has("query");
+    const query = hasQuery
+      ? searchParams.get("query")?.slice(0, 100)
+      : "My default query";
 
     return new ImageResponse(
       (
@@ -36,31 +41,13 @@ export default async function (req: NextRequest) {
             backgroundColor: "white",
           }}
         >
-          <div tw="bg-gray-50 flex">
-            <div tw="flex flex-col md:flex-row w-full py-12 px-4 md:items-center justify-between p-8">
-              <h2 tw="flex flex-col text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 text-left">
-                <span>Ready to dive in? {title}</span>
-                <span tw="text-indigo-600">Start your free trial today.</span>
-              </h2>
-              <div tw="mt-8 flex md:mt-0">
-                <div tw="flex rounded-md shadow">
-                  <a
-                    href="#"
-                    tw="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-5 py-3 text-base font-medium text-white"
-                  >
-                    Get started
-                  </a>
-                </div>
-                <div tw="ml-3 flex rounded-md shadow">
-                  <a
-                    href="#"
-                    tw="flex items-center justify-center rounded-md border border-transparent bg-white px-5 py-3 text-base font-medium text-indigo-600"
-                  >
-                    Learn more
-                  </a>
-                </div>
-              </div>
-            </div>
+          <div tw="mx-auto flex flex-col w-full justify-center items-center">
+            <h1 tw="text-3xl sm:text-4xl font-bold tracking-tight text-center w-full">
+              Confessional Christianity
+            </h1>
+            <h2 tw="w-full text-center py-2">Classical Protestantism</h2>
+            <p tw="w-full text-center py-5">{title}</p>
+            {query && <p tw="w-full text-center py-5">{`on ${query}`}</p>}
           </div>
         </div>
       ),
