@@ -82,17 +82,16 @@ const ConfessionTextResult = ({
       .map((str, i) => {
         const citation = `${trim(citationSummary[i]).replaceAll(cleanCitation, '')}`;
         return (
-          <Link href={{ pathname: '', query: { search: citation } }}>
-            <a>
-              <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
-                {trimStart(str).replace(cleanVerse, '')}
-                <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
-                  {`~ ${citation} (ESV)`}
-                </strong>
-              </p>
+          (<Link href={{ pathname: '', query: { search: citation } }}>
 
-            </a>
-          </Link>
+            <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
+              {trimStart(str).replace(cleanVerse, '')}
+              <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
+                {`~ ${citation} (ESV)`}
+              </strong>
+            </p>
+
+          </Link>)
         );
       });
   };
@@ -133,11 +132,11 @@ const ConfessionTextResult = ({
                   return (
                     <li key={uniqueId(citation)}>
                       <Link href={{ path: '/', query: { search: citation } }}>
-                        <a>
-                          <p className="text-lg mx-1">
-                            {`${v}: `}
-                          </p>
-                        </a>
+
+                        <p className="text-lg mx-1">
+                          {`${v}: `}
+                        </p>
+
                       </Link>
                     </li>
                   );
@@ -146,11 +145,11 @@ const ConfessionTextResult = ({
                 return (
                   <li key={uniqueId(citation)}>
                     <Link href={{ path: '/', query: { search: parsedVerse } }}>
-                      <a>
-                        <p className="text-lg mx-1">
-                          {parsedVerse}
-                        </p>
-                      </a>
+
+                      <p className="text-lg mx-1">
+                        {parsedVerse}
+                      </p>
+
                     </Link>
                   </li>
                 );
@@ -203,7 +202,7 @@ const ConfessionTextResult = ({
             ? generateLink(nextConfessionId)
             : generateLink(prevConfessionId)}
           className="relative left-full"
-        >
+          legacyBehavior>
           {obj.direction > 0
             ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} size="xs" />
             : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} size="xs" />}
@@ -222,9 +221,9 @@ const ConfessionTextResult = ({
             href={generateLink(confessionId)}
             className="relative left-full cursor-pointer"
           >
-            <a className="cursor-pointer">
-              <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
-            </a>
+
+            <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+
           </Link>
           <Highlighter className="mt-4" textToHighlight={text} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
           {showNav && (
@@ -242,9 +241,9 @@ const ConfessionTextResult = ({
             href={generateLink(confessionId)}
             className="relative left-full cursor-pointer"
           >
-            <a className="cursor-pointer">
-              <h4 className="text-2xl">{title}</h4>
-            </a>
+
+            <h4 className="text-2xl">{title}</h4>
+
           </Link>
           <p className="mt-4">{text}</p>
             {showNav && (

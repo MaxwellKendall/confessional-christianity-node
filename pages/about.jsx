@@ -17,7 +17,7 @@ const AboutPg = () => (
       <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
     </Head>
     <SEO title="Confessional Christianity | About Us" />
-    <Link href="/">
+    <Link href="/" legacyBehavior>
       <h1 className="text-center cursor-pointer text-4xl lg:text-5xl mx-auto max-w-2xl">
         Confessional Christianity
       </h1>

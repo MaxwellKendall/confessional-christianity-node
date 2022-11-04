@@ -29,15 +29,15 @@ const BibleTextResult = ({
   const parseConfessionText = (obj, id) => (
     <div className="my-4 w-full ml-10 flex flex-col">
       <Link href={generateLink(sliceConfessionId(id, id.split('-').length - 1))}>
-        <a>
-          {Object.keys(obj).includes('title') && (
-          <h4 className="pl-4 border-l-4">{obj.title}</h4>
-          )}
-          {Object.keys(obj).includes('text') && (
-          <p className="pl-4 border-l-4">{obj.text}</p>
-          )}
-          <p className="pl-8 border-l-4 py-4 font-bold">{`~ ${parseConfessionId(id)}`}</p>
-        </a>
+
+        {Object.keys(obj).includes('title') && (
+        <h4 className="pl-4 border-l-4">{obj.title}</h4>
+        )}
+        {Object.keys(obj).includes('text') && (
+        <p className="pl-4 border-l-4">{obj.text}</p>
+        )}
+        <p className="pl-8 border-l-4 py-4 font-bold">{`~ ${parseConfessionId(id)}`}</p>
+
       </Link>
     </div>
   );
@@ -53,9 +53,9 @@ const BibleTextResult = ({
       <div className="pl-4 py-2">
         <p>
           <Link className="cursor-pointer" href={generateLink(idWithoutCitation)}>
-            <a className="cursor-pointer">
-              {`${i + 1}. ${confessionName} ${citationTitle}`}
-            </a>
+
+            {`${i + 1}. ${confessionName} ${citationTitle}`}
+
           </Link>
           <button
             type="submit"
@@ -83,7 +83,7 @@ const BibleTextResult = ({
             search: citation,
           },
         }}
-      >
+        legacyBehavior>
         <div className="flex flex-col cursor-pointer">
           <Highlighter
             highlightClassName="search-result-matched-word"

@@ -324,77 +324,77 @@ const HomePage = ({
           || (searchTerm && searchTerm.match(regexV2) && !keyWords.test(searchTerm))
 
         );
-        return (
-          acc.concat([
-            <li>
-              <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
-                <Link href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}>
-                  {documentTitle}
-                </Link>
-                <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
-                  {`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}
-                  <FontAwesomeIcon
-                    className="ml-5 my-auto text-xl lg:text-lg cursor-pointer"
-                    icon={isExpanded ? faMinus : faPlus}
-                    onClick={() => handleExpand(documentId)}
-                  />
-                </span>
-              </h2>
-              {isExpanded && (
-                <ul className="relative">
-                  {Object
-                    .keys(groupedByChapter)
-                    .sort((a, b) => handleSortById({ id: a }, { id: b }))
-                    .filter((key) => key.includes(documentId))
-                    .map((chapterId) => {
-                      const isResultChapter = isChapter(chapterId, contentById);
-                      // No chapter results displayed.
-                      if (isResultChapter) {
-                        return (
-                          <ConfessionChapterResult
-                            docTitle={documentTitle}
-                            docId={getConciseDocId(documentTitle)}
-                            chapterId={chapterId.split('-')[1]}
-                            showNav={showChapterNav}
-                            title={contentById[chapterId].title}
-                            searchTerms={searchTerm.split(' ')}
-                            collapsedChapters={collapsed}
-                            setCollapsed={setCollapsed}
-                            data={groupedByChapter[chapterId]
-                              .filter((obj) => !obj.isParent)
-                              .map((obj) => ({
-                                ...obj,
-                                showNav: showArticleNav,
-                                searchTerms: getSearchTerms(obj, searchTerm),
-                                hideChapterTitle: true,
-                                hideDocumentTitle: true,
-                                setCollapsed,
-                              }))
-                              .sort(handleSortById)}
-                            contentById={contentById}
-                          />
-                        );
-                      }
-                      return groupedByChapter[chapterId]
-                        .map((obj) => (
-                          <ConfessionTextResult
-                            {...obj}
-                            chapterId={chapterId.split('-')[1]}
-                            docTitle={documentTitle}
-                            docId={getConciseDocId(documentTitle)}
-                            linkToChapter
-                            showNav={showArticleNav}
-                            searchTerms={getSearchTerms(obj, searchTerm)}
-                            contentById={contentById}
-                            hideDocumentTitle
-                          />
-                        ));
-                    })}
-                </ul>
-              )}
-            </li>,
-          ])
-        );
+        return acc.concat([
+          <li>
+            <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
+              <Link
+                href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}
+                legacyBehavior>
+                {documentTitle}
+              </Link>
+              <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
+                {`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}
+                <FontAwesomeIcon
+                  className="ml-5 my-auto text-xl lg:text-lg cursor-pointer"
+                  icon={isExpanded ? faMinus : faPlus}
+                  onClick={() => handleExpand(documentId)}
+                />
+              </span>
+            </h2>
+            {isExpanded && (
+              <ul className="relative">
+                {Object
+                  .keys(groupedByChapter)
+                  .sort((a, b) => handleSortById({ id: a }, { id: b }))
+                  .filter((key) => key.includes(documentId))
+                  .map((chapterId) => {
+                    const isResultChapter = isChapter(chapterId, contentById);
+                    // No chapter results displayed.
+                    if (isResultChapter) {
+                      return (
+                        <ConfessionChapterResult
+                          docTitle={documentTitle}
+                          docId={getConciseDocId(documentTitle)}
+                          chapterId={chapterId.split('-')[1]}
+                          showNav={showChapterNav}
+                          title={contentById[chapterId].title}
+                          searchTerms={searchTerm.split(' ')}
+                          collapsedChapters={collapsed}
+                          setCollapsed={setCollapsed}
+                          data={groupedByChapter[chapterId]
+                            .filter((obj) => !obj.isParent)
+                            .map((obj) => ({
+                              ...obj,
+                              showNav: showArticleNav,
+                              searchTerms: getSearchTerms(obj, searchTerm),
+                              hideChapterTitle: true,
+                              hideDocumentTitle: true,
+                              setCollapsed,
+                            }))
+                            .sort(handleSortById)}
+                          contentById={contentById}
+                        />
+                      );
+                    }
+                    return groupedByChapter[chapterId]
+                      .map((obj) => (
+                        <ConfessionTextResult
+                          {...obj}
+                          chapterId={chapterId.split('-')[1]}
+                          docTitle={documentTitle}
+                          docId={getConciseDocId(documentTitle)}
+                          linkToChapter
+                          showNav={showArticleNav}
+                          searchTerms={getSearchTerms(obj, searchTerm)}
+                          contentById={contentById}
+                          hideDocumentTitle
+                        />
+                      ));
+                  })}
+              </ul>
+            )}
+          </li>,
+        ]);
       }, []);
     return (
       <ul className="results w-full lg:w-1/2 mx-auto">
@@ -423,7 +423,7 @@ const HomePage = ({
             search: '',
           },
         }}
-      >
+        legacyBehavior>
         <h1 className="cursor-pointer text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
           Confessional Christianity
         </h1>

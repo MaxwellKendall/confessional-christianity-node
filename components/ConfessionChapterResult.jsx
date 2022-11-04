@@ -56,7 +56,7 @@ const ConfessionChapterResult = ({
           href={obj.direction > 0
             ? generateLink(nextConfessionId, facetNamesByCanonicalDocId[docId])
             : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}
-        >
+          legacyBehavior>
           {obj.direction > 0
             ? (
               <FontAwesomeIcon
@@ -84,33 +84,37 @@ const ConfessionChapterResult = ({
     <li key={uniqueId(`${docId}-${chapterId}`)} className="w-full flex flex-col justify-center mb-24">
       <>
         {docId && chapterId && (
-          <Link scroll={false} href={generateLink(confessionId)}>
-            <a role="button" className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase">
-              <Highlighter textToHighlight={title} searchWords={searchTerms || []} highlightClassName="search-result-matched-word" />
-              <FontAwesomeIcon
-                className="p-2 cursor-pointer"
-                size="sm"
-                icon={expandCollapseIcon}
-                onClick={isCollapsed
-                  ? (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setCollapsed({ ...collapsedChapters, [confessionId]: false });
-                  }
-                  : (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('setCollapsed', confessionId);
-                    setCollapsed({ ...collapsedChapters, [confessionId]: true });
-                  }}
-              />
-              {showNav && (
-                <ul>
-                  {renderNav()}
-                </ul>
-              )}
-            </a>
-          </Link>
+          (<Link
+            scroll={false}
+            href={generateLink(confessionId)}
+            role="button"
+            className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase">
+
+            <Highlighter textToHighlight={title} searchWords={searchTerms || []} highlightClassName="search-result-matched-word" />
+            <FontAwesomeIcon
+              className="p-2 cursor-pointer"
+              size="sm"
+              icon={expandCollapseIcon}
+              onClick={isCollapsed
+                ? (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCollapsed({ ...collapsedChapters, [confessionId]: false });
+                }
+                : (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('setCollapsed', confessionId);
+                  setCollapsed({ ...collapsedChapters, [confessionId]: true });
+                }}
+            />
+            {showNav && (
+              <ul>
+                {renderNav()}
+              </ul>
+            )}
+
+          </Link>)
         )}
         {!docId && !chapterId && !searchTerms && (
           <h3 className="cursor-pointer text-3xl lg:text-4xl w-full text-center mb-24">{title}</h3>
