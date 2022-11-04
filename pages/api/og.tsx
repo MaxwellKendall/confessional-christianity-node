@@ -76,6 +76,10 @@ export default async function (req: NextRequest) {
             style: "normal",
           },
         ],
+        headers: {
+          "content-type": "image/png",
+          "cache-control": "no-cache",
+        },
       }
     );
   } catch (e) {
