@@ -49,16 +49,16 @@ export default async function (req: NextRequest) {
               alignItems: "center",
             }}
           >
-            <h1 style={{ fontSize: "36px", textAlign: "center" }}>
+            <h1 style={{ fontSize: "64px", textAlign: "center" }}>
               Confessional Christianity
             </h1>
             {/* <h2 style={{ padding: '0 5px', fontSize: '2.5rem' }}>Classical Protestantism</h2> */}
-            <p style={{ padding: "0 2px", fontSize: "24px" }}>{title}</p>
+            <p style={{ padding: "0 2px", fontSize: "48px" }}>{title}</p>
             {query && (
               <p
                 style={{
                   padding: "0 1.5px",
-                  fontSize: "18px",
+                  fontSize: "36px",
                   fontStyle: "italic",
                 }}
               >{`on ${query}`}</p>

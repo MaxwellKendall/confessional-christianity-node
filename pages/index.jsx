@@ -419,7 +419,7 @@ const HomePage = ({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
         <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
       </Head>
-      <SEO title={pgTitle} query={query} />
+      <SEO subTitle={pgTitle} query={query} />
       <Link
         href={{
           pathname: '',
