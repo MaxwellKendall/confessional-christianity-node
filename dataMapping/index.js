@@ -80,11 +80,9 @@ export const facetNamesByCanonicalDocId = {
 };
 
 export const KEYWORDS = [
-  'westminster',
   'westminster standards',
-  'three forms',
-  '3 forms',
+  'three forms of unity',
   '3 forms of unity',
-  'six forms',
-  '6 forms'
-]
+  'six forms of unity',
+  '6 forms of unity',
+];
