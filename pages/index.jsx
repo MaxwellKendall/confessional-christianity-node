@@ -9,13 +9,17 @@ import { promises as fs } from 'fs';
 import Link from 'next/link';
 
 import algoliasearch from 'algoliasearch';
-import { groupBy, throttle } from 'lodash';
+import {
+  groupBy, throttle,
+} from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMinus, faPlus, faSpinner, faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { confessionPathByName, DOCUMENTS_WITHOUT_ARTICLES } from '../dataMapping';
+import {
+  confessionCitationByIndex, confessionPathByName, DOCUMENTS_WITHOUT_ARTICLES, facetNamesByCanonicalDocId,
+} from '../dataMapping';
 
 import ConfessionTextResult from '../components/ConfessionTextResult';
 import ConfessionChapterResult from '../components/ConfessionChapterResult';
@@ -31,6 +35,8 @@ import {
   getConciseDocId,
   regexV2,
   keyWords,
+  getCanonicalDocId,
+  getPgTitle,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -276,8 +282,6 @@ const HomePage = ({
   };
 
   const handleExpand = (id) => {
-    console.log('id', id);
-    console.log('expanded', expanded);
     if (expanded.includes(id)) {
       setExpanded(expanded.filter((s) => s !== id));
     } else {
@@ -329,7 +333,8 @@ const HomePage = ({
             <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
               <Link
                 href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}
-                legacyBehavior>
+                legacyBehavior
+              >
                 {documentTitle}
               </Link>
               <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
@@ -407,7 +412,7 @@ const HomePage = ({
     setCurrentPg(currentPg + 1);
   };
 
-  const pgTitle = search && searchTerm.length > 1 && searchTerm !== prePopulatedQuery ? `Confessional Christianity | ${searchTerm}` : 'Confessional Christianity';
+  const [pgTitle, query] = getPgTitle(search);
   return (
     <div className="home flex flex-col p-8 w-full mt-24">
       <Head>
@@ -415,7 +420,7 @@ const HomePage = ({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
         <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
       </Head>
-      <SEO title={pgTitle} />
+      <SEO title={pgTitle} query={query} />
       <Link
         href={{
           pathname: '',
@@ -423,7 +428,8 @@ const HomePage = ({
             search: '',
           },
         }}
-        legacyBehavior>
+        legacyBehavior
+      >
         <h1 className="cursor-pointer text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
           Confessional Christianity
         </h1>
