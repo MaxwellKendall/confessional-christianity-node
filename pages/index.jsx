@@ -18,7 +18,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
-  confessionCitationByIndex, confessionPathByName, DOCUMENTS_WITHOUT_ARTICLES, facetNamesByCanonicalDocId,
+  confessionPathByName, DOCUMENTS_WITHOUT_ARTICLES,
 } from '../dataMapping';
 
 import ConfessionTextResult from '../components/ConfessionTextResult';
@@ -35,7 +35,6 @@ import {
   getConciseDocId,
   regexV2,
   keyWords,
-  getCanonicalDocId,
   getPgTitle,
 } from '../helpers';
 
