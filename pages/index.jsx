@@ -4,8 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import path from 'path';
-import { promises as fs } from 'fs';
+
 import Link from 'next/link';
 
 import algoliasearch from 'algoliasearch';
@@ -18,7 +17,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
-  confessionPathByName, DOCUMENTS_WITHOUT_ARTICLES,
+  DOCUMENTS_WITHOUT_ARTICLES,
 } from '../dataMapping';
 
 import ConfessionTextResult from '../components/ConfessionTextResult';
@@ -26,6 +25,7 @@ import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import BibleTextResult from '../components/BibleTextResult';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
+import contentById from '../dataMapping/content-by-id.json';
 
 import {
   handleSortById,
@@ -83,28 +83,6 @@ const groupByDocument = (results) => groupBy(results, (obj) => {
 
 export async function getServerSideProps() {
   // will be passed to the page component as props
-  const contentById = await Object
-    .entries(confessionPathByName)
-    .reduce((prevPromise, [, value]) => prevPromise.then(async (acc) => {
-      const pathToConfession = path.join(process.cwd(), value);
-      const fileContents = await fs.readFile(pathToConfession, 'utf8');
-      const parsed = JSON.parse(fileContents);
-      const asObject = parsed.content
-        .reduce((asObj, obj) => ({
-          ...asObj,
-          [obj.id]: obj,
-        }), {});
-      return Promise.resolve({
-        ...acc,
-        ...asObject,
-      });
-    }), Promise.resolve({}));
-
-  const chaptersById = groupBy(Object
-    .entries(contentById)
-    .filter(([k]) => k.includes('-'))
-    .reduce((acc, [, value]) => acc.concat([value]), []),
-  (obj) => obj.parent);
 
   const resp = await aggIndex.search('', {
     facetFilters: parseFacets(prePopulatedSearch.query),
@@ -120,12 +98,10 @@ export async function getServerSideProps() {
 
   return {
     props: {
-      chaptersById,
       prePopulatedSearchResults: groupByDocument(
         resp.hits.map((obj) => ({ ...obj, index: prePopulatedSearch.index })),
       ),
       prePopulatedQuery: prePopulatedSearch.query,
-      contentById,
       prepopulatedTotals,
     },
   };
@@ -177,20 +153,18 @@ const stickyBreakPoint = 41;
 const HomePage = ({
   prePopulatedSearchResults,
   prePopulatedQuery,
-  contentById,
   prepopulatedTotals,
 }) => {
   const router = useRouter();
   const search = ('search' in router.query) ? router.query.search : prePopulatedQuery;
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-
   // expanded documents, collapsed by default.
   const [expanded, setExpanded] = useState(prePopulatedExpanded);
   // collapsed chapters, expanded by default.
   const [collapsed, setCollapsed] = useState({});
   const [searchResults, setSearchResults] = useState(search ? [] : prePopulatedSearchResults);
-  const [isLoading, setIsLoading] = useState(!!search);
+  const [isLoading, setIsLoading] = useState(false);
   const [totals, setTotals] = useState({
     bible: 0,
     confession: prepopulatedTotals.confession,
@@ -255,8 +229,10 @@ const HomePage = ({
   }, [currentPg]);
 
   useEffect(() => {
-    fetchResults(true);
-  }, [search]);
+    if (!isLoading) {
+      fetchResults(true);
+    }
+  }, [search, isLoading]);
 
   const submitSearch = () => {
     setCurrentPg(0);

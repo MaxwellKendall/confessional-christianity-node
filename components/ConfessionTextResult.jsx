@@ -82,16 +82,18 @@ const ConfessionTextResult = ({
       .map((str, i) => {
         const citation = `${trim(citationSummary[i]).replaceAll(cleanCitation, '')}`;
         return (
-          (<Link href={{ pathname: '', query: { search: citation } }}>
+          (
+            <Link href={{ pathname: '', query: { search: citation } }}>
 
-            <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
-              {trimStart(str).replace(cleanVerse, '')}
-              <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
-                {`~ ${citation} (ESV)`}
-              </strong>
-            </p>
+              <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
+                {trimStart(str).replace(cleanVerse, '')}
+                <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
+                  {`~ ${citation} (ESV)`}
+                </strong>
+              </p>
 
-          </Link>)
+            </Link>
+          )
         );
       });
   };
@@ -202,7 +204,8 @@ const ConfessionTextResult = ({
             ? generateLink(nextConfessionId)
             : generateLink(prevConfessionId)}
           className="relative left-full"
-          legacyBehavior>
+          legacyBehavior
+        >
           {obj.direction > 0
             ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} size="xs" />
             : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} size="xs" />}
@@ -219,7 +222,7 @@ const ConfessionTextResult = ({
             scroll={false}
             setCollapsed={() => setCollapsed({ [confessionId]: false })}
             href={generateLink(confessionId)}
-            className="relative left-full cursor-pointer"
+            className="left-full cursor-pointer"
           >
 
             <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
@@ -239,7 +242,7 @@ const ConfessionTextResult = ({
             scroll={false}
             setCollapsed={() => setCollapsed({ [confessionId]: false })}
             href={generateLink(confessionId)}
-            className="relative left-full cursor-pointer"
+            className="left-full cursor-pointer"
           >
 
             <h4 className="text-2xl">{title}</h4>

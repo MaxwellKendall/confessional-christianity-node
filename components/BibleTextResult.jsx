@@ -43,6 +43,7 @@ const BibleTextResult = ({
   );
 
   const renderCitedBy = () => citedBy.map((id, i) => {
+    if (!contentById) return null;
     const confessionName = confessionCitationByIndex[getCitationContextById(id, 1)][0];
     // chapter where scripture is cited etc...
     const citationTitle = confessionName.includes('Heidelberg')
@@ -83,7 +84,8 @@ const BibleTextResult = ({
             search: citation,
           },
         }}
-        legacyBehavior>
+        legacyBehavior
+      >
         <div className="flex flex-col cursor-pointer">
           <Highlighter
             highlightClassName="search-result-matched-word"

@@ -33,7 +33,7 @@ export const getStaticProps = async (context) => {
       title: capitalize(context.params.confession.split('-').join(' ')),
       documentId: Object
         .entries(contentById)
-        .find(([k, v]) => v.parent.split('-').length === 1)[1].parent
+        .find(([k, v]) => v.parent.split('-').length === 1)[1].parent,
     },
   };
 };
@@ -49,7 +49,7 @@ export async function getStaticPaths() {
 const Confession = ({
   title,
   contentById,
-  documentId
+  documentId,
 }) => {
   const [collapsed, setCollapsed] = useState({});
   const renderContent = () => {
@@ -60,39 +60,33 @@ const Confession = ({
         const first = parseInt(a.split('-')[1], 10);
         const second = parseInt(b.split('-')[1], 10);
         return first - second;
-      })
+      });
 
     if (confessionIdsWithoutTitles.includes(documentId)) {
       return Object
         .entries(contentById)
-        .map(([key, obj]) => {
-          return (
-            <ConfessionTextResult
-              {...obj}
-              docId={documentId}
-              chapterId={obj.id.split('-')[1]}
-              docTitle={title}
-              contentById={contentById}
-              searchTerms={[]}
-            />
-          )
-        })
-      }
+        .map(([key, obj]) => (
+          <ConfessionTextResult
+            {...obj}
+            docId={documentId}
+            chapterId={obj.id.split('-')[1]}
+            docTitle={title}
+            contentById={contentById}
+            searchTerms={[]}
+          />
+        ));
+    }
 
     return chapters
       .map((key) => {
         const children = Object
           .entries(contentById)
-          .filter(([k, obj]) => {
-            return (
-              obj.parent === key ||
-              obj.parent === `${key}-articles` ||
-              obj.parent === `${key}-rejections`
-            );
-          })
-          .reduce((acc, [k, v]) => {
-            return acc.concat(v);
-        }, []);
+          .filter(([k, obj]) => (
+            obj.parent === key
+              || obj.parent === `${key}-articles`
+              || obj.parent === `${key}-rejections`
+          ))
+          .reduce((acc, [k, v]) => acc.concat(v), []);
 
         return (
           <ConfessionChapterResult
@@ -112,7 +106,7 @@ const Confession = ({
             contentById={contentById}
           />
         );
-      })
+      });
   };
 
   return (

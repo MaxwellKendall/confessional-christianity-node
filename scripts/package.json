@@ -4,6 +4,7 @@
   "description": "Compendium of Reformed Standards",
   "main": "index.js",
   "scripts": {
+    "populate-content-by-id": "npx babel-node --no-babelrc populate-content-by-id.js",
     "build-json": "npx babel-node --no-babelrc yaml-to-json.js",
     "populate-agg": "npx babel-node populate-aggregate-index.js",
     "populate-bible-verses": "npx babel-node --unhandled-rejections=strict populate-bible-verses.js"
