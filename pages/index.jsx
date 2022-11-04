@@ -35,7 +35,7 @@ import {
   getConciseDocId,
   regexV2,
   keyWords,
-  getPgTitle,
+  usePgTitle,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -81,7 +81,7 @@ const groupByDocument = (results) => groupBy(results, (obj) => {
   return obj.document;
 });
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   // will be passed to the page component as props
   const contentById = await Object
     .entries(confessionPathByName)
@@ -214,7 +214,7 @@ const HomePage = ({
   }, 200);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
+    window && window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -411,7 +411,7 @@ const HomePage = ({
     setCurrentPg(currentPg + 1);
   };
 
-  const [pgTitle, query] = getPgTitle(search);
+  const [pgTitle, query] = usePgTitle(search);
   return (
     <div className="home flex flex-col p-8 w-full mt-24">
       <Head>

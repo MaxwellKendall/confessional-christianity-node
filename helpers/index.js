@@ -253,32 +253,32 @@ export const parseFacets = (str) => {
   return [];
 };
 
-export const getPgTitle = (search) => {
+export const usePgTitle = (search) => {
   const queryWithoutFacetFilters = (search && `${search.replace(regexV2, '').replace(keyWords, '')}`).replace(bibleRegex, '') || null;
-  if (!search) return ['Search the Confessions of Historic Protestantism', startCase(queryWithoutFacetFilters)];
+  if (!search) return ['Search the Confessions of Historic Protestantism', 'By Keyword, Scripture Text, or Citation'];
   const result = search.match(regexV2);
   const doc = (result && result.length && getCanonicalDocId(result[0])) || null;
   const chap = (result && result.length > 1 && `${facetNamesByCanonicalDocId[doc][0]} ${removeDot(result[1])}`) || null;
   const art = (result && result.length > 2 && `${facetNamesByCanonicalDocId[doc][1]} ${removeDot(result[2])}`) || null;
   if (doc && chap && art) {
-    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())} ${startCase(art.toLowerCase())}`, startCase(queryWithoutFacetFilters)];
+    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())} ${startCase(art.toLowerCase())}`, startCase(`on ${queryWithoutFacetFilters}`)];
   }
   if (doc && chap) {
-    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())}`, startCase(queryWithoutFacetFilters)];
+    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())}`, startCase(`on ${queryWithoutFacetFilters}`)];
   }
   if (doc) {
-    return [`${confessionCitationByIndex[doc][0]}`, startCase(queryWithoutFacetFilters)];
+    return [`${confessionCitationByIndex[doc][0]}`, startCase(`on ${queryWithoutFacetFilters}`)];
   }
   if (keyWords.test(search)) {
-    return [`The ${startCase(search.match(keyWords)[0].toLowerCase())}`, startCase(queryWithoutFacetFilters)];
+    return [`The ${startCase(search.match(keyWords)[0].toLowerCase())}`, startCase(`on ${queryWithoutFacetFilters}`)];
   }
   if (bibleRegex.test(search)) {
     return [
       startCase(search.match(bibleRegex).join(' ').toLowerCase()),
-      startCase(queryWithoutFacetFilters),
+      startCase(`on ${queryWithoutFacetFilters}`),
     ];
   }
-  return [queryWithoutFacetFilters, ''];
+  return [`on ${queryWithoutFacetFilters}`, ''];
 };
 
 export const getDocumentId = (id) => id.split('-')[0];

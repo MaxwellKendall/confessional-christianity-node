@@ -17,7 +17,7 @@ export default async function (req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const fontData = await font;
     const hasTitle = searchParams.has("subTitle");
-    const title = hasTitle
+    const subTitle = hasTitle
       ? searchParams.get("subTitle")?.slice(0, 100)
       : "My default title";
 
@@ -28,7 +28,6 @@ export default async function (req: NextRequest) {
 
     return new ImageResponse(
       (
-        // Modified based on https://tailwindui.com/components/marketing/sections/cta-sections
         <div
           style={{
             height: "100%",
@@ -47,13 +46,27 @@ export default async function (req: NextRequest) {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <h1 style={{ fontSize: "64px", textAlign: "center" }}>
               Confessional Christianity
             </h1>
-            {/* <h2 style={{ padding: '0 5px', fontSize: '2.5rem' }}>Classical Protestantism</h2> */}
-            <p style={{ padding: "0 2px", fontSize: "48px" }}>{title}</p>
+            <p
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                textAlign: "center",
+                justifySelf: "center",
+                alignSelf: "center",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+                fontSize: "48px",
+              }}
+            >
+              {subTitle}
+            </p>
             {query && (
               <p
                 style={{
@@ -61,7 +74,7 @@ export default async function (req: NextRequest) {
                   fontSize: "36px",
                   fontStyle: "italic",
                 }}
-              >{`on ${query}`}</p>
+              >{query}</p>
             )}
           </div>
         </div>
