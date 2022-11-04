@@ -41,13 +41,28 @@ export default async function (req: NextRequest) {
             backgroundColor: "white",
           }}
         >
-          <div tw="mx-auto flex flex-col w-full justify-center items-center">
-            <h1 tw="text-3xl sm:text-4xl font-bold tracking-tight text-center w-full">
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <h1 style={{ fontSize: "36px", textAlign: "center" }}>
               Confessional Christianity
             </h1>
-            <h2 tw="w-full text-center py-2">Classical Protestantism</h2>
-            <p tw="w-full text-center py-5">{title}</p>
-            {query && <p tw="w-full text-center py-5">{`on ${query}`}</p>}
+            {/* <h2 style={{ padding: '0 5px', fontSize: '2.5rem' }}>Classical Protestantism</h2> */}
+            <p style={{ padding: "0 2px", fontSize: "24px" }}>{title}</p>
+            {query && (
+              <p
+                style={{
+                  padding: "0 1.5px",
+                  fontSize: "18px",
+                  fontStyle: "italic",
+                }}
+              >{`on ${query}`}</p>
+            )}
           </div>
         </div>
       ),
