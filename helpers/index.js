@@ -1,10 +1,10 @@
-import { groupBy } from 'lodash';
+import { groupBy, startCase } from 'lodash';
 import {
   confessionCitationByIndex,
   DOCUMENTS_WITHOUT_ARTICLES,
   excludedWordsInDocumentId,
   parentIdByAbbreviation,
-  KEYWORDS
+  facetNamesByCanonicalDocId,
 } from '../dataMapping';
 
 // returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
@@ -157,40 +157,46 @@ export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)
 const wildCardFacetRegex = new RegExp(/\*/);
 const removeDot = (str) => str && str.replaceAll('.', '');
 export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|all|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})/ig;
-export const keyWords = /(westminster|westminster\sstandards|three\sforms|3\sforms|six\sforms|6\sforms)/ig;
+export const keyWords = /(westminster\sstandards|three\sforms\sof\sunity|3\sforms\sof\sunity|six\sforms\sof\sunity|6\sforms\sof\sunity)/ig;
 
 // 2d array is like an OR
 export const parseFacets = (str) => {
-  const result = str.match(regexV2); 
-  const doc = result && result.length && result[0] || null;
-  const chap = result && result.length > 1 && result[1] || null;
-  const art = result && result.length > 2 && result[2] || null;
+  const result = str.match(regexV2);
+  const doc = (result && result.length && result[0]) || null;
+  const chap = (result && result.length > 1 && result[1]) || null;
+  const art = (result && result.length > 2 && result[2]) || null;
   if (keyWords.test(str)) {
     const [doc] = str.match(keyWords);
-    if (doc.startsWith('west')) return [
-      [
-        `document:${confessionCitationByIndex['WSC'][0]}`,
-        `document:${confessionCitationByIndex['WLC'][0]}`,
-        `document:${confessionCitationByIndex['WCF'][0]}`,
-      ]
-    ]
-    if (doc.startsWith('3') || doc.startsWith('three')) return [
-      [
-        `document:${confessionCitationByIndex['HC'][0]}`,
-        `document:${confessionCitationByIndex['COD'][0]}`,
-        `document:${confessionCitationByIndex['BC'][0]}`,
-      ]
-    ]
-    if (doc.startsWith('6') || doc.startsWith('six')) return [
-      [
-        `document:${confessionCitationByIndex['HC'][0]}`,
-        `document:${confessionCitationByIndex['COD'][0]}`,
-        `document:${confessionCitationByIndex['BC'][0]}`,
-        `document:${confessionCitationByIndex['WSC'][0]}`,
-        `document:${confessionCitationByIndex['WLC'][0]}`,
-        `document:${confessionCitationByIndex['WCF'][0]}`
-      ]
-    ]
+    if (doc.startsWith('west')) {
+      return [
+        [
+          `document:${confessionCitationByIndex.WSC[0]}`,
+          `document:${confessionCitationByIndex.WLC[0]}`,
+          `document:${confessionCitationByIndex.WCF[0]}`,
+        ],
+      ];
+    }
+    if (doc.startsWith('3') || doc.startsWith('three')) {
+      return [
+        [
+          `document:${confessionCitationByIndex.HC[0]}`,
+          `document:${confessionCitationByIndex.COD[0]}`,
+          `document:${confessionCitationByIndex.BC[0]}`,
+        ],
+      ];
+    }
+    if (doc.startsWith('6') || doc.startsWith('six')) {
+      return [
+        [
+          `document:${confessionCitationByIndex.HC[0]}`,
+          `document:${confessionCitationByIndex.COD[0]}`,
+          `document:${confessionCitationByIndex.BC[0]}`,
+          `document:${confessionCitationByIndex.WSC[0]}`,
+          `document:${confessionCitationByIndex.WLC[0]}`,
+          `document:${confessionCitationByIndex.WCF[0]}`,
+        ],
+      ];
+    }
   }
 
   if (wildCardFacetRegex.test(str)) {
@@ -244,6 +250,28 @@ export const parseFacets = (str) => {
   if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter}`];
   if (document) return [`document:${confessionCitationByIndex[document][0]}`];
   return [];
+};
+
+export const getPgTitle = (search) => {
+  const queryWithoutFacetFilters = (search && `${search.replace(regexV2, '').replace(keyWords, '')}`) || null;
+  if (!search) return ['Search the Confessions of Historic Protestantism', startCase(queryWithoutFacetFilters)];
+  const result = search.match(regexV2);
+  const doc = (result && result.length && getCanonicalDocId(result[0])) || null;
+  const chap = (result && result.length > 1 && `${facetNamesByCanonicalDocId[doc][0]} ${removeDot(result[1])}`) || null;
+  const art = (result && result.length > 2 && `${facetNamesByCanonicalDocId[doc][1]} ${removeDot(result[2])}`) || null;
+  if (doc && chap && art) {
+    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())} ${startCase(art.toLowerCase())}`, startCase(queryWithoutFacetFilters)];
+  }
+  if (doc && chap) {
+    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())}`, startCase(queryWithoutFacetFilters)];
+  }
+  if (doc) {
+    return [`${confessionCitationByIndex[doc][0]}`, startCase(queryWithoutFacetFilters)];
+  }
+  if (keyWords.test(search)) {
+    return [`The ${startCase(search.match(keyWords)[0].toLowerCase())}`, startCase(queryWithoutFacetFilters)];
+  }
+  return [queryWithoutFacetFilters, ''];
 };
 
 export const getDocumentId = (id) => id.split('-')[0];
