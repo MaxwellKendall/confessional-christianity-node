@@ -6,6 +6,7 @@ import {
   parentIdByAbbreviation,
   facetNamesByCanonicalDocId,
 } from '../dataMapping';
+import contentById from '../dataMapping/content-by-id.json';
 
 // returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
 export const getConciseDocId = (docTitle) => docTitle
@@ -159,6 +160,7 @@ const removeDot = (str) => str && str.replaceAll('.', '');
 export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|all|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})/ig;
 export const keyWords = /(westminster\sstandards|three\sforms\sof\sunity|3\sforms\sof\sunity|six\sforms\sof\sunity|6\sforms\sof\sunity)/ig;
 export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,})|(\1\s[0-9]{1,})/ig;
+const documentPrefix = /question\s[0-9]{1,}:\s|chapter\s[0-9]{1,}:\s|article\s[0-9]{1,}:\s|rejection\s[0-9]{1,}:\s/ig;
 
 // 2d array is like an OR
 export const parseFacets = (str) => {
@@ -253,30 +255,62 @@ export const parseFacets = (str) => {
   return [];
 };
 
+const removePrefix = (str) => str.replace(documentPrefix, '');
+
+const getSubTitleFromConfession = (query, docId, chapterId, articleId) => {
+  if (query) return query;
+  const confessionId = `${docId}-${chapterId}`;
+  if (confessionId.startsWith('HC') && chapterId && !articleId) {
+    // title is just LORD's Day X
+    return '';
+  }
+  if (confessionId.startsWith('HC') && chapterId && articleId) {
+    // title is actually useful, return it
+    return removePrefix(contentById[`${confessionId}-${articleId}`].title);
+  }
+
+  return removePrefix(contentById[confessionId].title);
+};
+
 export const usePgTitle = (search) => {
   let queryWithoutFacetFilters = (search && `${search.replace(regexV2, '').replace(keyWords, '')}`).replace(bibleRegex, '') || null;
-  queryWithoutFacetFilters = queryWithoutFacetFilters ? `on ${queryWithoutFacetFilters}` : queryWithoutFacetFilters;
+  queryWithoutFacetFilters = queryWithoutFacetFilters ? `search results for "${startCase(queryWithoutFacetFilters)}"` : queryWithoutFacetFilters;
   if (!search) return ['Search the Confessions of Historic Protestantism', 'By Keyword, Scripture Text, or Citation'];
   const result = search.match(regexV2);
   const doc = (result && result.length && getCanonicalDocId(result[0])) || null;
   const chap = (result && result.length > 1 && `${facetNamesByCanonicalDocId[doc][0]} ${removeDot(result[1])}`) || null;
   const art = (result && result.length > 2 && `${facetNamesByCanonicalDocId[doc][1]} ${removeDot(result[2])}`) || null;
   if (doc && chap && art) {
-    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())} ${startCase(art.toLowerCase())}`, startCase(queryWithoutFacetFilters)];
+    const confessionId = `${parentIdByAbbreviation[doc]}-${removeDot(result[1])}`;
+    const subTitle = getSubTitleFromConfession(
+      queryWithoutFacetFilters,
+      parentIdByAbbreviation[doc],
+      removeDot(result[1]),
+      removeDot(result[2]),
+    );
+    console.log('confessionId', result, confessionId, subTitle);
+    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())} ${startCase(art.toLowerCase())}`, subTitle];
   }
   if (doc && chap) {
-    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())}`, startCase(queryWithoutFacetFilters)];
+    const confessionId = `${parentIdByAbbreviation[doc]}-${removeDot(result[1])}`;
+    const subTitle = getSubTitleFromConfession(
+      queryWithoutFacetFilters,
+      parentIdByAbbreviation[doc],
+      removeDot(result[1]),
+    );
+    console.log('confessionId', result, confessionId, subTitle);
+    return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())}`, subTitle];
   }
   if (doc) {
-    return [`${confessionCitationByIndex[doc][0]}`, startCase(queryWithoutFacetFilters)];
+    return [`${confessionCitationByIndex[doc][0]}`, queryWithoutFacetFilters];
   }
   if (keyWords.test(search)) {
-    return [`The ${startCase(search.match(keyWords)[0].toLowerCase())}`, startCase(queryWithoutFacetFilters)];
+    return [`The ${startCase(search.match(keyWords)[0].toLowerCase())}`, queryWithoutFacetFilters];
   }
   if (bibleRegex.test(search)) {
     return [
       search.match(bibleRegex).map((s) => capitalize(s)).join(' '),
-      startCase(queryWithoutFacetFilters),
+      queryWithoutFacetFilters,
     ];
   }
   return ['', queryWithoutFacetFilters];

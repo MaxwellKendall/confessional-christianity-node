@@ -62,6 +62,7 @@ export default async function (req: NextRequest) {
                 justifyContent: "center",
                 alignItems: "center",
                 width: "100%",
+                margin: "25px",
                 fontSize: "48px",
               }}
             >
@@ -70,9 +71,9 @@ export default async function (req: NextRequest) {
             {hasQuery && (
               <p
                 style={{
-                  padding: "0 1.5px",
                   fontSize: "36px",
                   fontStyle: "italic",
+                  margin: "25px",
                 }}
               >
                 {query}
