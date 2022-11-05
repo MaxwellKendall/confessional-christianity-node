@@ -7,7 +7,7 @@ const desc = 'Confessional Christianity is a web app promoting the value of the 
 const SEO = ({
   title = 'Confessional Christianity',
   subTitle,
-  query = '',
+  query = null,
 }) => (
   <Head>
     <title>{title}</title>
@@ -15,7 +15,7 @@ const SEO = ({
     <meta property="og:description" content={desc} />
     <meta
       property="og:image"
-      content={`https://confessionalchristianity.com/api/og?subTitle=${subTitle}&query=${query}`}
+      content={`https://confessionalchristianity.com/api/og?subTitle=${subTitle}${query ? `&query=${query}` : ''}`}
     />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:domain" value="confessionalchristianity.com" />

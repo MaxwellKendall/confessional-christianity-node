@@ -67,14 +67,16 @@ export default async function (req: NextRequest) {
             >
               {subTitle}
             </p>
-            {query && (
+            {hasQuery && (
               <p
                 style={{
                   padding: "0 1.5px",
                   fontSize: "36px",
                   fontStyle: "italic",
                 }}
-              >{query}</p>
+              >
+                {query}
+              </p>
             )}
           </div>
         </div>
