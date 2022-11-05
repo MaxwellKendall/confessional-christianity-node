@@ -170,7 +170,7 @@ export const parseFacets = (str) => {
   const art = (result && result.length > 2 && result[2]) || null;
   if (keyWords.test(str)) {
     const [doc] = str.match(keyWords);
-    if (doc.startsWith('west')) {
+    if (doc.toLowerCase().startsWith('west')) {
       return [
         [
           `document:${confessionCitationByIndex.WSC[0]}`,
@@ -179,7 +179,7 @@ export const parseFacets = (str) => {
         ],
       ];
     }
-    if (doc.startsWith('3') || doc.startsWith('three')) {
+    if (doc.startsWith('3') || doc.toLowerCase().startsWith('three')) {
       return [
         [
           `document:${confessionCitationByIndex.HC[0]}`,
@@ -188,7 +188,7 @@ export const parseFacets = (str) => {
         ],
       ];
     }
-    if (doc.startsWith('6') || doc.startsWith('six')) {
+    if (doc.startsWith('6') || doc.toLowerCase().startsWith('six')) {
       return [
         [
           `document:${confessionCitationByIndex.HC[0]}`,
