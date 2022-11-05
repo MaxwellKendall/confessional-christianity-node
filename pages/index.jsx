@@ -229,10 +229,8 @@ const HomePage = ({
   }, [currentPg]);
 
   useEffect(() => {
-    if (!isLoading) {
-      fetchResults(true);
-    }
-  }, [search, isLoading]);
+    fetchResults(true);
+  }, [search]);
 
   const submitSearch = () => {
     setCurrentPg(0);
