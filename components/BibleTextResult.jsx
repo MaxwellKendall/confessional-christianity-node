@@ -27,7 +27,7 @@ const BibleTextResult = ({
   };
 
   const parseConfessionText = (obj, id) => (
-    <div className="my-4 w-full ml-10 flex flex-col">
+    <div className="my-4 w-full sm:ml-2 md:ml-5 lg:ml-10 flex flex-col">
       <Link href={generateLink(sliceConfessionId(id, id.split('-').length - 1))}>
 
         {Object.keys(obj).includes('title') && (
