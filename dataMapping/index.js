@@ -70,7 +70,7 @@ export const excludedWordsInDocumentId = [
 
 export const facetNamesByCanonicalDocId = {
   WCF: ['chapter', 'article'],
-  BC: ['chapter'],
+  BCF: ['chapter'],
   HC: ['lords day', 'question'],
   CD: [['chapter', 'rejection'], ['chapter', 'article']],
   '39A': ['chapter'],
