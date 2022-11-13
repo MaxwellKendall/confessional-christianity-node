@@ -12,7 +12,6 @@ import { parseOsisBibleReference, getConfessionalAbbreviationId } from '../scrip
 import { confessionIdsWithoutTitles } from '../dataMapping';
 import { generateLink, regexV2 } from '../helpers';
 
-const { NEXT_PUBLIC_ESV_API_SECRET } = process.env;
 const baseUrl = 'https://api.esv.org/v3/passage/text';
 const getQueryParams = (bibleText) => queryString.stringify({
   q: bibleText,
@@ -109,7 +108,7 @@ const ConfessionTextResult = ({
     setLoadingTexts(id);
     return fetch(`${baseUrl}/?${getQueryParams(bibleText)}`, {
       headers: {
-        Authorization: `Token ${NEXT_PUBLIC_ESV_API_SECRET}`,
+        Authorization: `Token ${process.env.NEXT_PUBLIC_ESV_API_SECRET}`,
       },
     })
       .then((resp) => resp.json())
