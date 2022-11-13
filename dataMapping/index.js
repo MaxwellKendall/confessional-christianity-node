@@ -144,4 +144,22 @@ export const links = [
       { name: '"Go, therefore, and make disciples"', href: '/?search=Go+therefore+and+make+disciples' },    
     ]
   },
+  {
+    name: 'Resources',
+    href: null,
+    children: [
+      {
+        name: 'Blog',
+        href: 'https://blog.confessionalchristianity.com',
+      },
+      {
+        name: 'About',
+        href: 'https://www.confessionalchristianity.com/about',
+      },
+      {
+        name: 'Church Finder',
+        href: 'https://www.naparcsearch.com/',
+      },
+    ],
+  }
 ];
