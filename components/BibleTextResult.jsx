@@ -84,7 +84,6 @@ const BibleTextResult = ({
             search: citation,
           },
         }}
-        legacyBehavior
       >
         <div className="flex flex-col cursor-pointer">
           <Highlighter

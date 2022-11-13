@@ -202,9 +202,7 @@ const ConfessionTextResult = ({
           href={obj.direction > 0
             ? generateLink(nextConfessionId)
             : generateLink(prevConfessionId)}
-          className="relative left-full"
-          legacyBehavior
-        >
+          className="relative left-full">
           {obj.direction > 0
             ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} size="xs" />
             : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} size="xs" />}

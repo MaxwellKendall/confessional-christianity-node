@@ -55,8 +55,7 @@ const ConfessionChapterResult = ({
           }}
           href={obj.direction > 0
             ? generateLink(nextConfessionId, facetNamesByCanonicalDocId[docId])
-            : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}
-          legacyBehavior>
+            : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}>
           {obj.direction > 0
             ? (
               <FontAwesomeIcon
