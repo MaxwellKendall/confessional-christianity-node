@@ -1,47 +1,24 @@
 import React from "react";
 import Link from "next/link";
 import { uniqueId } from "lodash";
-
-const links = [
-    { name: 'Home', href: '/', children: [] },
-    { name: 'About', href: '/about', children: [] },
-    {
-        name: 'Westminster Standards',
-        href: '/?search=westminster%20standards',
-        children: [
-            { name: 'Westminster Confession of Faith', href: '/?search=WCF' },
-            { name: 'Westminster Shorter Catechism', href: '/?search=WSC' },
-            { name: 'Westminster Larger Catechism', href: '/?search=WLC' },
-        ],
-    },
-    {
-        name: 'Three forms of Unity',
-        href: '/?search=three%forms',
-        children: [
-            { name: 'The Belgic Confession of Faith', href: '/?search=BCF' },
-            { name: 'The Heidelberg Catechism', href: '/?search=HC' },
-            { name: 'The Canons of Dort', href: '/?search=CD' },
-        ],
-    },
-    {
-        name: 'Other',
-        href: '',
-        children: [
-            { name: 'Thirty Nine Articles', href: '/TAR' },
-        ]
-    }
-];
+import { links } from '../dataMapping';
 
 const Footer = () => {
     return <>
         <hr className="my-12" />
-        <footer className="flex flex-row w-full justify-center">
-            {links.map((l) => {
-                if (l.children.length) {
-                    return (
-                        <li key={uniqueId()} className="list-none flex flex-col">
-                            <Link href={l.href}>
-                                <span className="cursor-pointer text-center mt-5 w-full text-md">{l.name}</span>
+        <footer className="w-full">
+            <p className="w-full text-center">Search the historic reformed confessions via keyword, text of Scripture, or Scripture citation.</p>
+            <ul className="flex w-full margin-auto flex-wrap">
+                {links.map((l) => {
+                    if (l.children.length) {
+                        return (
+                            <li key={uniqueId()} className="pt-10 list-none flex flex-col w-full md:w-1/3 items-center">
+                                {l.href && (
+                                    <Link href={l.href}>
+                                        <span className="cursor-pointer text-center mt-5 w-full text-lg font-bold uppercase tracking-widest">{l.name}</span>
+                                    </Link>
+                                )}
+                                {!l.href && <span className="text-center w-full text-lg font-bold uppercase tracking-widest">{l.name}</span>}
                                 <ul>
                                     {l.children.map((child) => {
                                         return (
@@ -53,18 +30,19 @@ const Footer = () => {
                                         )
                                     })}
                                 </ul>
+                            </li>
+                        );
+                    }
+                    return (
+                        <li key={uniqueId()} className="list-none mx-4">
+                            <Link href={l.href}>
+                                <span className="cursor-pointer text-center mt-5 w-full text-sm">{l.name}</span>
                             </Link>
                         </li>
                     );
-                }
-                return (
-                    <li key={uniqueId()} className="list-none mx-4">
-                        <Link href={l.href}>
-                            <span className="cursor-pointer text-center mt-5 w-full text-sm">{l.name}</span>
-                        </Link>
-                    </li>
-                );
-            })}
+                })}
+            </ul>
+            <p className="w-full text-center mt-24 text-sm uppercase">Soli Deo Gloria!</p>
     </footer>
     </>;
 }

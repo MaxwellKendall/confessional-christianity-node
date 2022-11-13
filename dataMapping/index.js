@@ -86,3 +86,62 @@ export const KEYWORDS = [
   'six forms of unity',
   '6 forms of unity',
 ];
+
+export const links = [
+  // { name: 'Home', href: '/', children: [] },
+  // { name: 'About', href: '/about', children: [] },
+  {
+      name: 'Westminster Standards',
+      href: '/?search=westminster%20standards',
+      children: [
+          { name: 'Westminster Confession of Faith (WCF)', href: '/?search=WCF' },
+          { name: 'Westminster Shorter Catechism (WSC)', href: '/?search=WSC' },
+          { name: 'Westminster Larger Catechism (WLC)', href: '/?search=WLC' },
+      ],
+  },
+  {
+      name: 'Three Forms of Unity',
+      href: '/?search=three%20forms%20of%20unity',
+      children: [
+          { name: 'The Belgic Confession of Faith (BCF)', href: '/?search=BCF' },
+          { name: 'The Heidelberg Catechism (HC)', href: '/?search=HC' },
+          { name: 'The Canons of Dort (CD)', href: '/?search=CD' },
+      ],
+  },
+  {
+      name: 'Other',
+      href: null,
+      children: [
+          { name: 'Thirty Nine Articles (TAR)', href: '/?search=TAR' },
+          { name: 'Six Forms of Unity', href: '/?search=six%20forms%20of%20unity' },
+          { name: 'Ninety Five Theses', href: '/?search=95t' },
+      ]
+  },
+  {
+    name: 'Scripture Citation',
+    href: null,
+    children: [
+      { name: 'Acts 2:42', href: '/?search=Acts+2%3A42' },
+      { name: 'Matthew 28:19-20', href: '/?search=Matthew+28%3A19' },
+      { name: 'John 10:28', href: '/?search=John+10%3A28' },    
+    ]
+  },
+  {
+    name: 'Keyword Search',
+    href: null,
+    children: [
+      { name: 'WCF on Baptism', href: '/?search=wcf+baptism' },
+      { name: 'HC on Providence', href: '/?search=HC+Providence' },
+      { name: 'WLC on Preaching', href: '/?search=WLC+Preaching' },    
+    ]
+  },
+  {
+    name: 'Scripture Text',
+    href: null,
+    children: [
+      { name: '"No one will snatch them"', href: '/?search=no+one+will+snatch+them' },
+      { name: '"And they devoted themselves"', href: '/?search=And+they+devoted+themselves' },
+      { name: '"Go, therefore, and make disciples"', href: '/?search=Go+therefore+and+make+disciples' },    
+    ]
+  },
+];
