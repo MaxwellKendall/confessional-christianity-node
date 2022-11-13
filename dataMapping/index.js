@@ -73,7 +73,7 @@ export const facetNamesByCanonicalDocId = {
   BCF: ['chapter'],
   HC: ['lords day', 'question'],
   CD: [['chapter', 'rejection'], ['chapter', 'article']],
-  '39A': ['chapter'],
+  TAR: ['chapter'],
   ML9T: ['thesis'],
   WLC: ['question'],
   WSC: ['question'],
