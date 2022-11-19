@@ -262,7 +262,7 @@ export const parseFacets = (str) => {
   return [];
 };
 
-export const isFacetLength = (search, length) => search.split('.').length === length;
+export const isFacetLength = (search, length, delimitter = '.') => search.split(delimitter).length === length;
 
 const removePrefix = (str) => str.replace(documentPrefix, '');
 
@@ -290,24 +290,22 @@ export const usePgTitle = (search) => {
   const chap = (result && result.length > 1 && `${facetNamesByCanonicalDocId[doc][0]} ${removeDot(result[1])}`) || null;
   const art = (result && result.length > 2 && `${facetNamesByCanonicalDocId[doc][1]} ${removeDot(result[2])}`) || null;
   if (doc && chap && art) {
-    const confessionId = `${parentIdByAbbreviation[doc]}-${removeDot(result[1])}`;
+    // const confessionId = `${parentIdByAbbreviation[doc]}-${removeDot(result[1])}`;
     const subTitle = getSubTitleFromConfession(
       queryWithoutFacetFilters,
       parentIdByAbbreviation[doc],
       removeDot(result[1]),
       removeDot(result[2]),
     );
-    console.log('confessionId', result, confessionId, subTitle);
     return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())} ${startCase(art.toLowerCase())}`, subTitle];
   }
   if (doc && chap) {
-    const confessionId = `${parentIdByAbbreviation[doc]}-${removeDot(result[1])}`;
+    // const confessionId = `${parentIdByAbbreviation[doc]}-${removeDot(result[1])}`;
     const subTitle = getSubTitleFromConfession(
       queryWithoutFacetFilters,
       parentIdByAbbreviation[doc],
       removeDot(result[1]),
     );
-    console.log('confessionId', result, confessionId, subTitle);
     return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())}`, subTitle];
   }
   if (doc) {
@@ -347,4 +345,18 @@ export const isChapter = (confessionId, contentById) => (
 export const sliceConfessionId = (str, fragmentNumber) => {
   const idAsArr = str.split('-');
   return idAsArr.slice(0, fragmentNumber).join('-');
+};
+
+export const getContentByIdNotation = (str) => {
+  const docId = str.split('.')[0];
+  const other = str.split('.').slice(1).join('-');
+  return other && other.length
+    ? `${parentIdByAbbreviation[docId]}-${other}`
+    : parentIdByAbbreviation[docId];
+};
+
+export const getFragmentsFromSearch = (str) => {
+  const keyword = str.replace(regexV2, '');
+  const [facet] = str.match(regexV2) || [null];
+  return [facet, keyword];
 };

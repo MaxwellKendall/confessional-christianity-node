@@ -301,7 +301,8 @@ const HomePage = ({
           <li>
             <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
               <Link
-                href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}>
+                href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}
+              >
                 {documentTitle}
               </Link>
               <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
@@ -387,14 +388,15 @@ const HomePage = ({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
         <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
       </Head>
-      <SEO subTitle={pgTitle} query={query} />
+      <SEO title={pgTitle} keyword={query} searchTerm={searchTerm} />
       <Link
         href={{
           pathname: '',
           query: {
             search: '',
           },
-        }}>
+        }}
+      >
         <h1 className="cursor-pointer text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
           Confessional Christianity
         </h1>
