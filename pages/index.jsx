@@ -36,6 +36,8 @@ import {
   regexV2,
   keyWords,
   usePgTitle,
+  isEmptyKeywordSearch,
+  isFacetLength,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -283,19 +285,13 @@ const HomePage = ({
         const groupedByChapter = groupContentByChapter(results);
         const showArticleNav = (
           // wcf.1.2
-          (regexV2.test(searchTerm) && searchTerm.split('.').length > 2)
+          (regexV2.test(searchTerm) && isFacetLength(searchTerm, 3))
           || (
-            // wsc.1
-            searchTerm.match(regexV2)
-            && searchTerm.split('.').length > 1
-            && DOCUMENTS_WITHOUT_ARTICLES.includes(searchTerm.match(regexV2)[0])
+            // wsc.1 or wsc
+            DOCUMENTS_WITHOUT_ARTICLES.includes(documentId) && isEmptyKeywordSearch(search)
           )
         );
-        const showChapterNav = (
-          (regexV2.test(searchTerm) && searchTerm.split('.').length > 1)
-              && searchTerm.match(regexV2)
-              && !DOCUMENTS_WITHOUT_ARTICLES.includes(searchTerm.match(regexV2)[0])
-        );
+        const showChapterNav = isEmptyKeywordSearch(searchTerm);
         const isExpanded = (
           expanded.includes(documentId)
           || (searchTerm && searchTerm.match(regexV2) && !keyWords.test(searchTerm))

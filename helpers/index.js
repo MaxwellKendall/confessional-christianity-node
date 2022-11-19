@@ -162,6 +162,7 @@ export const keyWords = /(westminster\sstandards|three\sforms\sof\sunity|3\sform
 export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,})|(\1\s[0-9]{1,})/ig;
 const documentPrefix = /question\s[0-9]{1,}:\s|chapter\s[0-9]{1,}:\s|article\s[0-9]{1,}:\s|rejection\s[0-9]{1,}:\s/ig;
 
+export const isEmptyKeywordSearch = (search) => search.replace(regexV2, '') === '';
 // 2d array is like an OR
 export const parseFacets = (str) => {
   const result = str.match(regexV2);
@@ -251,9 +252,17 @@ export const parseFacets = (str) => {
   }
   if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter}-${article}`];
   if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter}`];
+  // new UX: when searching an entire confession, just return the first chapter
+  // Users can iterate through the confession using the next/previous buttons
+  if (document && isEmptyKeywordSearch(str)) {
+    if (DOCUMENTS_WITHOUT_ARTICLES.includes(documentId)) return [`id:${parentIdByAbbreviation[document]}-1`];
+    return [`parent:${parentIdByAbbreviation[document]}-1`];
+  }
   if (document) return [`document:${confessionCitationByIndex[document][0]}`];
   return [];
 };
+
+export const isFacetLength = (search, length) => search.split('.').length === length;
 
 const removePrefix = (str) => str.replace(documentPrefix, '');
 
