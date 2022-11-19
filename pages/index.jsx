@@ -17,7 +17,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
-  DOCUMENTS_WITHOUT_ARTICLES,
+  DOCUMENTS_WITHOUT_ARTICLES, parentIdByAbbreviation,
 } from '../dataMapping';
 
 import ConfessionTextResult from '../components/ConfessionTextResult';
@@ -36,6 +36,7 @@ import {
   regexV2,
   keyWords,
   usePgTitle,
+  removeDot,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -198,28 +199,60 @@ const HomePage = ({
     if (searchTerm !== search) setSearchTerm(search);
     let queryWithoutFacetFilters = search.replace(regexV2, '');
     queryWithoutFacetFilters = queryWithoutFacetFilters.replace(keyWords, '');
-    client.multipleQueries(defaultQueries.map((obj) => ({
-      ...obj,
-      query: queryWithoutFacetFilters,
-      page: clearExisting ? 0 : currentPg,
-      facetFilters,
-    })))
-      .then(({ results }) => {
-        setIsLoading(false);
-        const hasMoreData = results.reduce((acc, { nbPages }) => {
-          if (acc) return acc;
-          return currentPg < nbPages - 1;
-        }, false);
-        setTotals({
-          bible: results.find((o) => o.index === 'bible verses').nbHits,
-          confession: results.find((o) => o.index === 'aggregate').nbHits,
+    const useAlgolia = (
+      queryWithoutFacetFilters
+      || search.includes(' ')
+    );
+    if (useAlgolia) {
+      client.multipleQueries(defaultQueries.map((obj) => ({
+        ...obj,
+        query: queryWithoutFacetFilters,
+        page: clearExisting ? 0 : currentPg,
+        facetFilters,
+      })))
+        .then(({ results }) => {
+          setIsLoading(false);
+          const hasMoreData = results.reduce((acc, { nbPages }) => {
+            if (acc) return acc;
+            return currentPg < nbPages - 1;
+          }, false);
+          setTotals({
+            bible: results.find((o) => o.index === 'bible verses').nbHits,
+            confession: results.find((o) => o.index === 'aggregate').nbHits,
+          });
+          setHasMore(hasMoreData);
+          setSearchResults(parseResults(results, clearExisting ? [] : searchResults, currentPg));
         });
-        setHasMore(hasMoreData);
-        setSearchResults(parseResults(results, clearExisting ? [] : searchResults, currentPg));
-        if (clearExisting) {
-          setCurrentPg(0);
+    } else {
+      const terms = search
+        .match(regexV2)
+        .map((str, i) => (i === 0 ? parentIdByAbbreviation[str.toUpperCase()] : removeDot(str)))
+        .join('-');
+      const confessionTitle = contentById[terms.split('-')[0]].text;
+      const results = clearExisting ? [] : searchResults[confessionTitle] || [];
+      let count = 0;
+      const setLowestChildrenAsResult = (term) => {
+        if (contentById[term].children && count <= 100) {
+          contentById[term].children.forEach((child) => setLowestChildrenAsResult(child));
+        } else {
+          count += 1;
+          results.push(contentById[term]);
         }
+      };
+      const totalResults = (contentById[terms].children && contentById[terms].children.length) || 0;
+      console.log(totalResults, 'y0');
+      setHasMore(results.length < totalResults);
+      setLowestChildrenAsResult(terms);
+      setTotals({ confession: totalResults, bible: 0 });
+
+      setSearchResults({
+        [confessionTitle]: results,
       });
+      setIsLoading(false);
+    }
+    if (clearExisting) {
+      setCurrentPg(0);
+    }
   }, 300);
 
   useEffect(() => {
@@ -304,10 +337,7 @@ const HomePage = ({
         return acc.concat([
           <li>
             <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
-              <Link
-                href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}
-                legacyBehavior
-              >
+              <Link href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}>
                 {documentTitle}
               </Link>
               <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
@@ -401,7 +431,6 @@ const HomePage = ({
             search: '',
           },
         }}
-        legacyBehavior
       >
         <h1 className="cursor-pointer text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
           Confessional Christianity

@@ -224,9 +224,7 @@ const ConfessionTextResult = ({
             href={generateLink(confessionId)}
             className="left-full cursor-pointer"
           >
-
             <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
-
           </Link>
           <Highlighter className="mt-4" textToHighlight={text} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
           {showNav && (
