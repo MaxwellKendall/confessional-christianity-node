@@ -42,10 +42,10 @@ const ConfessionChapterResult = ({
   const renderNav = () => [{ direction: 1, show: hasNext }, { direction: -1, show: hasPrevious }]
     .filter(({ show }) => show)
     .map((obj) => (
-      <li className={obj.direction > 0 ? 'absolute top-0 left-full ml-2 lg:ml-5' : 'absolute top-0 right-full mr-2 lg:mr-5'}>
+      <li className={`absolute top-0 ${obj.direction > 0 ? 'left-full lg:pl-10' : 'right-full lg:pr-10'}`}>
         <Link
           scroll={false}
-          className="relative left-full"
+          className="text-lg p-4"
           onClick={() => {
             if (obj.direction > 0) {
               setCollapsed({ [nextConfessionId]: false });
@@ -62,7 +62,6 @@ const ConfessionChapterResult = ({
                 className="cursor-pointer"
                 onClick={() => setCollapsed({ [nextConfessionId]: false })}
                 icon={faChevronRight}
-                size="xs"
               />
             )
             : (
@@ -70,7 +69,6 @@ const ConfessionChapterResult = ({
                 className="cursor-pointer"
                 onClick={() => setCollapsed({ [prevConfessionId]: false })}
                 icon={faChevronLeft}
-                size="xs"
               />
             )}
         </Link>
@@ -87,8 +85,7 @@ const ConfessionChapterResult = ({
             scroll={false}
             href={generateLink(confessionId)}
             role="button"
-            className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase">
-
+            className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase px-4 lg:px-0">
             <Highlighter textToHighlight={title} searchWords={searchTerms || []} highlightClassName="search-result-matched-word" />
             <FontAwesomeIcon
               className="p-2 cursor-pointer"

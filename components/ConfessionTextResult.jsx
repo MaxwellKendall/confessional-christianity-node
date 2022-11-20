@@ -189,9 +189,11 @@ const ConfessionTextResult = ({
   const renderNav = () => [{ direction: 1, show: hasNext }, { direction: -1, show: hasPrevious }]
     .filter(({ show }) => show)
     .map((obj) => (
-      <li className={obj.direction > 0 ? 'absolute top-0 left-full ml-2 lg:ml-5' : 'absolute top-0 right-full mr-2 lg:mr-5'}>
+      <li className={`absolute top-0 ${obj.direction > 0 ? 'left-full' : 'right-full'}`}>
         <Link
           scroll={false}
+          className={`text-md p-4`}
+          // className="text-md"
           onClick={() => {
             if (obj.direction > 0) {
               setCollapsed({ [nextConfessionId]: false });
@@ -201,11 +203,11 @@ const ConfessionTextResult = ({
           }}
           href={obj.direction > 0
             ? generateLink(nextConfessionId)
-            : generateLink(prevConfessionId)}
-          className="relative left-full">
+            : generateLink(prevConfessionId)}>
+          {/* className={`relative ${obj.direction > 0 ? 'left-full' : 'right-full'}`}> */}
           {obj.direction > 0
-            ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} size="xs" />
-            : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} size="xs" />}
+            ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} />
+            : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} />}
         </Link>
       </li>
     ));
@@ -219,11 +221,9 @@ const ConfessionTextResult = ({
             scroll={false}
             setCollapsed={() => setCollapsed({ [confessionId]: false })}
             href={generateLink(confessionId)}
-            className="left-full cursor-pointer"
+            className="left-full text-center cursor-pointer"
           >
-
             <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
-
           </Link>
           <Highlighter className="mt-4" textToHighlight={text} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
           {showNav && (
