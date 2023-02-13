@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Compendium of Reformed Standards",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "populate-content-by-id": "npx babel-node --no-babelrc populate-content-by-id.js",
     "build-json": "npx babel-node --no-babelrc yaml-to-json.js",
