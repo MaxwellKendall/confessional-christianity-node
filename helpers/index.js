@@ -40,14 +40,12 @@ export const generateLink = (confessionId) => {
       };
     }
     // handle canons of dordt articles/rejections
-    // const articleOrRejection = idAsArr[2] === 'rejections'
-    //   ? 'rejection'
-    //   : 'article';
     return {
       pathname: '',
       query: {
-        // arbitrarily always choosing articles for now rather than rejections...
-        search: `${docId}.${chapterOrQuestion}.${idAsArr[3]}`,
+        search: idAsArr[2] === 'rejections'
+          ? `${docId}.${chapterOrQuestion}.r${idAsArr[3]}`
+          : `${docId}.${chapterOrQuestion}.${idAsArr[3]}`,
       },
     };
   }
@@ -157,7 +155,7 @@ export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)
 
 const wildCardFacetRegex = new RegExp(/\*/);
 const removeDot = (str) => str && str.replaceAll('.', '');
-export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})/ig;
+export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})|(\1\.r[0-9]{1,})|(\1\2\.r[0-9]{1,})/ig;
 export const keyWords = /(westminster\sstandards|three\sforms\sof\sunity|3\sforms\sof\sunity|six\sforms\sof\sunity|6\sforms\sof\sunity)/ig;
 export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,})|(\1\s[0-9]{1,})/ig;
 const documentPrefix = /question\s[0-9]{1,}:\s|chapter\s[0-9]{1,}:\s|article\s[0-9]{1,}:\s|rejection\s[0-9]{1,}:\s/ig;
@@ -256,6 +254,12 @@ export const parseFacets = (str) => {
   // Users can iterate through the confession using the next/previous buttons
   if (document && isEmptyKeywordSearch(str)) {
     if (DOCUMENTS_WITHOUT_ARTICLES.includes(documentId)) return [`id:${parentIdByAbbreviation[document]}-1`];
+    if (documentId === 'CD') {
+      return [[
+        `parent:${parentIdByAbbreviation[document]}-1-articles`,
+        `parent:${parentIdByAbbreviation[document]}-1-rejections`,
+      ]];
+    }
     return [`parent:${parentIdByAbbreviation[document]}-1`];
   }
   if (document) return [`document:${confessionCitationByIndex[document][0]}`];
@@ -290,24 +294,20 @@ export const usePgTitle = (search) => {
   const chap = (result && result.length > 1 && `${facetNamesByCanonicalDocId[doc][0]} ${removeDot(result[1])}`) || null;
   const art = (result && result.length > 2 && `${facetNamesByCanonicalDocId[doc][1]} ${removeDot(result[2])}`) || null;
   if (doc && chap && art) {
-    const confessionId = `${parentIdByAbbreviation[doc]}-${removeDot(result[1])}`;
     const subTitle = getSubTitleFromConfession(
       queryWithoutFacetFilters,
       parentIdByAbbreviation[doc],
       removeDot(result[1]),
       removeDot(result[2]),
     );
-    console.log('confessionId', result, confessionId, subTitle);
     return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())} ${startCase(art.toLowerCase())}`, subTitle];
   }
   if (doc && chap) {
-    const confessionId = `${parentIdByAbbreviation[doc]}-${removeDot(result[1])}`;
     const subTitle = getSubTitleFromConfession(
       queryWithoutFacetFilters,
       parentIdByAbbreviation[doc],
       removeDot(result[1]),
     );
-    console.log('confessionId', result, confessionId, subTitle);
     return [`${confessionCitationByIndex[doc][0]} ${startCase(chap.toLowerCase())}`, subTitle];
   }
   if (doc) {

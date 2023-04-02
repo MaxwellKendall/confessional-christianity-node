@@ -55,7 +55,8 @@ const ConfessionChapterResult = ({
           }}
           href={obj.direction > 0
             ? generateLink(nextConfessionId, facetNamesByCanonicalDocId[docId])
-            : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}>
+            : generateLink(prevConfessionId, facetNamesByCanonicalDocId[docId])}
+        >
           {obj.direction > 0
             ? (
               <FontAwesomeIcon
@@ -81,11 +82,14 @@ const ConfessionChapterResult = ({
     <li key={uniqueId(`${docId}-${chapterId}`)} className="w-full flex flex-col justify-center mb-24">
       <>
         {docId && chapterId && (
-          (<Link
+          (
+          <Link
+            passHref
             scroll={false}
             href={generateLink(confessionId)}
             role="button"
-            className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase px-4 lg:px-0">
+            className="cursor-pointer header text-3xl lg:text-4xl w-full text-center mb-24 uppercase px-4 lg:px-0"
+          >
             <Highlighter textToHighlight={title} searchWords={searchTerms || []} highlightClassName="search-result-matched-word" />
             <FontAwesomeIcon
               className="p-2 cursor-pointer"
@@ -100,17 +104,17 @@ const ConfessionChapterResult = ({
                 : (e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('setCollapsed', confessionId);
                   setCollapsed({ ...collapsedChapters, [confessionId]: true });
                 }}
             />
             {showNav && (
-              <ul>
-                {renderNav()}
-              </ul>
+            <ul>
+              {renderNav()}
+            </ul>
             )}
 
-          </Link>)
+          </Link>
+          )
         )}
         {!docId && !chapterId && !searchTerms && (
           <h3 className="cursor-pointer text-3xl lg:text-4xl w-full text-center mb-24">{title}</h3>

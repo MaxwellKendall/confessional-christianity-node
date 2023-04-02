@@ -83,7 +83,6 @@ const ConfessionTextResult = ({
         return (
           (
             <Link href={{ pathname: '', query: { search: citation } }}>
-
               <p className="my-2 w-full pl-4 border-l-4 flex flex-col">
                 {trimStart(str).replace(cleanVerse, '')}
                 <strong className="font-bold tracking-wider uppercase w-full my-4 ml-2 md:ml-4">
@@ -192,7 +191,7 @@ const ConfessionTextResult = ({
       <li className={`absolute top-0 ${obj.direction > 0 ? 'left-full' : 'right-full'}`}>
         <Link
           scroll={false}
-          className={`text-md p-4`}
+          className="text-md p-4"
           // className="text-md"
           onClick={() => {
             if (obj.direction > 0) {
@@ -203,7 +202,8 @@ const ConfessionTextResult = ({
           }}
           href={obj.direction > 0
             ? generateLink(nextConfessionId)
-            : generateLink(prevConfessionId)}>
+            : generateLink(prevConfessionId)}
+        >
           {/* className={`relative ${obj.direction > 0 ? 'left-full' : 'right-full'}`}> */}
           {obj.direction > 0
             ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} />
@@ -219,7 +219,7 @@ const ConfessionTextResult = ({
         <>
           <Link
             scroll={false}
-            setCollapsed={() => setCollapsed({ [confessionId]: false })}
+            onClick={() => setCollapsed({ [confessionId]: false })}
             href={generateLink(confessionId)}
             className="left-full text-center cursor-pointer"
           >
@@ -237,7 +237,7 @@ const ConfessionTextResult = ({
         <>
           <Link
             scroll={false}
-            setCollapsed={() => setCollapsed({ [confessionId]: false })}
+            onClick={() => setCollapsed({ [confessionId]: false })}
             href={generateLink(confessionId)}
             className="left-full cursor-pointer"
           >

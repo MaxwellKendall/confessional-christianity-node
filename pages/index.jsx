@@ -301,7 +301,8 @@ const HomePage = ({
           <li>
             <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
               <Link
-                href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}>
+                href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}
+              >
                 {documentTitle}
               </Link>
               <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
@@ -394,7 +395,8 @@ const HomePage = ({
           query: {
             search: '',
           },
-        }}>
+        }}
+      >
         <h1 className="cursor-pointer text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
           Confessional Christianity
         </h1>
