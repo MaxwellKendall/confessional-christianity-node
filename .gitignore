@@ -2,3 +2,4 @@ node_modules
 .next
 normalized-data/deduped-bible-verses.json
 .env*
+compendium/
