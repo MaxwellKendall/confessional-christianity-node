@@ -161,6 +161,7 @@ export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|
 const documentPrefix = /question\s[0-9]{1,}:\s|chapter\s[0-9]{1,}:\s|article\s[0-9]{1,}:\s|rejection\s[0-9]{1,}:\s/ig;
 
 export const isEmptyKeywordSearch = (search) => search.replace(regexV2, '') === '';
+
 // 2d array is like an OR
 export const parseFacets = (str) => {
   const result = str.match(regexV2);
@@ -263,6 +264,14 @@ export const parseFacets = (str) => {
     return [`parent:${parentIdByAbbreviation[document]}-1`];
   }
   if (document) return [`document:${confessionCitationByIndex[document][0]}`];
+  // test for bible
+  const bibleResult = str.match(bibleRegex);
+  if (bibleResult && bibleResult.length) {
+    const [book, citation] = bibleResult;
+    if (citation) {
+      return [`citation:${book}${citation}`];
+    }
+  }
   return [];
 };
 
