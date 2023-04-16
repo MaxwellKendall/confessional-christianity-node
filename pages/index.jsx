@@ -50,7 +50,7 @@ const client = algoliasearch(
 );
 
 const aggIndex = client.initIndex('aggregate');
-const prePopulatedSearch = { query: 'Psalm 90', index: 'bible-verses' };
+const prePopulatedSearch = { query: 'John 3:16', index: 'bible-verses' };
 const prePopulatedExpanded = [];
 
 const defaultQueries = [
