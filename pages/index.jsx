@@ -38,6 +38,8 @@ import {
   usePgTitle,
   isEmptyKeywordSearch,
   isFacetLength,
+  bibleRegex,
+  shouldFetchFacets,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -50,6 +52,8 @@ const client = algoliasearch(
 );
 
 const aggIndex = client.initIndex('aggregate');
+const bibleIndex = client.initIndex('bible verses');
+
 const prePopulatedSearch = { query: 'Psalm 90', index: 'bible-verses' };
 const prePopulatedExpanded = [];
 
@@ -198,28 +202,38 @@ const HomePage = ({
     const facetFilters = parseFacets(search);
     setIsLoading(true);
     if (searchTerm !== search) setSearchTerm(search);
-    let queryWithoutFacetFilters = search.replace(regexV2, '');
-    queryWithoutFacetFilters = queryWithoutFacetFilters.replace(keyWords, '');
-    client.multipleQueries(defaultQueries.map((obj) => ({
-      ...obj,
-      query: queryWithoutFacetFilters,
-      page: clearExisting ? 0 : currentPg,
-      facetFilters,
-    })))
-      .then(({ results }) => {
+    const queryWithoutFacetFilters = search
+      .replace(regexV2, '')
+      .replace(keyWords, '')
+      .replace(bibleRegex, '');
+
+    const promise = shouldFetchFacets(search)
+      ? bibleIndex.searchForFacetValues('citation', search)
+      : client.multipleQueries(defaultQueries.map((obj) => ({
+        ...obj,
+        query: queryWithoutFacetFilters,
+        page: clearExisting ? 0 : currentPg,
+        facetFilters,
+      })));
+    promise
+      .then(({ results, ...resp }) => {
         setIsLoading(false);
-        const hasMoreData = results.reduce((acc, { nbPages }) => {
-          if (acc) return acc;
-          return currentPg < nbPages - 1;
-        }, false);
-        setTotals({
-          bible: results.find((o) => o.index === 'bible verses').nbHits,
-          confession: results.find((o) => o.index === 'aggregate').nbHits,
-        });
-        setHasMore(hasMoreData);
-        setSearchResults(parseResults(results, clearExisting ? [] : searchResults, currentPg));
-        if (clearExisting) {
-          setCurrentPg(0);
+        if (shouldFetchFacets(search)) {
+
+        } else {
+          const hasMoreData = results.reduce((acc, { nbPages }) => {
+            if (acc) return acc;
+            return currentPg < nbPages - 1;
+          }, false);
+          setTotals({
+            bible: results.find((o) => o.index === 'bible verses').nbHits,
+            confession: results.find((o) => o.index === 'aggregate').nbHits,
+          });
+          setHasMore(hasMoreData);
+          setSearchResults(parseResults(results, clearExisting ? [] : searchResults, currentPg));
+          if (clearExisting) {
+            setCurrentPg(0);
+          }
         }
       });
   }, 300);

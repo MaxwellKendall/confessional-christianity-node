@@ -4,7 +4,11 @@
  */
 
 import fs from 'fs';
-import path from 'path';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const readFrom = '../normalized-data/';
 
@@ -18,6 +22,7 @@ const enforceSchema = (arr, existingData) => arr
       .map(([key, value]) => {
         const osis = value;
         const citedBy = `${obj.id}-${key}`;
+        console.log('osis', osis);
         return {
           osis,
           citedBy,
