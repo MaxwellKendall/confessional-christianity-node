@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import algoliasearch from 'algoliasearch';
 
-import { addRecordToIndex } from './helpers';
+import { addRecordToIndex } from '../helpers';
 
 const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
 const aggIndex = client.initIndex('aggregate');

@@ -1,7 +1,10 @@
 import fs, { readdir } from 'fs';
 import path from 'path';
-import { flattenDeep, includes } from 'lodash';
 import YAML from 'yaml';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import removeFormatting from './helpers/formatHelper';
 import { getConfessionalAbbreviationId } from './helpers';
@@ -10,7 +13,7 @@ const readFileRoot = '../compendium/data';
 const writeFileRoot = '../normalized-data';
 const yamlExtensionRegExp = RegExp(/.yaml/);
 
-const includedFiles = ['95-theses.yaml'];
+const includedFiles = ['miscellany/catechism-young-children.yaml'];
 const prettyChildrenTitleByChildrenType = {
   articles: 'Article',
   chapters: 'Chapter',
@@ -64,7 +67,7 @@ const enforceJSONShape = (json, confession = '', childrenType = '') => {
         isParent: !!getChildrenType(obj),
         parent: confession,
         id: `${confession}-${obj.number}`,
-        text: obj?.text,
+        text: obj?.text || obj?.answer,
       }
     })
     .concat(

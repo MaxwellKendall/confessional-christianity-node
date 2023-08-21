@@ -3,7 +3,7 @@ import algoliasearch from 'algoliasearch';
 import fetch from 'isomorphic-fetch';
 import queryString from 'query-string';
 
-import { addRecordToIndex } from './helpers/index';
+import { addRecordToIndex } from '../helpers/index';
 
 const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
 
