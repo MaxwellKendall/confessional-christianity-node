@@ -1,6 +1,9 @@
 {
-    "extends": ["airbnb", "plugin:@next/next/recommended"],
-    "parserOptions": {
-        "parser": "babel-eslint"
-    }
+  "extends": ["airbnb", "plugin:@next/next/recommended"],
+  "parserOptions": {
+    "parser": "babel-eslint"
+  },
+  "env": {
+    "mocha": true
+  }
 }
