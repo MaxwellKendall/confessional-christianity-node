@@ -1,23 +1,3 @@
-type DocumentAbbreviation = 
-  'WCF' |
-  'WCoF' |
-  'WCOF' |
-  'HC' |
-  'WSC' |
-  'WLC' |
-  '39A' |
-  'TAR' |
-  'TAOR' |
-  'CD'  |
-  'COD'  |
-  'BCF' |
-  'TBCoF'|
-  'TBCOF' |
-  'BC' |
-  '95T' |
-  'ML9T' |
-  'ALL';
-
 export const confessionCitationByIndex : Record<string, string[]> = {
   WCF: ['Westminster Confession of Faith', 'Chapter', 'Article', 'Scripture Citation'],
   WCoF: ['Westminster Confession of Faith', 'Chapter', 'Article', 'Scripture Citation'],
@@ -50,20 +30,15 @@ export const confessionPathByName : Record<string, string> = {
   'martin-luthers-95-theses': 'normalized-data/reformation/95-theses.json',
 };
 
-// canonical docIds in algolia 🤦
-export const parentIdByAbbreviation : Record<string, string>= {
+export const algoliaIdByDocumentId : Record<string, string>= {
   WCF: 'WCoF',
-  WCOF: 'WCoF',
   HC: 'HC',
   WLC: 'WLC',
   WSC: 'WSC',
   CD: 'CoD',
-  COD: 'CoD',
   BCF: 'TBCoF',
   TAR: 'TAoR',
-  '39A': 'TAoR',
   '95T': 'ML9t',
-  ML9T: 'ML9t',
 };
 
 export const DOCUMENTS_WITHOUT_ARTICLES : string[] = [
