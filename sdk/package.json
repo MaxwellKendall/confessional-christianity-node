@@ -8,7 +8,8 @@
     "build": "npx tsc src/index.ts",
     "start": "npx ts-node-esm src/index.ts",
     "start:watch": "npx nodemon src/index.ts",
-    "test": "npx ts-mocha --watch test/*.ts"
+    "test": "npx ts-mocha test/*.ts",
+    "test:watch": "npx ts-mocha --watch test/*.ts"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +27,7 @@
     ]
   },
   "devDependencies": {
+    "@types/algoliasearch": "^4.0.0",
     "@types/chai": "^4.3.5",
     "@types/lodash": "^4.14.197",
     "@types/mocha": "^10.0.1",
@@ -36,6 +38,7 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
+    "algoliasearch": "^4.19.1",
     "lodash": "^4.17.21",
     "ts-mocha": "^10.0.0",
     "typescript": "^5.2.2"

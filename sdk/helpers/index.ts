@@ -1,11 +1,14 @@
 // import { capitalize, groupBy, startCase } from 'lodash';
+import { trim } from 'lodash';
 import {
   confessionCitationByIndex,
   DOCUMENTS_WITHOUT_ARTICLES,
   excludedWordsInDocumentId,
   parentIdByAbbreviation,
   facetNamesByCanonicalDocId,
+  algoliaIdByDocumentId,
 } from '../dataMapping/index.ts';
+import { AlgoliaIds, DocumentIds, Query } from '../types/index.ts';
 
 // returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
 export const getConciseDocId = (docTitle: string) => docTitle
@@ -147,134 +150,118 @@ export const getCitationContextById = (id: string, idPositions = 1) => id.split(
 //   return 0;
 // };
 
-export const documentFacetRegex = new RegExp(/document:(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|all|\*)/i);
-export const chapterFacetRegex = new RegExp(/chapter:([0-9]*)|lord's\sday:([0-9]*)|lords\sday:([0-9]*)|thesis:([0-9])/i);
-export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)|question:([0-9]*)/i);
-// export const wildCardFacetRegex = new RegExp(/document:(all|\*)/i);
-
-const wildCardFacetRegex = new RegExp(/\*/);
-const removeDot = (str: string) => str && str.replaceAll('.', '');
 export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})|(\1\.r[0-9]{1,})|(\1\2\.r[0-9]{1,})/ig;
-export const keyWords = /(westminster\sstandards|three\sforms\sof\sunity|3\sforms\sof\sunity|six\sforms\sof\sunity|6\sforms\sof\sunity)/ig;
 export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,})|(\1\s[0-9]{1,})/ig;
-const documentPrefix = /question\s[0-9]{1,}:\s|chapter\s[0-9]{1,}:\s|article\s[0-9]{1,}:\s|rejection\s[0-9]{1,}:\s/ig;
 
 export const isEmptyKeywordSearch = (search: string) => search.replace(regexV2, '') === '';
 
-// 2d array is like an OR
 export const parseFacets = (str: string) => {
-  const result = str.match(regexV2);
-  const doc = (result && result.length && result[0]) || null;
-  const chap = (result && result.length > 1 && result[1]) || null;
-  const art = (result && result.length > 2 && result[2]) || null;
-  if (keyWords.test(str)) {
-    const [doc] = str.match(keyWords) || [''];
-    if (doc.toLowerCase().startsWith('west')) {
-      return [
-        [
-          `document:${confessionCitationByIndex.WSC[0]}`,
-          `document:${confessionCitationByIndex.WLC[0]}`,
-          `document:${confessionCitationByIndex.WCF[0]}`,
-        ],
-      ];
-    }
-    if (doc.startsWith('3') || doc.toLowerCase().startsWith('three')) {
-      return [
-        [
-          `document:${confessionCitationByIndex.HC[0]}`,
-          `document:${confessionCitationByIndex.COD[0]}`,
-          `document:${confessionCitationByIndex.BC[0]}`,
-        ],
-      ];
-    }
-    if (doc.startsWith('6') || doc.toLowerCase().startsWith('six')) {
-      return [
-        [
-          `document:${confessionCitationByIndex.HC[0]}`,
-          `document:${confessionCitationByIndex.COD[0]}`,
-          `document:${confessionCitationByIndex.BC[0]}`,
-          `document:${confessionCitationByIndex.WSC[0]}`,
-          `document:${confessionCitationByIndex.WLC[0]}`,
-          `document:${confessionCitationByIndex.WCF[0]}`,
-        ],
-      ];
-    }
-  }
+  const confessions = str
+    .match(regexV2)
+    ?.map((s, i) => {
+      if (i === 0) {
+        return getCanonicalDocId(s);
+      }
+      return s;
+    })
+    ?.join('')
 
-  if (wildCardFacetRegex.test(str)) {
-    return [
-      Array
-        .from(
-          new Set(Object.values(parentIdByAbbreviation)),
-        )
-        .map((id) => `document:${confessionCitationByIndex[id.toUpperCase()][0]}`),
-    ];
-  }
-  const document = doc
-    ? doc
-      .toUpperCase()
-      .split(' ')
-      .filter((w) => !excludedWordsInDocumentId.includes(w))
-      .map((s, i, arr) => {
-        if (arr.length === 1) return s;
-        // in this case, the document is the full text vs the abbreviation.
-        return s[0];
-      })
-      .join('')
-    : null;
+  if (confessions) return confessions;
 
-  const documentId = document ? getCanonicalDocId(document) : null;
-  const chapter = chap && removeDot(chap);
-  const article = art && removeDot(art);
-
-  if ((document && documentId === 'CD') && chapter) {
-    if (article && article.toLowerCase().includes('r')) {
-      return [
-        `id:${parentIdByAbbreviation[document]}-${chapter}-rejections-${article.split('').slice(1).join('')}`,
-      ];
-    }
-    if (article && !article.toLowerCase().includes('r')) {
-      return [
-        `id:${parentIdByAbbreviation[document]}-${chapter}-articles-${article}`,
-      ];
-    }
-    return [
-      [
-        `parent:${parentIdByAbbreviation[document]}-${chapter}-articles`,
-        `parent:${parentIdByAbbreviation[document]}-${chapter}-rejections`,
-      ],
-    ];
-  }
-  if (documentId && document && chapter && DOCUMENTS_WITHOUT_ARTICLES.includes(documentId)) {
-    return [`id:${parentIdByAbbreviation[document]}-${chapter}`];
-  }
-  if (document && chapter && article) return [`id:${parentIdByAbbreviation[document]}-${chapter}-${article}`];
-  if (document && chapter) return [`parent:${parentIdByAbbreviation[document]}-${chapter}`];
-  // new UX: when searching an entire confession, just return the first chapter
-  // Users can iterate through the confession using the next/previous buttons
-  if (document && documentId && isEmptyKeywordSearch(str)) {
-    if (DOCUMENTS_WITHOUT_ARTICLES.includes(documentId)) return [`id:${parentIdByAbbreviation[document]}-1`];
-    if (documentId === 'CD') {
-      return [[
-        `parent:${parentIdByAbbreviation[document]}-1-articles`,
-        `parent:${parentIdByAbbreviation[document]}-1-rejections`,
-      ]];
-    }
-    return [`parent:${parentIdByAbbreviation[document]}-1`];
-  }
-  if (document) return [`document:${confessionCitationByIndex[document][0]}`];
-  // test for bible
-  const bibleResult = str.match(bibleRegex);
-  if (bibleResult && bibleResult.length) {
-    const [book, citation] = bibleResult;
-    if (citation) {
-      return [`citation:${book}${citation}`];
-    }
-  }
-  return [];
+  return str
+    .match(bibleRegex)
+    ?.join('');
 };
 
+export const parseQuery = (str: string) => {
+  const q = str.replaceAll(regexV2, '');
+  if (q) {
+    return trim(q);
+  }
+  return undefined;
+}
+
 export const isFacetLength = (search: string, length: number) => search.split('.').length === length;
+
+const maxDepthByDocumentId : Record<string, number> = {
+  WSC: 2,
+  WLC: 2,
+  TBCoF: 2,
+  TAoR: 2,
+  ML9t: 1,
+  CoD: 3,
+  HC: 3,
+  WCoF: 3
+}
+
+const getPrefixByDepthAndDocument = (doc: string, depth: number) => {
+  const maxDepth : number | undefined = maxDepthByDocumentId[doc];
+  if (maxDepth) {
+    if (depth === maxDepth) return 'id';
+    if (depth === 1) return 'document';
+    return 'parent';
+  }
+  return 'document';
+}
+/**
+ * All Data: document:CoD
+ * Chapter 1: parent:CoD-1-articles,parent:CoD-1-rejections
+ * Chapter 1 Articles: parent:CoD-1-articles
+ * Chapter 1 Article 1: id:CoD-1-articles-1
+ * Chapter 1 Rejections: parent:CoD-1-rejections
+ * Chapter 1 Rejection 1: id:CoD-1-rejections-1
+ * 
+ */
+const parseCanonsOfDordt = (fragments: { prefix: string, location: string, document: string }) => {
+  const { prefix, location } = fragments;
+  if (prefix === 'id') {
+    // insert articles or rejections
+    const isRejection = location && location.includes('r');
+    const delimitter = isRejection ? '-r' : '-';
+    const [chapter, article] = location.split(delimitter);
+    return `${prefix}:${fragments.document}-${chapter}-${isRejection ? 'rejections' : 'articles'}-${article}`;
+  } else if (prefix === 'parent' && location.length) {
+    return `${prefix}:${fragments.document}-${fragments.location}-articles,${prefix}:${fragments.document}-${fragments.location}-rejections`;
+  }
+  return `${prefix}:${fragments.document}`;
+}
+
+export const fromQueryToAlgoliaQuery = (q: Query) => {
+  if (q.facets) {
+    /**
+     * Transform into AlgoliaIndexRequest['facetFilters']
+     * A facetFilter is a key on a record within an index.
+     * We have 2 in the aggregate index right now:
+     * (a): document (document:WCF/WLC/WSC etc...)
+     * (b): id (id:WCF-1)
+     */
+    const fragments = q.facets
+      .split('.')
+      .reduce((acc, char, i, arr) => {
+        const doc = algoliaIdByDocumentId[char];
+        const location = acc.location ? `${acc.location}-${char}` : char;
+        // +1 to account for document being absent from .location
+        const depth = location.split('-').length + 1;
+        return {
+          ...acc,
+          location: doc ? '' : location,
+          document: doc || acc.document,
+          prefix: getPrefixByDepthAndDocument(acc.document, depth)
+        };
+      }, { prefix: '', document: '', location: '' });
+    
+    const algoliaFacet = fragments.location
+      ? `${fragments.prefix}:${fragments.document}-${fragments.location}`
+      : `${fragments.prefix}:${fragments.document}`;
+    
+    // the canons of dordt have a different schema
+    if (fragments.document === 'CoD') {
+      return parseCanonsOfDordt(fragments);
+    }
+    return algoliaFacet;
+  }
+  return '';
+}
 
 // const removePrefix = (str: string) => str.replace(documentPrefix, '');
 
