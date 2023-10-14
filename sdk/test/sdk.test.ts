@@ -2,7 +2,7 @@
 /* global describe it */
 import { expect } from 'chai';
 import Sdk from '../src';
-import { fromQueryToAlgoliaQuery } from '../helpers';
+import { fromFacetToAlgoliaFacet } from '../helpers';
 
 const MOCK_ALGOLIA = {
     algolia: {
@@ -17,6 +17,7 @@ const client = new Sdk(MOCK_ALGOLIA);
 describe('sdk', () => {
     describe('parseSearch: interpret the facets', () => {
         const facets = [
+            // basic
             { input: 'westminster confession of faith baptism', q: 'baptism', facets: 'WCF' },
             { input: 'WCF.1.10 scripture', q: 'scripture', facets: 'WCF.1.10' },
             { input: 'westminster shorter catechism baptism', q: 'baptism', facets: 'WSC' },
@@ -29,6 +30,8 @@ describe('sdk', () => {
             { input: 'BCF.10', q: undefined, facets: 'BCF.10' },
             { input: 'BCF.10 baptism', q: 'baptism', facets: 'BCF.10' },
             { input: 'heidelberg catechism', q: undefined, facets: 'HC' },
+            // search multiple confessions
+            { skip: true, input: 'WSC WLC', q: undefined, facets: 'WSC,WLC' },
             // @TODO: support both lords day + direct questions also the questions
             { input: 'hc.120', q: undefined, facets: 'HC.120' },
             { input: 'hc.1.2', q: undefined, facets: 'HC.1.2' },
@@ -59,10 +62,17 @@ describe('sdk', () => {
                 })
             }
         })
-    });    
+    });
+    
+    describe('performSearch', () => {
+        it('uses local json when appropriate', () => {
+            const result = client.performSearch({ q: undefined, facets: 'WCF.1' });
+            expect(result).to.equal('test');
+        })
+    })
 })
 describe('helpers', () => {
-    describe('fromQueryToAlgoliaQuery', () => {
+    describe('fromFacetToAlgoliaFacet', () => {
         const facets = [
             { input: client.parseUserQuery('WCF.1.1'), result: 'id:WCoF-1-1'},
             { input: client.parseUserQuery('WCF.1'), result: 'parent:WCoF-1'},
@@ -83,7 +93,7 @@ describe('helpers', () => {
         ];
         facets.forEach(test => {
             it(`transforms ${test.input.facets} to ${test.result}`, () => {
-                expect(fromQueryToAlgoliaQuery(test.input)).to.equal(test.result);
+                expect(fromFacetToAlgoliaFacet(test.input)).to.equal(test.result);
             })
         });
     });

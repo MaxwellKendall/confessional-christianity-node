@@ -226,7 +226,7 @@ const parseCanonsOfDordt = (fragments: { prefix: string, location: string, docum
   return `${prefix}:${fragments.document}`;
 }
 
-export const fromQueryToAlgoliaQuery = (q: Query) => {
+export const fromFacetToAlgoliaFacet = (q: Query) => {
   if (q.facets) {
     /**
      * Transform into AlgoliaIndexRequest['facetFilters']
