@@ -9,6 +9,15 @@ export enum DocumentIds {
     WESTMINSTER_SHORTER_CATECHISM = 'WSC',
 }
 
+export interface Content {
+    title: string;
+    text?: string;
+    verses?: Record<string, string[]>;
+    isParent?: boolean;
+    parent?: string;
+    number: number;
+}
+
 export enum AlgoliaIds {
     NINETY_FIVE_THESES = 'ML9t',
     BELGIC_CONFESSION_OF_FAITH = 'TBCoF',
