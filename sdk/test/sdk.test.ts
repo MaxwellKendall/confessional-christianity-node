@@ -2,8 +2,8 @@
 /* global describe it */
 import { expect } from 'chai';
 import Sdk from '../src';
+import sinon from 'sinon';
 import { fromFacetToAlgoliaFacet } from '../helpers';
-
 const MOCK_ALGOLIA = {
     algolia: {
         publicKey: '',
@@ -65,10 +65,16 @@ describe('sdk', () => {
     });
     
     describe('performSearch', () => {
-        it('uses local json when appropriate', () => {
+        const spy = sinon.spy(client.client, 'multipleQueries');
+        it('doesnt call algolia when no quer exists', () => {
             const result = client.performSearch({ q: undefined, facets: 'WCF.1' });
-            expect(result).to.equal('test');
-        })
+            expect(result.length).to.equal(2);
+            expect(spy.callCount).to.be.equal(0)
+        });
+        it('calls algolia when query exists', () => {
+            client.performSearch({ q: 'baptism', facets: 'WCF' });
+            expect(spy.callCount).to.be.equal(1)
+        });
     })
 })
 describe('helpers', () => {

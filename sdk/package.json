@@ -32,9 +32,11 @@
     "@types/lodash": "^4.14.197",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.5.9",
+    "@types/sinon": "^10.0.20",
     "chai": "^4.3.8",
     "mocha": "^10.2.0",
     "nodemon": "^3.0.1",
+    "sinon": "^17.0.1",
     "ts-node": "^10.9.1"
   },
   "dependencies": {
