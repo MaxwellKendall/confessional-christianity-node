@@ -1,17 +1,10 @@
 import algoliasearch from 'algoliasearch';
 
+const HITS_PER_PAGE = 1000;
+
 const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
 const bibleIndex = client.initIndex('bible verses');
 const bibleIndexV2 = client.initIndex('citations');
-const searchStr = '';
-
-// get a single record by id
-// bibleIndex
-//   .getObject('1376')
-//   .then((resp) => {
-//     console.log('resp', resp);
-//   })
-//   .catch((e) => console.error('Some error: ', e));
 
 /**
  * v1:
@@ -34,39 +27,58 @@ const searchStr = '';
  *   id: string
  * }
  */
+const action = 'addObject';
 
-const migrateRectord = (record) => {
+const migrateRecord = (record) => {
   const { id } = record;
-  console.log(id);
   const range = id.split('-');
   if (range.length > 1) {
     const [start, end] = range;
     const [book, startChapter, startVerse] = start.split('.');
-    const [_, endChapter, endVerse] = end.split('.');
+    const [, endChapter, endVerse] = end.split('.');
     const rtrn = {
       ...record,
       book,
       startChapter,
       startVerse,
       endChapter,
-      endVerse
+      endVerse,
     };
-    return rtrn;
+    return { action, body: rtrn };
   }
   const [book, startChapter, startVerse] = id.split('.');
   return {
-    ...record,
-    book,
-    startChapter,
-    endChapter: startChapter,
-    startVerse,
-    endVerse: startVerse
-  }
-}
+    action,
+    body: {
+      ...record,
+      book,
+      startChapter,
+      endChapter: startChapter,
+      startVerse,
+      endVerse: startVerse,
+    },
+  };
+};
 
-bibleIndex
-  .search(searchStr, { hitsPerPage: 10 })
-  .then((resp) => {
-    resp.hits.forEach(h => migrateRectord(h));
-  })
-  .catch((e) => console.error('Some error: ', e));
+let page = 1;
+
+const processHits = async (hits) => {
+  page++;
+  console.log(`fetched pages: ${page}`);
+  const newRecords = hits.map(migrateRecord);
+  try {
+    await bibleIndexV2.batch(newRecords);
+  } catch (e) {
+    console.info('Error creating new records', newRecords);
+    console.log(e);
+    throw e;
+  }
+};
+
+const fetch = () => bibleIndex
+  .browseObjects({ batch: processHits, page: 0, hitsPerPage: HITS_PER_PAGE });
+
+fetch()
+  .then(() => {
+    console.info(`fetched ${page} pages`);
+  });
