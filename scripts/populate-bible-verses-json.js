@@ -5,8 +5,11 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const readFrom = '../normalized-data/';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const readFrom = '../../normalized-data/';
 
 const doesFileHaveCitations = (f) => f.content.some((obj) => Object.keys(obj).includes('verses'));
 
@@ -42,13 +45,13 @@ const parseDetailFromFile = async (data) => {
   const { title } = data;
   if (doesFileHaveCitations(parsedData)) {
     let existingFile = '';
-    const readStream = fs.createReadStream(path.resolve(__dirname, '../deduped-bible-verses.json'));
+    const readStream = fs.createReadStream(path.resolve(__dirname, './deduped-bible-verses.json'));
     readStream.on('data', (d) => {
       existingFile += d;
     });
     readStream.on('end', () => {
       const normalizedCitation = enforceSchema(parsedData.content, JSON.parse(existingFile));
-      const write = fs.createWriteStream(path.resolve(__dirname, '../deduped-bible-verses.json'));
+      const write = fs.createWriteStream(path.resolve(__dirname, './deduped-bible-verses.json'));
       write.write(JSON.stringify(normalizedCitation));
       write.on('error', (e) => {
         console.error('there was an error writing the file', e);
