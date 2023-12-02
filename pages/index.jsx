@@ -51,7 +51,7 @@ const client = algoliasearch(
 );
 
 const aggIndex = client.initIndex('aggregate');
-const prePopulatedSearch = { query: 'John 3:16', index: 'bible-verses' };
+const prePopulatedSearch = { query: 'Psalms', index: 'citations' };
 const prePopulatedExpanded = [];
 
 const defaultQueries = [
