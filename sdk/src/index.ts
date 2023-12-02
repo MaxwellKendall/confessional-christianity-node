@@ -1,9 +1,9 @@
 import algoliasearch, { SearchClient, SearchIndex } from 'algoliasearch';
-
-import * as helpers from "../helpers/index.ts";
-import { AlgoliaIndexRequest, AlgoliaResponse, Config, Content, DocumentIds, Query } from "../types/index.ts";
-import contentByIdJson from '../dataMapping/content-by-id.json';
 import { omit } from 'lodash';
+
+import * as helpers from "../helpers";
+import { AlgoliaIndexRequest, AlgoliaResponse, Config, Content, DocumentIds, Query } from "../types/index.js";
+import contentByIdJson from '../dataMapping/content-by-id.json';
 
 interface SdkType {
   parseUserQuery: (input: string) => { facets: string | undefined, q: string | undefined };

@@ -42,9 +42,13 @@ import {
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
 
+import Sdk from '../sdk';
+
 const HITS_PER_PAGE = 25;
 
-const client = algoliasearch(
+const client = new sdk
+
+algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_API_KEY,
   process.env.NEXT_PUBLIC_ALGOLIA_SECRET_KEY,
 );
