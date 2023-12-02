@@ -49,6 +49,7 @@ export const parentIdByAbbreviation = {
 export const DOCUMENTS_WITHOUT_ARTICLES = [
   'ML9T',
   'BCF',
+  'TBCoF',
   'TAR',
   'WLC',
   'WSC',

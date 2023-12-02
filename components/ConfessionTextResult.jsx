@@ -59,17 +59,10 @@ const ConfessionTextResult = ({
 }) => {
   const [bibleTextById, setBibleTextById] = useState({});
   const [loadingTexts, setLoadingTexts] = useState([]);
-  const elaborateId = docTitle ? getConfessionalAbbreviationId(docTitle) : null;
   const nextConfessionId = getNextConfessionId(confessionId, contentById, searchTerms, 1);
   const prevConfessionId = getNextConfessionId(confessionId, contentById, searchTerms, -1);
-  const hasPrevious = (
-    elaborateId
-    && Object.keys(contentById).some((k) => k.includes(prevConfessionId))
-  );
-  const hasNext = (
-    elaborateId
-    && Object.keys(contentById).some((k) => k.includes(nextConfessionId))
-  );
+  const hasPrevious = !!contentById[prevConfessionId]
+  const hasNext = !!contentById[nextConfessionId];
 
   const parseBibleText = (t) => {
     const textAsArr = t.split('(ESV)');
