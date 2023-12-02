@@ -34,7 +34,7 @@ export interface Config {
         publicKey: string;
         secretKey: string;
     }
-    indecies: { name: string; hitsPerPage: number; attributesToHighlight: string[]}[]
+    indecies: Record<string, { name: string, hitsPerPage: number, attributesToHighlight: string[] }>
 }
 
 export interface Query {

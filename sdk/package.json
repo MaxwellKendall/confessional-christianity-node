@@ -2,7 +2,7 @@
   "name": "sdk",
   "version": "1.0.0",
   "description": "The intent of the SDK is to centralize all of the logic associated with (a) parsing user search input and (b) returning accurate data.",
-  "main": "src/index.ts",
+  "main": "./index.js",
   "type": "module",
   "scripts": {
     "build": "npx tsc --build tsconfig.sdk.json",

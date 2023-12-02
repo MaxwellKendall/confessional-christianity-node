@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "next -p 1517",
-    "build": "next build",
+    "build:web-app": "next build",
+    "build:sdk": "cd sdk ; npm run build ; cd -",
+    "build": "npm run build:sdk ; npm run build:web-app",
     "prod": "next start"
   },
   "type": "module",
@@ -41,6 +43,7 @@
     "react-dom": "^18.2.0",
     "react-highlight-words": "^0.18.0",
     "sass": "^1.26.3",
+    "sdk": "file:sdk/dist",
     "tailwindcss": "^2.0.4"
   },
   "devDependencies": {

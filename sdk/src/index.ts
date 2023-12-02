@@ -47,16 +47,13 @@ class Sdk implements SdkType {
     constructor(c: Config) {
       this.config = c;
       this.client = algoliasearch(this.config.algolia.publicKey, this.config.algolia.secretKey);
-      this.aggregateIndex = this.client.initIndex('aggregate');
-      this.bibleIndex = this.client.initIndex('bible verses');
-      c.indecies.forEach(({ name: indexName, hitsPerPage, attributesToHighlight}) => {
+      this.aggregateIndex = this.client.initIndex(c.indecies.aggregate.name);
+      this.bibleIndex = this.client.initIndex(c.indecies.bible.name);
+      Object.values(c.indecies).forEach(({ name: indexName, ...params }) => {
         this.queries.push({
           indexName,
           page: 0,
-          params: {
-            hitsPerPage,
-            attributesToHighlight
-          },
+          params,
           query: '',
         })
       })
