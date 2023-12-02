@@ -38,6 +38,7 @@ import {
   usePgTitle,
   isEmptyKeywordSearch,
   isFacetLength,
+  bibleRegex,
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
@@ -66,7 +67,7 @@ const defaultQueries = [
     },
   },
   {
-    indexName: 'bible verses',
+    indexName: 'citations',
     query: '',
     params: {
       hitsPerPage: HITS_PER_PAGE,
@@ -79,7 +80,7 @@ const defaultQueries = [
 ];
 
 const groupByDocument = (results) => groupBy(results, (obj) => {
-  if (obj.index === 'bible verses') return 'bible';
+  if (obj.index === 'citations') return 'bible';
   return obj.document;
 });
 
@@ -198,8 +199,11 @@ const HomePage = ({
     const facetFilters = parseFacets(search);
     setIsLoading(true);
     if (searchTerm !== search) setSearchTerm(search);
-    let queryWithoutFacetFilters = search.replace(regexV2, '');
-    queryWithoutFacetFilters = queryWithoutFacetFilters.replace(keyWords, '');
+    const queryWithoutFacetFilters = search
+      .replace(regexV2, '')
+      .replace(bibleRegex, '')
+      .replace(keyWords, '');
+
     client.multipleQueries(defaultQueries.map((obj) => ({
       ...obj,
       query: queryWithoutFacetFilters,
@@ -213,7 +217,7 @@ const HomePage = ({
           return currentPg < nbPages - 1;
         }, false);
         setTotals({
-          bible: results.find((o) => o.index === 'bible verses').nbHits,
+          bible: results.find((o) => o.index === 'citations').nbHits,
           confession: results.find((o) => o.index === 'aggregate').nbHits,
         });
         setHasMore(hasMoreData);
