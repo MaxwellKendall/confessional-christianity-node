@@ -88,7 +88,7 @@ const BibleTextResult = ({
         <div className="flex flex-col cursor-pointer">
           <Highlighter
             highlightClassName="search-result-matched-word"
-            className="text-3xl lg:text-4xl w-full text-center mb-24"
+            className="text-3xl lg:text-4xl w-full text-center mb-12 md:mb-24"
             textToHighlight={citation}
             searchWords={_highlightResult.citation.matchedWords}
           />
@@ -100,7 +100,7 @@ const BibleTextResult = ({
           />
         </div>
       </Link>
-      <div className="citations pt-5 mb-24">
+      <div className="citations pt-5 mb-12 md:mb-24">
         <h3>Passage Cited by:</h3>
         {renderCitedBy()}
       </div>
