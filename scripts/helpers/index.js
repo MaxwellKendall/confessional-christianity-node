@@ -29,6 +29,17 @@ export const parseOsisBibleReference = (osisStr) => {
     }, '');
 };
 
+const toOsisMap = Object.entries(bibleBookByAbbreviation).reduce((obj, [key, value]) => {
+  return {
+    ...obj,
+    [value.toLowerCase()]: key
+  }
+}, { psalm: 'Ps' });
+
+export const toOsis = (str) => {
+  return toOsisMap[str.toLowerCase()];
+}
+
 export const mapOSisTextToApiValues = (osisStr) => {
   if (!osisStr) return '';
   const splitStr = osisStr.split('-');

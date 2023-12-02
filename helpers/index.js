@@ -7,6 +7,7 @@ import {
   facetNamesByCanonicalDocId,
 } from '../dataMapping';
 import contentById from '../dataMapping/content-by-id.json';
+import { toOsis } from '../scripts/helpers';
 
 // returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
 export const getConciseDocId = (docTitle) => docTitle
@@ -157,7 +158,7 @@ const wildCardFacetRegex = new RegExp(/\*/);
 const removeDot = (str) => str && str.replaceAll('.', '');
 export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})|(\1\.r[0-9]{1,})|(\1\2\.r[0-9]{1,})/ig;
 export const keyWords = /(westminster\sstandards|three\sforms\sof\sunity|3\sforms\sof\sunity|six\sforms\sof\sunity|6\sforms\sof\sunity)/ig;
-export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,})|(\1\s[0-9]{1,})/ig;
+export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,}$|\1\s[0-9]{1,}$)|(\1\s[0-9]{1,}:[0-9]{1,}-[0-9]{1,})/ig;
 const documentPrefix = /question\s[0-9]{1,}:\s|chapter\s[0-9]{1,}:\s|article\s[0-9]{1,}:\s|rejection\s[0-9]{1,}:\s/ig;
 
 export const isEmptyKeywordSearch = (search) => search.replace(regexV2, '') === '';
@@ -268,8 +269,28 @@ export const parseFacets = (str) => {
   const bibleResult = str.match(bibleRegex);
   if (bibleResult && bibleResult.length) {
     const [book, citation] = bibleResult;
-    if (citation) {
-      return [`citation:${book}${citation}`];
+    if (!citation) return [`book:${toOsis(book)}`];
+    const range = citation.trim().split('-');
+    const isRange = range.length > 1;
+    if (book && citation && isRange) {
+      const [start, end] = range;
+      const [startChapter, startVerse] = start.split(':');
+      const endCitation = end.split(':');
+      return [
+        `book:${toOsis(book)}`,
+        `startChapter:${startChapter}`,
+        `startVerse:${startVerse}`,
+        endCitation.length > 1 ? `endChapter:${endCitation[0]}` : null,
+        endCitation.length > 1 ? `endVerse:${endCitation[1]}` : `endVerse:${endCitation[0]}`
+      ].filter(el => !!el);
+    }
+    if (book && citation) {
+      const [startChapter, startVerse] = citation.trim().split(':');
+      return [
+        `book:${toOsis(book)}`,
+        `startChapter:${startChapter}`,
+        startVerse ? `startVerse:${startVerse}` : null,
+      ].filter(el => !!el);
     }
   }
   return [];
