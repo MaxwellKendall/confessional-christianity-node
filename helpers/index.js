@@ -281,8 +281,8 @@ export const parseFacets = (str) => {
         `startChapter:${startChapter}`,
         `startVerse:${startVerse}`,
         endCitation.length > 1 ? `endChapter:${endCitation[0]}` : null,
-        endCitation.length > 1 ? `endVerse:${endCitation[1]}` : `endVerse:${endCitation[0]}`
-      ].filter(el => !!el);
+        endCitation.length > 1 ? `endVerse:${endCitation[1]}` : `endVerse:${endCitation[0]}`,
+      ].filter((el) => !!el);
     }
     if (book && citation) {
       const [startChapter, startVerse] = citation.trim().split(':');
@@ -290,7 +290,7 @@ export const parseFacets = (str) => {
         `book:${toOsis(book)}`,
         `startChapter:${startChapter}`,
         startVerse ? `startVerse:${startVerse}` : null,
-      ].filter(el => !!el);
+      ].filter((el) => !!el);
     }
   }
   return [];
@@ -298,7 +298,11 @@ export const parseFacets = (str) => {
 
 export const isFacetLength = (search, length) => search.split('.').length === length;
 
-const removePrefix = (str) => str.replace(documentPrefix, '');
+const removePrefix = (str) => {
+  if (str) {
+    return str.replace(documentPrefix, '');
+  }
+};
 
 const getSubTitleFromConfession = (query, docId, chapterId, articleId) => {
   if (query) return query;
@@ -308,11 +312,14 @@ const getSubTitleFromConfession = (query, docId, chapterId, articleId) => {
     return '';
   }
   if (confessionId.startsWith('HC') && chapterId && articleId) {
+    const key = `${confessionId}-${articleId}`;
     // title is actually useful, return it
-    return removePrefix(contentById[`${confessionId}-${articleId}`].title);
+    if (contentById[key]) {
+      return removePrefix(contentById[`${confessionId}-${articleId}`].title);
+    }
   }
 
-  return removePrefix(contentById[confessionId].title);
+  if (contentById[confessionId]) return removePrefix(contentById[confessionId].title);
 };
 
 export const usePgTitle = (search) => {
