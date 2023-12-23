@@ -384,6 +384,11 @@ const HomePage = ({
     setCurrentPg(currentPg + 1);
   };
 
+  const handleClearSearch = (e) => {
+    e.preventDefault();
+    setSearchTerm('');
+  };
+
   const [pgTitle, query] = usePgTitle(search);
   return (
     <div className="home flex flex-col p-8 w-full mt-24">
@@ -413,9 +418,22 @@ const HomePage = ({
           value={searchTerm}
           onChange={handleSearchInput}
           onKeyDown={handleKeyDown}
+          onBlur={(e) => {
+            if (!e.relatedTarget) return;
+            const classes = e.relatedTarget.getAttribute('class');
+            const clickedSearchOrClear = (
+              classes && (
+                classes.includes('home-pg-search-btn')
+                || classes.includes('home-pg-clear-search')
+              )
+            );
+            if (clickedSearchOrClear) {
+              e.target.focus();
+            }
+          }}
         />
-        <button className="absolute home-pg-search-btn" onClick={submitSearch} type="submit" />
-        <FontAwesomeIcon icon={faTimes} onClick={() => setSearchTerm('')} className="home-pg-clear-search absolute" />
+        <button className="absolute home-pg-search-btn" onClick={submitSearch} type="submit" tabIndex={-1} />
+        <FontAwesomeIcon icon={faTimes} onClick={handleClearSearch} className="home-pg-clear-search absolute" tabIndex={-1} />
       </div>
       {!isLoading && (
         <span className="w-full text-center mb-24">
