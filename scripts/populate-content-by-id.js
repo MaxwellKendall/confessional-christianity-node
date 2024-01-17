@@ -1,6 +1,12 @@
 import path from 'path';
 import { promises as fs } from 'fs';
-import { groupBy } from 'lodash';
+import lodash from 'lodash';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const { groupBy } = lodash;
 // import { confessionPathByName } from '../dataMapping';
 
 const confessionPathByName = {
@@ -12,6 +18,7 @@ const confessionPathByName = {
   'the-belgic-confession-of-faith': 'normalized-data/three-forms-of-unity/belgic-confession.json',
   'thirty-nine-articles-of-religion': 'normalized-data/anglican/39-articles.json',
   'martin-luthers-95-theses': 'normalized-data/reformation/95-theses.json',
+  'catechism-for-young-children': 'normalized-data/miscellany/catechism-young-children.json',
 };
 const main = async () => {
   const contentById = await Object.entries(confessionPathByName).reduce(

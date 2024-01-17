@@ -6,14 +6,14 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import removeFormatting from './helpers/formatHelper';
-import { getConfessionalAbbreviationId } from './helpers';
+import removeFormatting from '../helpers/formatHelper.js';
+import { getConfessionalAbbreviationId } from '../helpers/index.js';
 
-const readFileRoot = '../compendium/data';
-const writeFileRoot = '../normalized-data';
+const readFileRoot = '../compendium/data/miscellany';
+const writeFileRoot = '../../normalized-data';
 const yamlExtensionRegExp = RegExp(/.yaml/);
 
-const includedFiles = ['miscellany/catechism-young-children.yaml'];
+const includedFiles = ['catechism-young-children.yaml'];
 const prettyChildrenTitleByChildrenType = {
   articles: 'Article',
   chapters: 'Chapter',
@@ -135,6 +135,7 @@ const readFileAndWriteUnformattedJSON = async (relativePath) => {
   const readFilePath = `${readFileRoot}/${relativePath}`;
   const json = await fileToJson(readFilePath);
   const unFormattedJson = removeFormatting(json);
+  console.log({ unFormattedJson })
   const writeFilePath = `${writeFileRoot}/${relativePath.replace(yamlExtensionRegExp, '.json')}`;
   writeFile(writeFilePath, unFormattedJson);
 };

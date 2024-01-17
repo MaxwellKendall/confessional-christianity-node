@@ -3,15 +3,23 @@
 import fs from 'fs';
 import path from 'path';
 import algoliasearch from 'algoliasearch';
+import { fileURLToPath } from 'url';
 
-import { addRecordToIndex } from '../helpers';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+import { addRecordToIndex } from '../helpers/index.js';
+// const addRecordToIndex = (index, data) => {
+//   console.log(data);
+//   return Promise.resolve();
+// };
 
 const client = algoliasearch(process.env.ALGOLIA_API_KEY, process.env.ALGOLIA_SECRET_KEY);
 const aggIndex = client.initIndex('aggregate');
 
-const readDir = path.resolve(__dirname, '../normalized-data');
-const includedDirs = ['three-forms-of-unity', 'reformation', 'anglican'];
-const includedFiles = ['canons-of-dort.json', 'belgic-confession.json', '95-theses.json', '39-articles.json'];
+const readDir = path.resolve(__dirname, '../../normalized-data');
+const includedDirs = ['miscellany'];
+const includedFiles = ['catechism-young-children.json'];
 
 const addFileContentsToIndex = (filePath) => new Promise((resolve) => {
   const stream = fs.createReadStream(filePath);
