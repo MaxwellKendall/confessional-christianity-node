@@ -55,13 +55,13 @@ const ConfessionTextResult = ({
   verses = {},
   showNav = false,
   docTitle,
-  setCollapsed,
+  setCollapsed = () => {},
 }) => {
   const [bibleTextById, setBibleTextById] = useState({});
   const [loadingTexts, setLoadingTexts] = useState([]);
   const nextConfessionId = getNextConfessionId(confessionId, contentById, searchTerms, 1);
   const prevConfessionId = getNextConfessionId(confessionId, contentById, searchTerms, -1);
-  const hasPrevious = !!contentById[prevConfessionId]
+  const hasPrevious = !!contentById[prevConfessionId];
   const hasNext = !!contentById[nextConfessionId];
 
   const parseBibleText = (t) => {
