@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-expressions */
 /* global describe it */
 import { expect } from 'chai';
-import Sdk from '../src';
-import sinon from 'sinon';
+import Sdk from '..';
+import * as sinon from 'sinon';
 import { fromFacetToAlgoliaFacet } from '../helpers';
 const MOCK_ALGOLIA = {
     algolia: {
@@ -66,9 +66,9 @@ describe('sdk', () => {
     
     describe('performSearch', () => {
         const spy = sinon.spy(client.client, 'multipleQueries');
-        it('doesnt call algolia when no quer exists', () => {
-            const result = client.performSearch({ q: undefined, facets: 'WCF.1' });
-            expect(result.length).to.equal(2);
+        it('doesnt call algolia when no query exists', async () => {
+            const { results } = await client.performSearch({ q: undefined, facets: 'WCF.1' });
+            expect(results.length).to.equal(2);
             expect(spy.callCount).to.be.equal(0)
         });
         it('calls algolia when query exists', () => {

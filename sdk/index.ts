@@ -1,8 +1,8 @@
 import algoliasearch, { SearchClient, SearchIndex } from 'algoliasearch';
 
-import * as helpers from "../helpers/index.ts";
-import { AlgoliaIndexRequest, AlgoliaResponse, Config, Content, DocumentIds, Query } from "../types/index.ts";
-import contentByIdJson from '../dataMapping/content-by-id.json';
+import * as helpers from "./helpers";
+import { AlgoliaIndexRequest, AlgoliaResponse, Config, Content, DocumentIds, Query } from "./types";
+import contentByIdJson from './dataMapping/content-by-id.json';
 import { omit } from 'lodash';
 
 interface SdkType {
@@ -85,7 +85,7 @@ class Sdk implements SdkType {
           .sort((a, b) => a.number - b.number);
         return [data, ...children];
       }
-      return data;
+      return [data];
     }
 
     private async fetchFromAlgolia(facets: string, query: string, page = 0) {
@@ -105,7 +105,9 @@ class Sdk implements SdkType {
         return this.fetchFromAlgolia(algoliaFacet, query.q);
       }
       // otherwise, just use local json
-      return this.fetchFromLocalJson(algoliaFacet);
+      return Promise.resolve({
+        results: this.fetchFromLocalJson(algoliaFacet)
+      });
     }
 }
 

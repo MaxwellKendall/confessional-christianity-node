@@ -4,11 +4,10 @@ import {
   confessionCitationByIndex,
   DOCUMENTS_WITHOUT_ARTICLES,
   excludedWordsInDocumentId,
-  parentIdByAbbreviation,
   facetNamesByCanonicalDocId,
   algoliaIdByDocumentId,
-} from '../dataMapping/index.ts';
-import { AlgoliaIds, DocumentIds, Query } from '../types/index.ts';
+} from '../dataMapping';
+import { AlgoliaIds, DocumentIds, Query } from '../types';
 
 // returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
 export const getConciseDocId = (docTitle: string) => docTitle

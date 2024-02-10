@@ -1,11 +1,11 @@
 {
-  "name": "sdk",
-  "version": "1.0.0",
+  "name": "confessional-christianity-sdk",
+  "version": "0.0.1",
   "description": "The intent of the SDK is to centralize all of the logic associated with (a) parsing user search input and (b) returning accurate data.",
   "main": "src/index.ts",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "build": "npx tsc src/index.ts",
+    "build": "npx tsc",
     "start": "npx ts-node-esm src/index.ts",
     "start:watch": "npx nodemon src/index.ts",
     "test": "npx ts-mocha test/*.ts",
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/algoliasearch": "^4.0.0",
     "@types/chai": "^4.3.5",
-    "@types/lodash": "^4.14.197",
+    "@types/lodash": "^4.14.202",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.5.9",
     "@types/sinon": "^10.0.20",
