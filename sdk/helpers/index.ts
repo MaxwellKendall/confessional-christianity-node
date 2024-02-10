@@ -1,4 +1,3 @@
-// import { capitalize, groupBy, startCase } from 'lodash';
 import { trim } from 'lodash';
 import {
   confessionCitationByIndex,
@@ -6,8 +5,11 @@ import {
   excludedWordsInDocumentId,
   facetNamesByCanonicalDocId,
   algoliaIdByDocumentId,
+  osisByBibleBook,
 } from '../dataMapping';
 import { AlgoliaIds, DocumentIds, Query } from '../types';
+import { bibleBookByAbbreviation, bibleApiAbbrByOsis } from '../dataMapping/index.js';
+import { BibleBook, OsisByBibleBook } from '../dataMapping/types';
 
 // returns doc id excluding of/the, so not WCoF --> WCF. This is confusing tech debt.
 export const getConciseDocId = (docTitle: string) => docTitle
@@ -15,7 +17,7 @@ export const getConciseDocId = (docTitle: string) => docTitle
   .split(' ')
   .filter((w) => !excludedWordsInDocumentId.includes(w))
   .reduce((acc, str) => `${acc}${str[0]}`, '');
-
+ 
 export const getCanonicalDocId = (docTitleOrId: string) => {
   const arr = docTitleOrId.split(' ');
   if (arr.length === 1) {
@@ -23,6 +25,10 @@ export const getCanonicalDocId = (docTitleOrId: string) => {
     return getConciseDocId(confessionCitationByIndex[docTitleOrId.toUpperCase()][0]);
   }
   return getConciseDocId(docTitleOrId);
+};
+
+export const toOsis = (str: BibleBook) => {
+  return (osisByBibleBook as OsisByBibleBook)[str.toLowerCase() as BibleBook]
 };
 
 export const generateLink = (confessionId: string) => {
@@ -150,7 +156,7 @@ export const getCitationContextById = (id: string, idPositions = 1) => id.split(
 // };
 
 export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})|(\1\.r[0-9]{1,})|(\1\2\.r[0-9]{1,})/ig;
-export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,})|(\1\s[0-9]{1,})/ig;
+export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,}$|\1\s[0-9]{1,}$)|(\1\s[0-9]{1,}:[0-9]{1,}-[0-9]{1,}$)|((\1\s[0-9]{1,}:[0-9]{1,}-[0-9]{1,}:[0-9]{1,}$))/ig;
 
 export const isEmptyKeywordSearch = (search: string) => search.replace(regexV2, '') === '';
 
@@ -167,13 +173,48 @@ export const parseFacets = (str: string) => {
 
   if (confessions) return confessions;
 
-  return str
-    .match(bibleRegex)
-    ?.join('');
+  const bible = str.match(bibleRegex)
+  if (bible && bible.length > 1) {
+    const [book, citation] = bible;
+    
+    // john 3
+    if (!citation.includes(':')) {
+      return `${toOsis(book as unknown as BibleBook)}.${citation.trim()}`;
+    }
+    
+    // john 3:1
+    if (!citation.includes('-')) {
+      const [startChapter, startVerse] = citation.trim().split(':');
+      return `${toOsis(book as unknown as BibleBook)}.${startChapter}.${startVerse}`;
+    }
+    const range = citation.trim().split('-');
+    const [start, end] = range;
+    const startRangeCitation = start.split(':');
+    const endRangeCitation = end.split(':');
+    const [startChapter, startVerse] = startRangeCitation;
+    
+    // john 3:1-16
+    if (endRangeCitation.length === 1) {
+      const [endVerse] = endRangeCitation;
+      return `${toOsis(book as unknown as BibleBook)}.${startChapter}.${startVerse}-${endVerse}`
+    }
+    
+    const [endChapter, endVerse] = endRangeCitation;
+    
+    // john 3:1-4:5
+    return `${toOsis(book as unknown as BibleBook)}.${startChapter}.${startVerse}-${endChapter}.${endVerse}`
+  } else if (bible) {
+    // john
+    const [book] = bible;
+    return toOsis(book as unknown as BibleBook);
+  }
 };
 
 export const parseQuery = (str: string) => {
-  const q = str.replaceAll(regexV2, '');
+  const q = str
+    .replaceAll(regexV2, '')
+    .replaceAll(bibleRegex, '');
+
   if (q) {
     return trim(q);
   }
