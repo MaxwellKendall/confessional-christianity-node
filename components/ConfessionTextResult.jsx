@@ -181,7 +181,7 @@ const ConfessionTextResult = ({
   const renderNav = () => [{ direction: 1, show: hasNext }, { direction: -1, show: hasPrevious }]
     .filter(({ show }) => show)
     .map((obj) => (
-      <li className={`absolute top-0 ${obj.direction > 0 ? 'left-full' : 'right-full'}`}>
+      <li className={`absolute top-2 ${obj.direction > 0 ? 'left-full' : 'right-full'}`}>
         <Link
           scroll={false}
           className="text-md p-4"

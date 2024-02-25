@@ -319,7 +319,7 @@ const HomePage = ({
               </span>
             </h2>
             {isExpanded && (
-              <ul className="relative">
+              <ul className="relative mx-4">
                 {Object
                   .keys(groupedByChapter)
                   .sort((a, b) => handleSortById({ id: a }, { id: b }))
