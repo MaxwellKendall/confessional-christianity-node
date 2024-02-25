@@ -22,6 +22,8 @@ const getQueryParams = (bibleText) => queryString.stringify({
   'include-headings': false,
 });
 
+const MINIMUM_TEXT_LENGTH = 100;
+
 // return next position in confession
 const getNextConfessionId = (id, contentById, searchTerms, direction = 1) => {
   const isArticle = searchTerms.some((str) => regexV2.test(str) && str.split('.').length >= 3);
@@ -55,13 +57,13 @@ const ConfessionTextResult = ({
   verses = {},
   showNav = false,
   docTitle,
-  setCollapsed,
+  setCollapsed = () => {},
 }) => {
   const [bibleTextById, setBibleTextById] = useState({});
   const [loadingTexts, setLoadingTexts] = useState([]);
   const nextConfessionId = getNextConfessionId(confessionId, contentById, searchTerms, 1);
   const prevConfessionId = getNextConfessionId(confessionId, contentById, searchTerms, -1);
-  const hasPrevious = !!contentById[prevConfessionId]
+  const hasPrevious = !!contentById[prevConfessionId];
   const hasNext = !!contentById[nextConfessionId];
 
   const parseBibleText = (t) => {
@@ -204,7 +206,7 @@ const ConfessionTextResult = ({
         </Link>
       </li>
     ));
-
+  const centerAlignText = text.length < MINIMUM_TEXT_LENGTH;
   return (
     <li key={uniqueId(confessionId)} className="w-full flex flex-col justify-center pb-24">
       {renderTitle()}
@@ -218,7 +220,7 @@ const ConfessionTextResult = ({
           >
             <Highlighter className="text-2xl" textToHighlight={title} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
           </Link>
-          <Highlighter className="mt-4" textToHighlight={text} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
+          <Highlighter className={`${centerAlignText ? 'text-center ' : ''}mt-4`} textToHighlight={text} searchWords={searchTerms} highlightClassName="search-result-matched-word" />
           {showNav && (
             <ul>
               {renderNav()}

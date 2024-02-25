@@ -1,16 +1,19 @@
 import fs, { readdir } from 'fs';
 import path from 'path';
-import { flattenDeep, includes } from 'lodash';
 import YAML from 'yaml';
+import { fileURLToPath } from 'url';
 
-import removeFormatting from './helpers/formatHelper';
-import { getConfessionalAbbreviationId } from './helpers';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const readFileRoot = '../compendium/data';
-const writeFileRoot = '../normalized-data';
+import removeFormatting from '../helpers/formatHelper.js';
+import { getConfessionalAbbreviationId } from '../helpers/index.js';
+
+const readFileRoot = '../compendium/data/miscellany';
+const writeFileRoot = '../../normalized-data';
 const yamlExtensionRegExp = RegExp(/.yaml/);
 
-const includedFiles = ['95-theses.yaml'];
+const includedFiles = ['catechism-young-children.yaml'];
 const prettyChildrenTitleByChildrenType = {
   articles: 'Article',
   chapters: 'Chapter',
@@ -64,7 +67,7 @@ const enforceJSONShape = (json, confession = '', childrenType = '') => {
         isParent: !!getChildrenType(obj),
         parent: confession,
         id: `${confession}-${obj.number}`,
-        text: obj?.text,
+        text: obj?.text || obj?.answer,
       }
     })
     .concat(
@@ -132,6 +135,7 @@ const readFileAndWriteUnformattedJSON = async (relativePath) => {
   const readFilePath = `${readFileRoot}/${relativePath}`;
   const json = await fileToJson(readFilePath);
   const unFormattedJson = removeFormatting(json);
+  console.log({ unFormattedJson })
   const writeFilePath = `${writeFileRoot}/${relativePath.replace(yamlExtensionRegExp, '.json')}`;
   writeFile(writeFilePath, unFormattedJson);
 };

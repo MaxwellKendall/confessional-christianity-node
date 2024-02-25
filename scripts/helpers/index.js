@@ -1,4 +1,4 @@
-import { bibleBookByAbbreviation, bibleApiAbbrByOsis } from '../dataMapping';
+import { bibleBookByAbbreviation, bibleApiAbbrByOsis } from '../dataMapping/index.js';
 
 export const parseOsisBibleReference = (osisStr) => {
   if (!osisStr) return '';
@@ -29,16 +29,12 @@ export const parseOsisBibleReference = (osisStr) => {
     }, '');
 };
 
-const toOsisMap = Object.entries(bibleBookByAbbreviation).reduce((obj, [key, value]) => {
-  return {
-    ...obj,
-    [value.toLowerCase()]: key
-  }
-}, { psalm: 'Ps' });
+const toOsisMap = Object.entries(bibleBookByAbbreviation).reduce((obj, [key, value]) => ({
+  ...obj,
+  [value.toLowerCase()]: key,
+}), { psalm: 'Ps' });
 
-export const toOsis = (str) => {
-  return toOsisMap[str.toLowerCase()];
-}
+export const toOsis = (str) => toOsisMap[str.toLowerCase()];
 
 export const mapOSisTextToApiValues = (osisStr) => {
   if (!osisStr) return '';

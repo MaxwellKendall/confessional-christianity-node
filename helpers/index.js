@@ -156,7 +156,7 @@ export const articleFacetRegex = new RegExp(/article:([0-9]*)|rejection:([0-9]*)
 
 const wildCardFacetRegex = new RegExp(/\*/);
 const removeDot = (str) => str && str.replaceAll('.', '');
-export const regexV2 = /(wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})|(\1\.r[0-9]{1,})|(\1\2\.r[0-9]{1,})/ig;
+export const regexV2 = /(catechism\sfor\syoung\schildren|cfyc|wcf|Westminster\sConfession\sof\sFaith|hc|Heidelberg\sCatechism|WSC|Westminster\sShorter\sCatechism|WLC|Westminster\sLarger\sCatechism|39A|Thirty Nine Articles|39 Articles|tar|bcf|bc|Belgic Confession of Faith|Belgic Confession|COD|CD|Canons of Dordt|95T|95 Theses|Ninety Five Theses|ML9T|\*)|(\1\.[0-9]{1,})|(\1\2\.[0-9]{1,})|(\1\.r[0-9]{1,})|(\1\2\.r[0-9]{1,})/ig;
 export const keyWords = /(westminster\sstandards|three\sforms\sof\sunity|3\sforms\sof\sunity|six\sforms\sof\sunity|6\sforms\sof\sunity)/ig;
 export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,}$|\1\s[0-9]{1,}$)|(\1\s[0-9]{1,}:[0-9]{1,}-[0-9]{1,})/ig;
 const documentPrefix = /question\s[0-9]{1,}:\s|chapter\s[0-9]{1,}:\s|article\s[0-9]{1,}:\s|rejection\s[0-9]{1,}:\s/ig;
@@ -281,8 +281,8 @@ export const parseFacets = (str) => {
         `startChapter:${startChapter}`,
         `startVerse:${startVerse}`,
         endCitation.length > 1 ? `endChapter:${endCitation[0]}` : null,
-        endCitation.length > 1 ? `endVerse:${endCitation[1]}` : `endVerse:${endCitation[0]}`
-      ].filter(el => !!el);
+        endCitation.length > 1 ? `endVerse:${endCitation[1]}` : `endVerse:${endCitation[0]}`,
+      ].filter((el) => !!el);
     }
     if (book && citation) {
       const [startChapter, startVerse] = citation.trim().split(':');
@@ -290,7 +290,7 @@ export const parseFacets = (str) => {
         `book:${toOsis(book)}`,
         `startChapter:${startChapter}`,
         startVerse ? `startVerse:${startVerse}` : null,
-      ].filter(el => !!el);
+      ].filter((el) => !!el);
     }
   }
   return [];
@@ -298,7 +298,11 @@ export const parseFacets = (str) => {
 
 export const isFacetLength = (search, length) => search.split('.').length === length;
 
-const removePrefix = (str) => str.replace(documentPrefix, '');
+const removePrefix = (str) => {
+  if (str) {
+    return str.replace(documentPrefix, '');
+  }
+};
 
 const getSubTitleFromConfession = (query, docId, chapterId, articleId) => {
   if (query) return query;
@@ -308,11 +312,14 @@ const getSubTitleFromConfession = (query, docId, chapterId, articleId) => {
     return '';
   }
   if (confessionId.startsWith('HC') && chapterId && articleId) {
+    const key = `${confessionId}-${articleId}`;
     // title is actually useful, return it
-    return removePrefix(contentById[`${confessionId}-${articleId}`].title);
+    if (contentById[key]) {
+      return removePrefix(contentById[`${confessionId}-${articleId}`].title);
+    }
   }
 
-  return removePrefix(contentById[confessionId].title);
+  if (contentById[confessionId]) return removePrefix(contentById[confessionId].title);
 };
 
 export const usePgTitle = (search) => {

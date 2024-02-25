@@ -16,6 +16,7 @@ export const confessionCitationByIndex = {
   BC: ['The Belgic Confession of Faith', 'Chapter'],
   '95T': ['Martin Luther\'s 95 theses'],
   ML9T: ['Martin Luther\'s 95 theses'],
+  CFYC: ['Catechism for Young Children'],
   ALL: ['ALL'],
 };
 
@@ -44,6 +45,7 @@ export const parentIdByAbbreviation = {
   '39A': 'TAoR',
   '95T': 'ML9t',
   ML9T: 'ML9t',
+  CFYC: 'CfYC',
 };
 
 export const DOCUMENTS_WITHOUT_ARTICLES = [
@@ -53,6 +55,8 @@ export const DOCUMENTS_WITHOUT_ARTICLES = [
   'TAR',
   'WLC',
   'WSC',
+  'CFYC',
+  'CfYC',
 ];
 
 export const confessionIdsWithoutTitles = [
@@ -62,6 +66,7 @@ export const confessionIdsWithoutTitles = [
   'TBCoF',
   'TAoR',
   'ML9t',
+  'CfYC',
 ];
 
 export const excludedWordsInDocumentId = [
@@ -78,6 +83,7 @@ export const facetNamesByCanonicalDocId = {
   ML9T: ['thesis'],
   WLC: ['question'],
   WSC: ['question'],
+  CFYC: ['question']
 };
 
 export const KEYWORDS = [
@@ -92,31 +98,31 @@ export const links = [
   // { name: 'Home', href: '/', children: [] },
   // { name: 'About', href: '/about', children: [] },
   {
-      name: 'Westminster Standards',
-      href: '/?search=westminster%20standards',
-      children: [
-          { name: 'Westminster Confession of Faith (WCF)', href: '/?search=WCF' },
-          { name: 'Westminster Shorter Catechism (WSC)', href: '/?search=WSC' },
-          { name: 'Westminster Larger Catechism (WLC)', href: '/?search=WLC' },
-      ],
+    name: 'Westminster Standards',
+    href: '/?search=westminster%20standards',
+    children: [
+      { name: 'Westminster Confession of Faith (WCF)', href: '/?search=WCF' },
+      { name: 'Westminster Shorter Catechism (WSC)', href: '/?search=WSC' },
+      { name: 'Westminster Larger Catechism (WLC)', href: '/?search=WLC' },
+    ],
   },
   {
-      name: 'Three Forms of Unity',
-      href: '/?search=three%20forms%20of%20unity',
-      children: [
-          { name: 'The Belgic Confession of Faith (BCF)', href: '/?search=BCF' },
-          { name: 'The Heidelberg Catechism (HC)', href: '/?search=HC' },
-          { name: 'The Canons of Dort (CD)', href: '/?search=CD' },
-      ],
+    name: 'Three Forms of Unity',
+    href: '/?search=three%20forms%20of%20unity',
+    children: [
+      { name: 'The Belgic Confession of Faith (BCF)', href: '/?search=BCF' },
+      { name: 'The Heidelberg Catechism (HC)', href: '/?search=HC' },
+      { name: 'The Canons of Dort (CD)', href: '/?search=CD' },
+    ],
   },
   {
-      name: 'Other',
-      href: null,
-      children: [
-          { name: 'Thirty Nine Articles (TAR)', href: '/?search=TAR' },
-          { name: 'Six Forms of Unity', href: '/?search=six%20forms%20of%20unity' },
-          { name: 'Ninety Five Theses', href: '/?search=95t' },
-      ]
+    name: 'Other',
+    href: null,
+    children: [
+      { name: 'Thirty Nine Articles (TAR)', href: '/?search=TAR' },
+      { name: 'Six Forms of Unity', href: '/?search=six%20forms%20of%20unity' },
+      { name: 'Ninety Five Theses', href: '/?search=95t' },
+    ],
   },
   {
     name: 'Scripture Citation',
@@ -124,8 +130,8 @@ export const links = [
     children: [
       { name: 'Acts 2:42', href: '/?search=Acts+2%3A42' },
       { name: 'Matthew 28:19-20', href: '/?search=Matthew+28%3A19' },
-      { name: 'John 10:28', href: '/?search=John+10%3A28' },    
-    ]
+      { name: 'John 10:28', href: '/?search=John+10%3A28' },
+    ],
   },
   {
     name: 'Keyword Search',
@@ -133,8 +139,8 @@ export const links = [
     children: [
       { name: 'WCF on Baptism', href: '/?search=wcf+baptism' },
       { name: 'HC on Providence', href: '/?search=HC+Providence' },
-      { name: 'WLC on Preaching', href: '/?search=WLC+Preaching' },    
-    ]
+      { name: 'WLC on Preaching', href: '/?search=WLC+Preaching' },
+    ],
   },
   {
     name: 'Scripture Text',
@@ -142,8 +148,8 @@ export const links = [
     children: [
       { name: '"No one will snatch them"', href: '/?search=no+one+will+snatch+them' },
       { name: '"And they devoted themselves"', href: '/?search=And+they+devoted+themselves' },
-      { name: '"Go, therefore, and make disciples"', href: '/?search=Go+therefore+and+make+disciples' },    
-    ]
+      { name: '"Go, therefore, and make disciples"', href: '/?search=Go+therefore+and+make+disciples' },
+    ],
   },
   {
     name: 'Resources',
@@ -162,5 +168,5 @@ export const links = [
         href: 'https://www.naparcsearch.com/',
       },
     ],
-  }
+  },
 ];
