@@ -13,7 +13,7 @@ import {
 } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faMinus, faPlus, faSpinner, faTimes,
+  faMinus, faPlus, faSpinner, faTimes, faChild,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -26,6 +26,7 @@ import BibleTextResult from '../components/BibleTextResult';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 import contentById from '../dataMapping/content-by-id.json';
+import { useAuth } from '../context/AuthContext';
 
 import {
   handleSortById,
@@ -159,6 +160,7 @@ const HomePage = ({
   prepopulatedTotals,
 }) => {
   const router = useRouter();
+  const { user, signOut } = useAuth();
   const search = ('search' in router.query) ? router.query.search : prePopulatedQuery;
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
@@ -391,13 +393,50 @@ const HomePage = ({
 
   const [pgTitle, query] = usePgTitle(search);
   return (
-    <div className="home flex flex-col p-8 w-full mt-24">
+    <div className="home flex flex-col p-8 w-full mt-8">
       <Head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
         <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
       </Head>
       <SEO subTitle={pgTitle} query={query} />
+      
+      {/* Auth Navigation */}
+      <nav className="flex items-center justify-end gap-4 mb-8 -mt-4">
+        {user ? (
+          <>
+            <Link 
+              href="/dashboard"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 text-sm"
+            >
+              <FontAwesomeIcon icon={faChild} />
+              <span>My Children</span>
+            </Link>
+            <button
+              onClick={() => signOut()}
+              className="text-gray-500 hover:text-gray-700 text-sm"
+            >
+              Sign Out
+            </button>
+          </>
+        ) : (
+          <>
+            <Link 
+              href="/auth/signin"
+              className="text-gray-600 hover:text-gray-800 text-sm"
+            >
+              Sign In
+            </Link>
+            <Link 
+              href="/auth/signup"
+              className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm"
+            >
+              Sign Up
+            </Link>
+          </>
+        )}
+      </nav>
+
       <Link
         href={{
           pathname: '',

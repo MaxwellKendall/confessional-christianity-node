@@ -2,12 +2,47 @@ import React from "react";
 import Link from "next/link";
 import { uniqueId } from "lodash";
 import { links } from '../dataMapping';
+import { useAuth } from '../context/AuthContext';
 
 const Footer = () => {
+    const { user } = useAuth();
+
     return <>
         <hr className="my-12" />
         <footer className="w-full">
             <p className="w-full text-center">Search the historic reformed confessions via keyword, text of Scripture, or Scripture citation.</p>
+            
+            {/* Catechism Progress Feature Callout */}
+            <div className="w-full max-w-lg mx-auto mt-8 mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                <h3 className="text-lg font-medium mb-2">Track Your Children&apos;s Catechism Progress</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                    Sign up to track your children&apos;s journey through the catechisms and easily find where they left off.
+                </p>
+                {user ? (
+                    <Link 
+                        href="/dashboard"
+                        className="inline-block bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-700 text-sm"
+                    >
+                        Go to Dashboard
+                    </Link>
+                ) : (
+                    <div className="flex gap-3 justify-center">
+                        <Link 
+                            href="/auth/signin"
+                            className="text-gray-600 hover:text-gray-800 text-sm py-2 px-4"
+                        >
+                            Sign In
+                        </Link>
+                        <Link 
+                            href="/auth/signup"
+                            className="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-700 text-sm"
+                        >
+                            Sign Up Free
+                        </Link>
+                    </div>
+                )}
+            </div>
+
             <ul className="flex w-full margin-auto flex-wrap justify-center">
                 {links.map((l) => {
                     if (l.children.length) {

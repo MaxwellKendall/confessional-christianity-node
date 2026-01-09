@@ -5,11 +5,16 @@ import { config } from '@fortawesome/fontawesome-svg-core';
 // Import the CSS
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import '../styles/index.scss';
+import { AuthProvider } from '../context/AuthContext';
 
 config.autoAddCss = false;
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+  return (
+    <AuthProvider>
+      <Component {...pageProps} />
+    </AuthProvider>
+  );
 }
 
 // Only uncomment this method if you have blocking data requirements for
