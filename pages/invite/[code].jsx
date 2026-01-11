@@ -12,6 +12,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useShareInvite } from '../../hooks/useChildren';
+import Header from '../../components/Header';
+import { track, EVENTS } from '../../lib/analytics';
 
 const AcceptInvitePage = () => {
   const router = useRouter();
@@ -19,10 +21,34 @@ const AcceptInvitePage = () => {
   const { user, loading: authLoading } = useAuth();
   const { invite, loading: inviteLoading, error, accepting, acceptInvite } = useShareInvite(code);
 
+  // Track invite viewed when loaded
+  useEffect(() => {
+    if (invite && !inviteLoading) {
+      track(EVENTS.SHARE_INVITE_VIEWED, {
+        child_id: invite.child?.id,
+        child_name: invite.child?.name,
+      });
+    }
+  }, [invite?.id, inviteLoading]);
+
+  // Track invalid invite
+  useEffect(() => {
+    if (!inviteLoading && (error || !invite) && code) {
+      track(EVENTS.SHARE_INVITE_INVALID, {
+        invite_code: code,
+        error: error || 'Invite not found',
+      });
+    }
+  }, [inviteLoading, error, invite, code]);
+
   const handleAccept = async () => {
     try {
       const result = await acceptInvite();
       if (result?.success) {
+        track(EVENTS.SHARE_INVITE_ACCEPTED, {
+          child_id: result.child_id,
+          child_name: invite?.child?.name,
+        });
         router.push(`/dashboard/children/${result.child_id}`);
       }
     } catch (err) {
@@ -38,15 +64,7 @@ const AcceptInvitePage = () => {
           <title>Accept Invite | Confessional Christianity</title>
         </Head>
 
-        <header className="bg-white border-b border-gray-200">
-          <div className="max-w-5xl mx-auto px-4 py-4">
-            <Link href="/">
-              <h1 className="cursor-pointer text-xl lg:text-2xl">
-                Confessional Christianity
-              </h1>
-            </Link>
-          </div>
-        </header>
+        <Header />
 
         <main className="flex-1 flex items-center justify-center p-4">
           <div className="bg-white border border-gray-200 rounded-lg p-8 max-w-md w-full text-center">
@@ -93,15 +111,7 @@ const AcceptInvitePage = () => {
           <title>Invalid Invite | Confessional Christianity</title>
         </Head>
 
-        <header className="bg-white border-b border-gray-200">
-          <div className="max-w-5xl mx-auto px-4 py-4">
-            <Link href="/">
-              <h1 className="cursor-pointer text-xl lg:text-2xl">
-                Confessional Christianity
-              </h1>
-            </Link>
-          </div>
-        </header>
+        <Header />
 
         <main className="flex-1 flex items-center justify-center p-4">
           <div className="bg-white border border-gray-200 rounded-lg p-8 max-w-md w-full text-center">
@@ -130,15 +140,7 @@ const AcceptInvitePage = () => {
         <title>Accept Invite | Confessional Christianity</title>
       </Head>
 
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-4 py-4">
-          <Link href="/">
-            <h1 className="cursor-pointer text-xl lg:text-2xl">
-              Confessional Christianity
-            </h1>
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="bg-white border border-gray-200 rounded-lg p-8 max-w-md w-full text-center">

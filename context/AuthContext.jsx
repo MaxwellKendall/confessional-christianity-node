@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '../lib/supabase';
+import { identifyUser, resetUser, track, EVENTS } from '../lib/analytics';
 
 const AuthContext = createContext({
   user: null,
@@ -49,6 +50,13 @@ export const AuthProvider = ({ children }) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         setLoading(false);
+
+        // Identify user in analytics when signed in
+        if (currentSession?.user) {
+          identifyUser(currentSession.user.id, {
+            email: currentSession.user.email,
+          });
+        }
       }
     );
 
@@ -89,6 +97,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signOut = async () => {
+    track(EVENTS.SIGN_OUT);
+    resetUser();
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     setUser(null);

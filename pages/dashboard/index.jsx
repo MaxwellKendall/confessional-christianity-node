@@ -6,8 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faSpinner, 
   faPlus, 
-  faUser, 
-  faSignOutAlt,
   faBook,
   faArrowRight,
   faChild,
@@ -16,6 +14,8 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useChildren } from '../../hooks/useChildren';
 import { getCatechismById, calculateProgress } from '../../lib/catechisms';
+import Header from '../../components/Header';
+import { track, EVENTS } from '../../lib/analytics';
 
 const AddChildModal = ({ isOpen, onClose, onAdd }) => {
   const [name, setName] = useState('');
@@ -34,7 +34,11 @@ const AddChildModal = ({ isOpen, onClose, onAdd }) => {
     setError('');
     
     try {
-      await onAdd(name.trim(), birthDate || null);
+      const result = await onAdd(name.trim(), birthDate || null);
+      track(EVENTS.CHILD_ADDED, {
+        child_id: result?.id,
+        has_birth_date: !!birthDate,
+      });
       setName('');
       setBirthDate('');
       onClose();
@@ -104,6 +108,44 @@ const AddChildModal = ({ isOpen, onClose, onAdd }) => {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+};
+
+const ScriptureVerse = () => {
+  return (
+    <div className="bg-gradient-to-b from-amber-50 to-white border-b border-amber-100">
+      <div className="max-w-3xl mx-auto px-6 py-12 text-center">
+        <p className="text-xs tracking-[0.3em] uppercase text-amber-700 mb-6">
+          Deuteronomy 6:4–9
+        </p>
+        
+        <blockquote className="space-y-4">
+          <p className="text-gray-800 leading-relaxed text-lg" style={{ fontFamily: 'Marcellus, serif' }}>
+            <span className="text-amber-800 font-semibold">"Hear, O Israel:</span> The <span className="small-caps">Lord</span> our God, the <span className="small-caps">Lord</span> is one. 
+            You shall love the <span className="small-caps">Lord</span> your God with all your heart and with all your soul 
+            and with all your might.
+          </p>
+          
+          <p className="text-gray-700 leading-relaxed" style={{ fontFamily: 'Marcellus, serif' }}>
+            And these words that I command you today shall be on your heart. 
+            <em className="text-amber-900"> You shall teach them diligently to your children</em>, 
+            and shall talk of them when you sit in your house, and when you walk by the way, 
+            and when you lie down, and when you rise.
+          </p>
+          
+          <p className="text-gray-600 leading-relaxed text-sm" style={{ fontFamily: 'Marcellus, serif' }}>
+            You shall bind them as a sign on your hand, and they shall be as frontlets between your eyes. 
+            You shall write them on the doorposts of your house and on your gates."
+          </p>
+        </blockquote>
+        
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <span className="h-px w-12 bg-amber-300"></span>
+          <span className="text-amber-400 text-lg">✦</span>
+          <span className="h-px w-12 bg-amber-300"></span>
+        </div>
       </div>
     </div>
   );
@@ -183,7 +225,7 @@ const ChildCard = ({ child }) => {
 };
 
 const Dashboard = () => {
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { children, loading: childrenLoading, addChild } = useChildren();
   const [showAddModal, setShowAddModal] = useState(false);
   const router = useRouter();
@@ -194,9 +236,20 @@ const Dashboard = () => {
     }
   }, [user, authLoading, router]);
 
-  const handleSignOut = async () => {
-    await signOut();
-    router.push('/');
+  // Track dashboard view when children load
+  useEffect(() => {
+    if (!childrenLoading && user) {
+      track(EVENTS.DASHBOARD_VIEWED, {
+        child_count: children.length,
+        owned_count: children.filter(c => c.isOwner).length,
+        shared_count: children.filter(c => !c.isOwner).length,
+      });
+    }
+  }, [childrenLoading, user, children.length]);
+
+  const handleOpenAddModal = () => {
+    track(EVENTS.ADD_CHILD_MODAL_OPENED);
+    setShowAddModal(true);
   };
 
   if (authLoading || (!user && !authLoading)) {
@@ -213,37 +266,17 @@ const Dashboard = () => {
         <title>Dashboard | Confessional Christianity</title>
       </Head>
 
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/">
-              <h1 className="cursor-pointer text-xl lg:text-2xl">
-                Confessional Christianity
-              </h1>
-            </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600 hidden sm:inline">
-                {user?.email}
-              </span>
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-              >
-                <FontAwesomeIcon icon={faSignOutAlt} />
-                <span className="hidden sm:inline">Sign Out</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
+
+      {/* Scripture Verse */}
+      <ScriptureVerse />
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl">Your Children</h2>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleOpenAddModal}
             className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
           >
             <FontAwesomeIcon icon={faPlus} />
@@ -265,7 +298,7 @@ const Dashboard = () => {
               Add your children to start tracking their catechism progress
             </p>
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={handleOpenAddModal}
               className="inline-flex items-center gap-2 bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700"
             >
               <FontAwesomeIcon icon={faPlus} />

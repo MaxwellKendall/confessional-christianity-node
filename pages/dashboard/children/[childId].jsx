@@ -22,6 +22,8 @@ import { useAuth } from '../../../context/AuthContext';
 import { useChild } from '../../../hooks/useChildren';
 import { getCatechismById, getCatechismList, calculateProgress, generateCatechismLink } from '../../../lib/catechisms';
 import { getSupabaseBrowserClient } from '../../../lib/supabase';
+import Header from '../../../components/Header';
+import { track, EVENTS } from '../../../lib/analytics';
 
 const AssignCatechismModal = ({ isOpen, onClose, onAssign, existingAssignments }) => {
   const [selectedCatechism, setSelectedCatechism] = useState('');
@@ -44,6 +46,12 @@ const AssignCatechismModal = ({ isOpen, onClose, onAssign, existingAssignments }
     
     try {
       await onAssign(selectedCatechism);
+      const catechismInfo = catechisms.find(c => c.id === selectedCatechism);
+      track(EVENTS.CATECHISM_ASSIGNED, {
+        catechism_id: selectedCatechism,
+        catechism_name: catechismInfo?.name,
+        total_questions: catechismInfo?.totalQuestions,
+      });
       setSelectedCatechism('');
       onClose();
     } catch (err) {
@@ -154,7 +162,15 @@ const EditChildModal = ({ isOpen, onClose, child, onUpdate }) => {
     setError('');
     
     try {
+      const fieldsUpdated = [];
+      if (name.trim() !== child?.name) fieldsUpdated.push('name');
+      if ((birthDate || null) !== child?.birth_date) fieldsUpdated.push('birth_date');
+      
       await onUpdate({ name: name.trim(), birth_date: birthDate || null });
+      track(EVENTS.CHILD_UPDATED, {
+        child_id: child?.id,
+        fields_updated: fieldsUpdated,
+      });
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to update');
@@ -230,11 +246,17 @@ const ShareChildModal = ({ isOpen, onClose, child, guardians, shareInvites, onCr
   const [copiedCode, setCopiedCode] = useState(null);
   const [error, setError] = useState('');
 
+  const handleRevokeInvite = async (inviteId) => {
+    await onRevokeInvite(inviteId);
+    track(EVENTS.SHARE_INVITE_REVOKED, { child_id: child?.id });
+  };
+
   const handleCreateInvite = async () => {
     setCreating(true);
     setError('');
     try {
       await onCreateInvite();
+      track(EVENTS.SHARE_INVITE_CREATED, { child_id: child?.id });
     } catch (err) {
       setError(err.message || 'Failed to create invite');
     } finally {
@@ -247,6 +269,7 @@ const ShareChildModal = ({ isOpen, onClose, child, guardians, shareInvites, onCr
     try {
       await navigator.clipboard.writeText(inviteUrl);
       setCopiedCode(inviteCode);
+      track(EVENTS.SHARE_INVITE_COPIED, { child_id: child?.id });
       setTimeout(() => setCopiedCode(null), 2000);
     } catch (err) {
       // Fallback for browsers that don't support clipboard API
@@ -257,6 +280,7 @@ const ShareChildModal = ({ isOpen, onClose, child, guardians, shareInvites, onCr
       document.execCommand('copy');
       document.body.removeChild(textArea);
       setCopiedCode(inviteCode);
+      track(EVENTS.SHARE_INVITE_COPIED, { child_id: child?.id });
       setTimeout(() => setCopiedCode(null), 2000);
     }
   };
@@ -267,6 +291,7 @@ const ShareChildModal = ({ isOpen, onClose, child, guardians, shareInvites, onCr
     }
     try {
       await onRemoveGuardian(userId);
+      track(EVENTS.GUARDIAN_REMOVED, { child_id: child?.id });
     } catch (err) {
       setError(err.message || 'Failed to remove guardian');
     }
@@ -326,7 +351,7 @@ const ShareChildModal = ({ isOpen, onClose, child, guardians, shareInvites, onCr
                       {copiedCode === invite.invite_code ? 'Copied!' : 'Copy'}
                     </button>
                     <button
-                      onClick={() => onRevokeInvite(invite.id)}
+                      onClick={() => handleRevokeInvite(invite.id)}
                       className="p-1.5 text-red-500 hover:bg-red-50 rounded"
                       title="Revoke invite"
                     >
@@ -422,6 +447,14 @@ const CatechismAssignmentCard = ({ assignment, onUpdateProgress, onRemove, onMar
     setUpdating(true);
     try {
       await onUpdateProgress(assignment.id, num);
+      track(EVENTS.CATECHISM_PROGRESS_UPDATED, {
+        catechism_id: assignment.catechism_id,
+        catechism_name: catechism?.name,
+        previous_question: assignment.current_question,
+        new_question: num,
+        total_questions: catechism?.totalQuestions,
+        progress_percentage: Math.round((num / catechism?.totalQuestions) * 100),
+      });
     } finally {
       setUpdating(false);
     }
@@ -503,6 +536,13 @@ const CatechismAssignmentCard = ({ assignment, onUpdateProgress, onRemove, onMar
         <Link 
           href={generateCatechismLink(assignment.catechism_id, assignment.current_question)}
           className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 text-sm"
+          onClick={() => {
+            track(EVENTS.CATECHISM_QUESTION_CLICKED, {
+              catechism_id: assignment.catechism_id,
+              catechism_name: catechism?.name,
+              question_number: assignment.current_question,
+            });
+          }}
         >
           <FontAwesomeIcon icon={faExternalLinkAlt} />
           Go to Question {assignment.current_question}
@@ -510,7 +550,13 @@ const CatechismAssignmentCard = ({ assignment, onUpdateProgress, onRemove, onMar
         
         {!isCompleted && assignment.current_question >= catechism?.totalQuestions && (
           <button
-            onClick={() => onMarkComplete(assignment.id)}
+            onClick={() => {
+              track(EVENTS.CATECHISM_COMPLETED, {
+                catechism_id: assignment.catechism_id,
+                catechism_name: catechism?.name,
+              });
+              onMarkComplete(assignment.id);
+            }}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
           >
             <FontAwesomeIcon icon={faCheck} />
@@ -519,7 +565,14 @@ const CatechismAssignmentCard = ({ assignment, onUpdateProgress, onRemove, onMar
         )}
         
         <button
-          onClick={() => onRemove(assignment.id)}
+          onClick={() => {
+            track(EVENTS.CATECHISM_REMOVED, {
+              catechism_id: assignment.catechism_id,
+              catechism_name: catechism?.name,
+              was_completed: isCompleted,
+            });
+            onRemove(assignment.id);
+          }}
           className="flex items-center gap-2 px-4 py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 text-sm ml-auto"
         >
           <FontAwesomeIcon icon={faTrash} />
@@ -560,6 +613,22 @@ const ChildDetailPage = () => {
     }
   }, [user, authLoading, router]);
 
+  // Track child view when loaded
+  useEffect(() => {
+    if (child && !childLoading) {
+      track(EVENTS.CHILD_VIEWED, {
+        child_id: child.id,
+        is_owner: child.isOwner,
+        assignment_count: child.catechism_assignments?.length || 0,
+      });
+    }
+  }, [child?.id, childLoading]);
+
+  const handleOpenShareModal = () => {
+    track(EVENTS.SHARE_MODAL_OPENED, { child_id: childId });
+    setShowShareModal(true);
+  };
+
   const handleDeleteChild = async () => {
     if (!confirm('Are you sure you want to delete this child? This action cannot be undone.')) {
       return;
@@ -573,6 +642,7 @@ const ChildDetailPage = () => {
         .eq('id', childId);
       
       if (error) throw error;
+      track(EVENTS.CHILD_DELETED, { child_id: childId });
       router.push('/dashboard');
     } catch (err) {
       alert('Failed to delete: ' + err.message);
@@ -630,28 +700,19 @@ const ChildDetailPage = () => {
         <title>{child.name} | Confessional Christianity</title>
       </Head>
 
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link 
-              href="/dashboard"
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-            >
-              <FontAwesomeIcon icon={faArrowLeft} />
-              <span className="hidden sm:inline">Back</span>
-            </Link>
-            <Link href="/">
-              <h1 className="cursor-pointer text-xl lg:text-2xl">
-                Confessional Christianity
-              </h1>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-8">
+        {/* Back link */}
+        <Link 
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Back to Dashboard</span>
+        </Link>
+
         {/* Child Header */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
           <div className="flex items-start justify-between">
@@ -683,7 +744,7 @@ const ChildDetailPage = () => {
             <div className="flex gap-2">
               {child.isOwner && (
                 <button
-                  onClick={() => setShowShareModal(true)}
+                  onClick={handleOpenShareModal}
                   className="p-2 text-blue-500 hover:text-blue-700 rounded-lg hover:bg-blue-50"
                   title="Share"
                 >

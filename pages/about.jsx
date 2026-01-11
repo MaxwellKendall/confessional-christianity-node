@@ -2,26 +2,24 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
-import Link from 'next/link';
 
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
+import Header from '../components/Header';
 import About from '../blog/About.mdx';
 
 const AboutPg = () => (
-  <div className="about flex flex-col p-8 w-full mt-24">
+  <div className="about flex flex-col w-full">
     <SEO title="Confessional Christianity | About Us" />
-    <Link href="/">
-      <h1 className="text-center cursor-pointer text-4xl lg:text-5xl mx-auto max-w-2xl">
-        Confessional Christianity
-      </h1>
-    </Link>
-    <div className="w-full lg:w-1/2 mt-24 mx-auto pt-10 pb-5 bg-white">
-      <About />
+    <Header />
+    <div className="p-8 mt-8">
+      <div className="w-full lg:w-1/2 mt-12 mx-auto pt-10 pb-5 bg-white">
+        <About />
+      </div>
+      <Footer
+          links={[{ link: "HOME", href: "/" }, { link: "BLOG", href: "https://blog.confessionalchristianity.com" }]}
+          />
     </div>
-    <Footer
-        links={[{ link: "HOME", href: "/" }, { link: "BLOG", href: "https://blog.confessionalchristianity.com" }]}
-        />
   </div>
 );
 

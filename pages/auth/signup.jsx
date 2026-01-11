@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
+import { track, EVENTS } from '../../lib/analytics';
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" width="20" height="20" className="mr-3">
@@ -57,9 +58,11 @@ const SignUp = () => {
     }
 
     setLoading(true);
+    track(EVENTS.SIGN_UP_STARTED, { method: 'email' });
 
     try {
       const data = await signUp(email, password);
+      track(EVENTS.SIGN_UP_COMPLETED, { method: 'email', user_id: data?.user?.id });
       
       // Check if email confirmation is required
       if (data.user && !data.session) {
@@ -68,6 +71,7 @@ const SignUp = () => {
         router.push(redirectUrl);
       }
     } catch (err) {
+      track(EVENTS.SIGN_UP_FAILED, { method: 'email', error: err.message });
       setError(err.message || 'Failed to create account. Please try again.');
     } finally {
       setLoading(false);
@@ -77,11 +81,14 @@ const SignUp = () => {
   const handleGoogleSignUp = async () => {
     setError('');
     setGoogleLoading(true);
+    track(EVENTS.SIGN_UP_STARTED, { method: 'google' });
 
     try {
       await signInWithGoogle();
       // The redirect is handled by Supabase OAuth
+      // SIGN_UP_COMPLETED will be tracked via AuthContext onAuthStateChange
     } catch (err) {
+      track(EVENTS.SIGN_UP_FAILED, { method: 'google', error: err.message });
       setError(err.message || 'Failed to sign up with Google.');
       setGoogleLoading(false);
     }

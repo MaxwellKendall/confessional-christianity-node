@@ -12,7 +12,7 @@ import {
 } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faMinus, faPlus, faSpinner, faTimes, faChild,
+  faMinus, faPlus, faSpinner, faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -24,8 +24,8 @@ import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import BibleTextResult from '../components/BibleTextResult';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
+import Header from '../components/Header';
 import contentById from '../dataMapping/content-by-id.json';
-import { useAuth } from '../context/AuthContext';
 
 import {
   handleSortById,
@@ -42,6 +42,7 @@ import {
 } from '../helpers';
 
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
+import { track, EVENTS } from '../lib/analytics';
 
 const HITS_PER_PAGE = 25;
 
@@ -159,7 +160,6 @@ const HomePage = ({
   prepopulatedTotals,
 }) => {
   const router = useRouter();
-  const { user, signOut } = useAuth();
   const search = ('search' in router.query) ? router.query.search : prePopulatedQuery;
   const initialSearch = search || prePopulatedQuery;
   const [searchTerm, setSearchTerm] = useState(initialSearch);
@@ -217,14 +217,21 @@ const HomePage = ({
           if (acc) return acc;
           return currentPg < nbPages - 1;
         }, false);
+        const bibleHits = results.find((o) => o.index === 'citations').nbHits;
+        const confessionHits = results.find((o) => o.index === 'aggregate').nbHits;
         setTotals({
-          bible: results.find((o) => o.index === 'citations').nbHits,
-          confession: results.find((o) => o.index === 'aggregate').nbHits,
+          bible: bibleHits,
+          confession: confessionHits,
         });
         setHasMore(hasMoreData);
         setSearchResults(parseResults(results, clearExisting ? [] : searchResults, currentPg));
         if (clearExisting) {
           setCurrentPg(0);
+          track(EVENTS.SEARCH_RESULTS_LOADED, {
+            total_results: bibleHits + confessionHits,
+            bible_results: bibleHits,
+            confession_results: confessionHits,
+          });
         }
       });
   }, 300);
@@ -241,6 +248,10 @@ const HomePage = ({
 
   const submitSearch = () => {
     setCurrentPg(0);
+    track(EVENTS.SEARCH_PERFORMED, {
+      search_term: searchTerm,
+      term_length: searchTerm?.length || 0,
+    });
     router.push({
       pathname: '',
       query: {
@@ -263,8 +274,10 @@ const HomePage = ({
 
   const handleExpand = (id) => {
     if (expanded.includes(id)) {
+      track(EVENTS.DOCUMENT_COLLAPSED, { document_id: id });
       setExpanded(expanded.filter((s) => s !== id));
     } else {
+      track(EVENTS.DOCUMENT_EXPANDED, { document_id: id });
       setExpanded(expanded.concat([id]));
     }
   };
@@ -382,6 +395,7 @@ const HomePage = ({
   };
 
   const handleLoadMore = () => {
+    track(EVENTS.LOAD_MORE_CLICKED, { page: currentPg + 1 });
     setCurrentPg(currentPg + 1);
   };
 
@@ -392,45 +406,10 @@ const HomePage = ({
 
   const [pgTitle, query] = usePgTitle(search);
   return (
-    <div className="home flex flex-col p-8 w-full mt-8">
+    <div className="home flex flex-col w-full">
       <SEO subTitle={pgTitle} query={query} />
-      
-      {/* Auth Navigation */}
-      <nav className="flex items-center justify-end gap-4 mb-8 -mt-4">
-        {user ? (
-          <>
-            <Link 
-              href="/dashboard"
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 text-sm"
-            >
-              <FontAwesomeIcon icon={faChild} />
-              <span>My Children</span>
-            </Link>
-            <button
-              onClick={() => signOut()}
-              className="text-gray-500 hover:text-gray-700 text-sm"
-            >
-              Sign Out
-            </button>
-          </>
-        ) : (
-          <>
-            <Link 
-              href="/auth/signin"
-              className="text-gray-600 hover:text-gray-800 text-sm"
-            >
-              Sign In
-            </Link>
-            <Link 
-              href="/auth/signup"
-              className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm"
-            >
-              Sign Up
-            </Link>
-          </>
-        )}
-      </nav>
-
+      <Header />
+      <div className="p-8">
       <Link
         href={{
           pathname: '',
@@ -469,10 +448,10 @@ const HomePage = ({
         <FontAwesomeIcon icon={faTimes} onClick={handleClearSearch} className="home-pg-clear-search absolute" tabIndex={-1} />
       </div>
       {!isLoading && (
-        <span className="w-full text-center mb-24">
+        <span className="block w-full text-center mb-24">
           {`SHOWING ${getResultsLength(searchResults)} of ${totals.bible + totals.confession} TOTAL MATCHES`}
             {hasMore && !isLoading && (
-              <button type="submit" className="w-full" onClick={handleLoadMore}>LOAD MORE</button>
+              <button type="submit" className="block w-full mt-2" onClick={handleLoadMore}>LOAD MORE</button>
             )}
         </span>
       )}
@@ -494,6 +473,7 @@ const HomePage = ({
       <Footer
         links={[{ link: 'ABOUT', href: '/about' }, { link: 'BLOG', href: 'https://blog.confessionalchristianity.com' }]}
       />
+      </div>
     </div>
   );
 };

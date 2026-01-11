@@ -1,16 +1,43 @@
 /* eslint-disable react/prop-types */
 // import App from 'next/app';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { config } from '@fortawesome/fontawesome-svg-core';
 // Import the CSS
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import '../styles/index.scss';
 import { AuthProvider } from '../context/AuthContext';
+import { initAnalytics, track, EVENTS } from '../lib/analytics';
 
 config.autoAddCss = false;
 
 function MyApp({ Component, pageProps }) {
+  const router = useRouter();
+
+  // Initialize analytics on mount
+  useEffect(() => {
+    initAnalytics();
+  }, []);
+
+  // Track page views on route change
+  useEffect(() => {
+    const handleRouteChange = (url) => {
+      track(EVENTS.PAGE_VIEWED, {
+        path: url,
+        page_title: document.title,
+      });
+    };
+
+    // Track initial page view
+    handleRouteChange(window.location.pathname);
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
+
   return (
     <AuthProvider>
       <Head>

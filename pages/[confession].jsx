@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { capitalize } from 'lodash';
 import path from 'path';
 import { promises } from 'fs';
@@ -7,6 +7,8 @@ import { confessionPathByName, confessionIdsWithoutTitles } from '../dataMapping
 import { isChapter } from '../helpers';
 import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import ConfessionTextResult from '../components/ConfessionTextResult';
+import Header from '../components/Header';
+import { track, EVENTS } from '../lib/analytics';
 
 export const getStaticProps = async (context) => {
   const contentById = await Object
@@ -52,6 +54,15 @@ const Confession = ({
   documentId,
 }) => {
   const [collapsed, setCollapsed] = useState({});
+
+  // Track confession viewed
+  useEffect(() => {
+    track(EVENTS.CONFESSION_VIEWED, {
+      confession_id: documentId,
+      confession_title: title,
+    });
+  }, [documentId, title]);
+
   const renderContent = () => {
     const chapters = Object
       .keys(contentById)
@@ -110,12 +121,14 @@ const Confession = ({
   };
 
   return (
-    <div className="home flex flex-col p-8 w-full my-24">
-      <h1 className="text-center text-5xl mx-auto max-w-2xl">Confessional Christianity</h1>
-      <h2 className="text-3xl lg:text-4xl my-24 flex flex-wrap justify-center w-full lg:w-1/2 mx-auto">{title}</h2>
-      <ul className="results w-full lg:w-1/2 mx-auto">
-        {renderContent()}
-      </ul>
+    <div className="home flex flex-col w-full">
+      <Header />
+      <div className="p-8 my-12">
+        <h2 className="text-3xl lg:text-4xl my-12 flex flex-wrap justify-center w-full lg:w-1/2 mx-auto">{title}</h2>
+        <ul className="results w-full lg:w-1/2 mx-auto">
+          {renderContent()}
+        </ul>
+      </div>
     </div>
   );
 };
