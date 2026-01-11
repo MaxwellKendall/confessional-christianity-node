@@ -58,7 +58,7 @@ const Footer = () => {
                                     {l.children.map((child) => {
                                         return (
                                             <li>
-                                                <Link href={child.href}>
+                                                <Link href={child.href.includes('about') ? '/about' : child.href}>
                                                     <span className="cursor-pointer text-center mt-5 w-full text-sm">{child.name}</span>
                                                 </Link>
                                             </li>
