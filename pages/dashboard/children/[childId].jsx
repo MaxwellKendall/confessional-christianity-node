@@ -23,6 +23,7 @@ import { useChild } from '../../../hooks/useChildren';
 import { getCatechismById, getCatechismList, calculateProgress, generateCatechismLink } from '../../../lib/catechisms';
 import { getSupabaseBrowserClient } from '../../../lib/supabase';
 import Header from '../../../components/Header';
+import Footer from '../../../components/Footer';
 import { track, EVENTS } from '../../../lib/analytics';
 
 const AssignCatechismModal = ({ isOpen, onClose, onAssign, existingAssignments }) => {
@@ -700,7 +701,7 @@ const ChildDetailPage = () => {
         <title>{child.name} | Confessional Christianity</title>
       </Head>
 
-      <Header />
+      <Header showBranding />
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-8">
@@ -843,6 +844,10 @@ const ChildDetailPage = () => {
           currentUserId={user?.id}
         />
       )}
+
+      <div className="max-w-5xl mx-auto px-4">
+        <Footer />
+      </div>
     </div>
   );
 };

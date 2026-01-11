@@ -82,7 +82,7 @@ const DropdownMenu = ({ isOpen, onClose, onSignOut, dropdownRef }) => {
   );
 };
 
-const Header = ({ showAuthLinks = true }) => {
+const Header = ({ showAuthLinks = true, showBranding = false }) => {
   const { user, loading, signOut } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -116,12 +116,14 @@ const Header = ({ showAuthLinks = true }) => {
 
   return (
     <header className="w-full bg-white border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/">
-          <span className="cursor-pointer text-lg font-medium">
-            Confessional Christianity
-          </span>
-        </Link>
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-end">
+        {showBranding && (
+          <Link href="/" className="mr-auto">
+            <span className="cursor-pointer text-lg font-medium">
+              Confessional Christianity
+            </span>
+          </Link>
+        )}
         
         {showAuthLinks && (
           <nav className="flex items-center gap-4">

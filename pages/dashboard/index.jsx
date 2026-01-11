@@ -15,6 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useChildren } from '../../hooks/useChildren';
 import { getCatechismById, calculateProgress } from '../../lib/catechisms';
 import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { track, EVENTS } from '../../lib/analytics';
 
 const AddChildModal = ({ isOpen, onClose, onAdd }) => {
@@ -266,7 +267,7 @@ const Dashboard = () => {
         <title>Dashboard | Confessional Christianity</title>
       </Head>
 
-      <Header />
+      <Header showBranding />
 
       {/* Scripture Verse */}
       <ScriptureVerse />
@@ -319,6 +320,10 @@ const Dashboard = () => {
         onClose={() => setShowAddModal(false)}
         onAdd={addChild}
       />
+
+      <div className="max-w-5xl mx-auto px-4">
+        <Footer />
+      </div>
     </div>
   );
 };
