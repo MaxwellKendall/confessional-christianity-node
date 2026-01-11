@@ -3,3 +3,5 @@ node_modules
 normalized-data/deduped-bible-verses.json
 .env*
 compendium/
+
+supabase/.temp

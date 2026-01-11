@@ -38,6 +38,9 @@ const SignUp = () => {
   const { signUp, signInWithGoogle } = useAuth();
   const router = useRouter();
 
+  // Support redirect after auth (e.g., from invite link)
+  const redirectUrl = router.query.redirect || '/dashboard';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -62,7 +65,7 @@ const SignUp = () => {
       if (data.user && !data.session) {
         setSuccess('Please check your email to confirm your account before signing in.');
       } else {
-        router.push('/dashboard');
+        router.push(redirectUrl);
       }
     } catch (err) {
       setError(err.message || 'Failed to create account. Please try again.');
@@ -113,7 +116,10 @@ const SignUp = () => {
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
             {success}
             <p className="mt-2">
-              <Link href="/auth/signin" className="underline">
+              <Link 
+                href={redirectUrl !== '/dashboard' ? `/auth/signin?redirect=${encodeURIComponent(redirectUrl)}` : '/auth/signin'} 
+                className="underline"
+              >
                 Go to Sign In
               </Link>
             </p>
@@ -202,7 +208,10 @@ const SignUp = () => {
 
         <p className="text-center mt-8 text-gray-600">
           Already have an account?{' '}
-          <Link href="/auth/signin" className="text-gray-800 underline hover:no-underline">
+          <Link 
+            href={redirectUrl !== '/dashboard' ? `/auth/signin?redirect=${encodeURIComponent(redirectUrl)}` : '/auth/signin'} 
+            className="text-gray-800 underline hover:no-underline"
+          >
             Sign in
           </Link>
         </p>

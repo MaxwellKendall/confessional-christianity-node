@@ -11,7 +11,12 @@ import {
   faTrash,
   faExternalLinkAlt,
   faCheck,
-  faEdit
+  faEdit,
+  faShare,
+  faUserFriends,
+  faCopy,
+  faTimes,
+  faLink
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../../context/AuthContext';
 import { useChild } from '../../../hooks/useChildren';
@@ -220,6 +225,183 @@ const EditChildModal = ({ isOpen, onClose, child, onUpdate }) => {
   );
 };
 
+const ShareChildModal = ({ isOpen, onClose, child, guardians, shareInvites, onCreateInvite, onRevokeInvite, onRemoveGuardian, currentUserId }) => {
+  const [creating, setCreating] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(null);
+  const [error, setError] = useState('');
+
+  const handleCreateInvite = async () => {
+    setCreating(true);
+    setError('');
+    try {
+      await onCreateInvite();
+    } catch (err) {
+      setError(err.message || 'Failed to create invite');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleCopyLink = async (inviteCode) => {
+    const inviteUrl = `${window.location.origin}/invite/${inviteCode}`;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopiedCode(inviteCode);
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (err) {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement('textarea');
+      textArea.value = inviteUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopiedCode(inviteCode);
+      setTimeout(() => setCopiedCode(null), 2000);
+    }
+  };
+
+  const handleRemoveGuardian = async (userId) => {
+    if (!confirm('Are you sure you want to remove this guardian? They will no longer have access to this child.')) {
+      return;
+    }
+    try {
+      await onRemoveGuardian(userId);
+    } catch (err) {
+      setError(err.message || 'Failed to remove guardian');
+    }
+  };
+
+  if (!isOpen) return null;
+
+  const otherGuardians = guardians.filter(g => g.user_id !== currentUserId);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl">Share {child?.name}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
+        </div>
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-sm">
+            {error}
+          </div>
+        )}
+
+        <p className="text-gray-600 mb-6">
+          Share access with another parent or guardian. They'll be able to view and update catechism progress.
+        </p>
+
+        {/* Active Share Links */}
+        <div className="mb-6">
+          <h4 className="font-medium mb-3 flex items-center gap-2">
+            <FontAwesomeIcon icon={faLink} className="text-gray-400" />
+            Invite Links
+          </h4>
+          
+          {shareInvites.length === 0 ? (
+            <p className="text-sm text-gray-500 mb-3">No active invite links</p>
+          ) : (
+            <div className="space-y-2 mb-3">
+              {shareInvites.map((invite) => (
+                <div key={invite.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                  <div className="flex-1 min-w-0 mr-3">
+                    <code className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
+                      {invite.invite_code}
+                    </code>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Expires: {new Date(invite.expires_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleCopyLink(invite.invite_code)}
+                      className="px-3 py-1.5 bg-gray-800 text-white rounded text-sm hover:bg-gray-700 flex items-center gap-1.5"
+                    >
+                      <FontAwesomeIcon icon={copiedCode === invite.invite_code ? faCheck : faCopy} />
+                      {copiedCode === invite.invite_code ? 'Copied!' : 'Copy'}
+                    </button>
+                    <button
+                      onClick={() => onRevokeInvite(invite.id)}
+                      className="p-1.5 text-red-500 hover:bg-red-50 rounded"
+                      title="Revoke invite"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={handleCreateInvite}
+            disabled={creating}
+            className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 text-gray-600 px-4 py-3 rounded-lg hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
+          >
+            {creating ? (
+              <FontAwesomeIcon icon={faSpinner} spin />
+            ) : (
+              <>
+                <FontAwesomeIcon icon={faPlus} />
+                Create New Invite Link
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Current Guardians */}
+        <div>
+          <h4 className="font-medium mb-3 flex items-center gap-2">
+            <FontAwesomeIcon icon={faUserFriends} className="text-gray-400" />
+            People with Access ({guardians.length})
+          </h4>
+          
+          <div className="space-y-2">
+            {guardians.map((guardian) => (
+              <div key={guardian.user_id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                    <FontAwesomeIcon icon={faUserFriends} className="text-gray-500 text-sm" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {guardian.user_id === currentUserId ? 'You' : 'Guardian'}
+                    </p>
+                    <p className="text-xs text-gray-500 capitalize">{guardian.role}</p>
+                  </div>
+                </div>
+                {guardian.user_id !== currentUserId && guardian.role !== 'owner' && (
+                  <button
+                    onClick={() => handleRemoveGuardian(guardian.user_id)}
+                    className="p-1.5 text-red-500 hover:bg-red-50 rounded"
+                    title="Remove guardian"
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-end pt-6 mt-6 border-t border-gray-100">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CatechismAssignmentCard = ({ assignment, onUpdateProgress, onRemove, onMarkComplete }) => {
   const catechism = getCatechismById(assignment.catechism_id);
   const progress = calculateProgress(assignment.current_question, catechism?.totalQuestions);
@@ -352,9 +534,23 @@ const ChildDetailPage = () => {
   const router = useRouter();
   const { childId } = router.query;
   const { user, loading: authLoading } = useAuth();
-  const { child, loading: childLoading, assignCatechism, updateProgress, markCompleted, removeAssignment, refetch } = useChild(childId);
+  const { 
+    child, 
+    loading: childLoading, 
+    guardians,
+    shareInvites,
+    assignCatechism, 
+    updateProgress, 
+    markCompleted, 
+    removeAssignment, 
+    createShareInvite,
+    revokeShareInvite,
+    removeGuardian,
+    refetch 
+  } = useChild(childId);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const supabase = getSupabaseBrowserClient();
 
@@ -469,8 +665,31 @@ const ChildDetailPage = () => {
                   Born: {new Date(child.birth_date).toLocaleDateString()}
                 </p>
               )}
+              {/* Show shared status for non-owners */}
+              {!child.isOwner && (
+                <p className="text-sm text-blue-600 mt-2 flex items-center gap-1.5">
+                  <FontAwesomeIcon icon={faUserFriends} />
+                  Shared with you
+                </p>
+              )}
+              {/* Show guardian count for owners */}
+              {child.isOwner && guardians.length > 1 && (
+                <p className="text-sm text-gray-500 mt-2 flex items-center gap-1.5">
+                  <FontAwesomeIcon icon={faUserFriends} />
+                  Shared with {guardians.length - 1} {guardians.length - 1 === 1 ? 'person' : 'people'}
+                </p>
+              )}
             </div>
             <div className="flex gap-2">
+              {child.isOwner && (
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="p-2 text-blue-500 hover:text-blue-700 rounded-lg hover:bg-blue-50"
+                  title="Share"
+                >
+                  <FontAwesomeIcon icon={faShare} />
+                </button>
+              )}
               <button
                 onClick={() => setShowEditModal(true)}
                 className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100"
@@ -478,14 +697,16 @@ const ChildDetailPage = () => {
               >
                 <FontAwesomeIcon icon={faEdit} />
               </button>
-              <button
-                onClick={handleDeleteChild}
-                disabled={deleting}
-                className="p-2 text-red-500 hover:text-red-700 rounded-lg hover:bg-red-50"
-                title="Delete"
-              >
-                {deleting ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faTrash} />}
-              </button>
+              {child.isOwner && (
+                <button
+                  onClick={handleDeleteChild}
+                  disabled={deleting}
+                  className="p-2 text-red-500 hover:text-red-700 rounded-lg hover:bg-red-50"
+                  title="Delete"
+                >
+                  {deleting ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faTrash} />}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -547,6 +768,20 @@ const ChildDetailPage = () => {
         child={child}
         onUpdate={handleUpdateChild}
       />
+
+      {child?.isOwner && (
+        <ShareChildModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          child={child}
+          guardians={guardians}
+          shareInvites={shareInvites}
+          onCreateInvite={createShareInvite}
+          onRevokeInvite={revokeShareInvite}
+          onRemoveGuardian={removeGuardian}
+          currentUserId={user?.id}
+        />
+      )}
     </div>
   );
 };

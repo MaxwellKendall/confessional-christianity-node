@@ -10,7 +10,8 @@ import {
   faSignOutAlt,
   faBook,
   faArrowRight,
-  faChild
+  faChild,
+  faUserFriends
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useChildren } from '../../hooks/useChildren';
@@ -111,6 +112,7 @@ const AddChildModal = ({ isOpen, onClose, onAdd }) => {
 const ChildCard = ({ child }) => {
   const assignments = child.catechism_assignments || [];
   const activeAssignment = assignments.find(a => !a.completed_at);
+  const isShared = !child.isOwner;
   
   const getAge = (birthDate) => {
     if (!birthDate) return null;
@@ -128,16 +130,19 @@ const ChildCard = ({ child }) => {
 
   return (
     <Link href={`/dashboard/children/${child.id}`}>
-      <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer">
+      <div className={`bg-white border rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer ${isShared ? 'border-blue-200' : 'border-gray-200'}`}>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-              <FontAwesomeIcon icon={faChild} className="text-gray-500 text-xl" />
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isShared ? 'bg-blue-50' : 'bg-gray-100'}`}>
+              <FontAwesomeIcon icon={isShared ? faUserFriends : faChild} className={`text-xl ${isShared ? 'text-blue-500' : 'text-gray-500'}`} />
             </div>
             <div>
               <h3 className="text-lg font-medium">{child.name}</h3>
               {age !== null && (
                 <p className="text-sm text-gray-500">{age} years old</p>
+              )}
+              {isShared && (
+                <p className="text-xs text-blue-600 mt-0.5">Shared with you</p>
               )}
             </div>
           </div>

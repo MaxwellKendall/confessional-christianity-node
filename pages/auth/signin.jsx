@@ -36,6 +36,9 @@ const SignIn = () => {
   const { signIn, signInWithGoogle } = useAuth();
   const router = useRouter();
 
+  // Support redirect after auth (e.g., from invite link)
+  const redirectUrl = router.query.redirect || '/dashboard';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -43,7 +46,7 @@ const SignIn = () => {
 
     try {
       await signIn(email, password);
-      router.push('/dashboard');
+      router.push(redirectUrl);
     } catch (err) {
       setError(err.message || 'Failed to sign in. Please check your credentials.');
     } finally {
@@ -152,7 +155,10 @@ const SignIn = () => {
 
         <p className="text-center mt-8 text-gray-600">
           Don&apos;t have an account?{' '}
-          <Link href="/auth/signup" className="text-gray-800 underline hover:no-underline">
+          <Link 
+            href={redirectUrl !== '/dashboard' ? `/auth/signup?redirect=${encodeURIComponent(redirectUrl)}` : '/auth/signup'} 
+            className="text-gray-800 underline hover:no-underline"
+          >
             Sign up
           </Link>
         </p>
