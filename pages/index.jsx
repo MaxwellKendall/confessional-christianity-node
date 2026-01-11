@@ -2,7 +2,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect, useRef } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import Link from 'next/link';
@@ -394,11 +393,6 @@ const HomePage = ({
   const [pgTitle, query] = usePgTitle(search);
   return (
     <div className="home flex flex-col p-8 w-full mt-8">
-      <Head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
-        <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
-      </Head>
       <SEO subTitle={pgTitle} query={query} />
       
       {/* Auth Navigation */}

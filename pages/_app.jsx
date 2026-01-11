@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 // import App from 'next/app';
 import React from 'react';
+import Head from 'next/head';
 import { config } from '@fortawesome/fontawesome-svg-core';
 // Import the CSS
 import '@fortawesome/fontawesome-svg-core/styles.css';
@@ -12,6 +13,11 @@ config.autoAddCss = false;
 function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
+      <Head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Cinzel+Decorative&family=Marcellus&display=swap" rel="stylesheet" />
+      </Head>
       <Component {...pageProps} />
     </AuthProvider>
   );

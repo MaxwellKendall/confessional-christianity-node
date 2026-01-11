@@ -11,9 +11,7 @@ import {
   faTrash,
   faExternalLinkAlt,
   faCheck,
-  faMinus,
-  faEdit,
-  faTimes
+  faEdit
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../../context/AuthContext';
 import { useChild } from '../../../hooks/useChildren';
@@ -227,24 +225,38 @@ const CatechismAssignmentCard = ({ assignment, onUpdateProgress, onRemove, onMar
   const progress = calculateProgress(assignment.current_question, catechism?.totalQuestions);
   const isCompleted = !!assignment.completed_at;
   const [updating, setUpdating] = useState(false);
+  const [inputValue, setInputValue] = useState(String(assignment.current_question));
 
-  const handleIncrement = async () => {
-    if (assignment.current_question >= catechism?.totalQuestions) return;
+  // Keep input in sync with assignment changes
+  useEffect(() => {
+    setInputValue(String(assignment.current_question));
+  }, [assignment.current_question]);
+
+  const handleQuestionChange = async (newValue) => {
+    const num = parseInt(newValue, 10);
+    if (isNaN(num) || num < 1 || num > catechism?.totalQuestions) return;
+    if (num === assignment.current_question) return;
+    
     setUpdating(true);
     try {
-      await onUpdateProgress(assignment.id, assignment.current_question + 1);
+      await onUpdateProgress(assignment.id, num);
     } finally {
       setUpdating(false);
     }
   };
 
-  const handleDecrement = async () => {
-    if (assignment.current_question <= 1) return;
-    setUpdating(true);
-    try {
-      await onUpdateProgress(assignment.id, assignment.current_question - 1);
-    } finally {
-      setUpdating(false);
+  const handleInputBlur = () => {
+    const num = parseInt(inputValue, 10);
+    if (isNaN(num) || num < 1 || num > catechism?.totalQuestions) {
+      setInputValue(String(assignment.current_question));
+      return;
+    }
+    handleQuestionChange(inputValue);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.target.blur();
     }
   };
 
@@ -286,25 +298,20 @@ const CatechismAssignmentCard = ({ assignment, onUpdateProgress, onRemove, onMar
       {!isCompleted && (
         <div className="mb-4">
           <p className="text-sm text-gray-600 mb-2">Current Question</p>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleDecrement}
-              disabled={updating || assignment.current_question <= 1}
-              className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
-            >
-              <FontAwesomeIcon icon={faMinus} className="text-sm" />
-            </button>
-            <span className="text-2xl font-medium min-w-[60px] text-center">
-              {updating ? <FontAwesomeIcon icon={faSpinner} spin className="text-gray-400" /> : assignment.current_question}
-            </span>
-            <button
-              onClick={handleIncrement}
-              disabled={updating || assignment.current_question >= catechism?.totalQuestions}
-              className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
-            >
-              <FontAwesomeIcon icon={faPlus} className="text-sm" />
-            </button>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              max={catechism?.totalQuestions}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onBlur={handleInputBlur}
+              onKeyDown={handleKeyDown}
+              disabled={updating}
+              className="w-20 h-10 text-center text-xl font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
+            />
             <span className="text-gray-400">of {catechism?.totalQuestions}</span>
+            {updating && <FontAwesomeIcon icon={faSpinner} spin className="text-gray-400 ml-2" />}
           </div>
         </div>
       )}

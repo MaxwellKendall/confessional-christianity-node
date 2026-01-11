@@ -20,7 +20,7 @@ This feature allows users to sign up, register their children, and track their p
 ### 1. Create a Supabase Project
 
 1. Go to [supabase.com](https://supabase.com) and create a new project
-2. Note your project URL and anon key from Settings > API
+2. Note your project URL and publishable key from Settings > API (or the Connect dialog)
 
 ### 2. Set Up Environment Variables
 
@@ -35,7 +35,7 @@ Add your Supabase credentials:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 ```
 
 ### 3. Set Up the Database
