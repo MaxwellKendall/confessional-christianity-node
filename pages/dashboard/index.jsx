@@ -9,11 +9,13 @@ import {
   faBook,
   faArrowRight,
   faChild,
-  faUserFriends
+  faUserFriends,
+  faUser
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useChildren } from '../../hooks/useChildren';
-import { getCatechismById, calculateProgress } from '../../lib/catechisms';
+import { useMyProgress } from '../../hooks/useMyProgress';
+import { getCatechismById, getDocumentById, calculateProgress } from '../../lib/catechisms';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { track, EVENTS } from '../../lib/analytics';
@@ -152,6 +154,64 @@ const ScriptureVerse = () => {
   );
 };
 
+const MyProgressCard = ({ assignments }) => {
+  const activeAssignment = assignments.find(a => !a.completed_at);
+  const completedCount = assignments.filter(a => a.completed_at).length;
+  const activeDocument = activeAssignment ? getDocumentById(activeAssignment.catechism_id) : null;
+
+  return (
+    <Link href="/dashboard/me">
+      <div className="bg-white border border-amber-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-amber-50">
+              <FontAwesomeIcon icon={faUser} className="text-xl text-amber-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">My Progress</h3>
+              <p className="text-sm text-gray-500">Confessions &amp; catechisms</p>
+            </div>
+          </div>
+          <FontAwesomeIcon icon={faArrowRight} className="text-gray-400" />
+        </div>
+
+        {activeAssignment && activeDocument ? (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+              <FontAwesomeIcon icon={faBook} className="text-amber-500" />
+              <span>{activeDocument.name}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 bg-gray-100 rounded-full h-2">
+                <div 
+                  className="bg-amber-500 h-2 rounded-full transition-all"
+                  style={{ 
+                    width: `${calculateProgress(
+                      activeAssignment.current_question, 
+                      activeDocument.totalItems
+                    )}%` 
+                  }}
+                />
+              </div>
+              <span className="text-sm text-gray-500">
+                {activeDocument.itemLabel} {activeAssignment.current_question}
+              </span>
+            </div>
+          </div>
+        ) : assignments.length > 0 ? (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <p className="text-sm text-green-600">{completedCount} confession{completedCount !== 1 ? 's' : ''} completed!</p>
+          </div>
+        ) : (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <p className="text-sm text-gray-400">Start your confession journey</p>
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+};
+
 const ChildCard = ({ child }) => {
   const assignments = child.catechism_assignments || [];
   const activeAssignment = assignments.find(a => !a.completed_at);
@@ -228,6 +288,7 @@ const ChildCard = ({ child }) => {
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const { children, loading: childrenLoading, addChild } = useChildren();
+  const { assignments: myAssignments, loading: myProgressLoading } = useMyProgress();
   const [showAddModal, setShowAddModal] = useState(false);
   const router = useRouter();
 
@@ -239,14 +300,15 @@ const Dashboard = () => {
 
   // Track dashboard view when children load
   useEffect(() => {
-    if (!childrenLoading && user) {
+    if (!childrenLoading && !myProgressLoading && user) {
       track(EVENTS.DASHBOARD_VIEWED, {
         child_count: children.length,
         owned_count: children.filter(c => c.isOwner).length,
         shared_count: children.filter(c => !c.isOwner).length,
+        my_assignment_count: myAssignments.length,
       });
     }
-  }, [childrenLoading, user, children.length]);
+  }, [childrenLoading, myProgressLoading, user, children.length, myAssignments.length]);
 
   const handleOpenAddModal = () => {
     track(EVENTS.ADD_CHILD_MODAL_OPENED);
@@ -274,6 +336,21 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-8">
+        {/* My Progress Section */}
+        <div className="mb-10">
+          <h2 className="text-2xl mb-4">My Progress</h2>
+          {myProgressLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <FontAwesomeIcon icon={faSpinner} spin className="text-2xl text-gray-400" />
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <MyProgressCard assignments={myAssignments} />
+            </div>
+          )}
+        </div>
+
+        {/* Children Section */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl">Your Children</h2>
           <button
