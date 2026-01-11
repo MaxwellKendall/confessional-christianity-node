@@ -184,7 +184,7 @@ const MyProgressCard = ({ assignments }) => {
             <div className="flex items-center gap-3">
               <div className="flex-1 bg-gray-100 rounded-full h-2">
                 <div 
-                  className="bg-amber-500 h-2 rounded-full transition-all"
+                  className="bg-green-500 h-2 rounded-full transition-all"
                   style={{ 
                     width: `${calculateProgress(
                       activeAssignment.current_question, 

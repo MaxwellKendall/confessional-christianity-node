@@ -261,7 +261,7 @@ const ConfessionAssignmentCard = ({ assignment, onUpdateProgress, onRemove, onMa
         </div>
         <div className="bg-gray-100 rounded-full h-3">
           <div 
-            className={`h-3 rounded-full transition-all ${isCompleted ? 'bg-green-500' : 'bg-amber-500'}`}
+            className={`h-3 rounded-full transition-all bg-green-500`}
             style={{ width: `${progress}%` }}
           />
         </div>
