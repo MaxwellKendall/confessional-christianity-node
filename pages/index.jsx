@@ -12,27 +12,22 @@ import {
 } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faMinus, faPlus, faSpinner, faTimes,
+  faSpinner, faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
   DOCUMENTS_WITHOUT_ARTICLES,
 } from '../dataMapping';
 
-import ConfessionTextResult from '../components/ConfessionTextResult';
-import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import BibleTextResult from '../components/BibleTextResult';
+import DocumentResultGroup from '../components/DocumentResultGroup';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import contentById from '../dataMapping/content-by-id.json';
 
 import {
-  handleSortById,
   parseFacets,
-  isChapter,
-  groupContentByChapter,
-  getConciseDocId,
   regexV2,
   keyWords,
   usePgTitle,
@@ -40,7 +35,6 @@ import {
   isFacetLength,
   bibleRegex,
 } from '../helpers';
-
 import { getConfessionalAbbreviationId } from '../scripts/helpers';
 import { track, EVENTS } from '../lib/analytics';
 
@@ -300,7 +294,6 @@ const HomePage = ({
         }
 
         const documentId = getConfessionalAbbreviationId(documentTitle);
-        const groupedByChapter = groupContentByChapter(results);
         const showArticleNav = (
           // wcf.1.2
           (regexV2.test(searchTerm) && isFacetLength(searchTerm, 3))
@@ -316,75 +309,19 @@ const HomePage = ({
 
         );
         return acc.concat([
-          <li>
-            <h2 className="text-3xl lg:text-4xl w-full mb-24 flex flex-wrap text-center">
-              <Link
-                href={{ pathname: '/', query: { search: getConciseDocId(documentTitle) } }}
-              >
-                {documentTitle}
-              </Link>
-              <span className="text-xl lg:text-lg my-auto mx-auto 2xl:mt-0 2xl:ml-auto 2xl:mr-0">
-                {`${results.length} ${results.length === 1 ? 'MATCH' : 'MATCHES'}`}
-                <FontAwesomeIcon
-                  className="ml-5 my-auto text-xl lg:text-lg cursor-pointer"
-                  icon={isExpanded ? faMinus : faPlus}
-                  onClick={() => handleExpand(documentId)}
-                />
-              </span>
-            </h2>
-            {isExpanded && (
-              <ul className="relative mx-4">
-                {Object
-                  .keys(groupedByChapter)
-                  .sort((a, b) => handleSortById({ id: a }, { id: b }))
-                  .filter((key) => key.includes(documentId))
-                  .map((chapterId) => {
-                    const isResultChapter = isChapter(chapterId, contentById);
-                    // No chapter results displayed.
-                    if (isResultChapter) {
-                      return (
-                        <ConfessionChapterResult
-                          docTitle={documentTitle}
-                          docId={getConciseDocId(documentTitle)}
-                          chapterId={chapterId.split('-')[1]}
-                          showNav={showChapterNav}
-                          title={contentById[chapterId].title}
-                          searchTerms={searchTerm.split(' ')}
-                          collapsedChapters={collapsed}
-                          setCollapsed={setCollapsed}
-                          data={groupedByChapter[chapterId]
-                            .filter((obj) => !obj.isParent)
-                            .map((obj) => ({
-                              ...obj,
-                              showNav: showArticleNav,
-                              searchTerms: getSearchTerms(obj, searchTerm),
-                              hideChapterTitle: true,
-                              hideDocumentTitle: true,
-                              setCollapsed,
-                            }))
-                            .sort(handleSortById)}
-                          contentById={contentById}
-                        />
-                      );
-                    }
-                    return groupedByChapter[chapterId]
-                      .map((obj) => (
-                        <ConfessionTextResult
-                          {...obj}
-                          chapterId={chapterId.split('-')[1]}
-                          docTitle={documentTitle}
-                          docId={getConciseDocId(documentTitle)}
-                          linkToChapter
-                          showNav={showArticleNav}
-                          searchTerms={getSearchTerms(obj, searchTerm)}
-                          contentById={contentById}
-                          hideDocumentTitle
-                        />
-                      ));
-                  })}
-              </ul>
-            )}
-          </li>,
+          <DocumentResultGroup
+            documentTitle={documentTitle}
+            results={results}
+            contentById={contentById}
+            showArticleNav={showArticleNav}
+            showChapterNav={showChapterNav}
+            searchTerms={searchTerm.split(' ')}
+            getResultSearchTerms={(obj) => getSearchTerms(obj, searchTerm)}
+            collapsed={collapsed}
+            setCollapsed={setCollapsed}
+            isExpanded={isExpanded}
+            onToggleExpand={() => handleExpand(documentId)}
+          />,
         ]);
       }, []);
     return (
