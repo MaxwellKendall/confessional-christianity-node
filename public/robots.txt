@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://confessionalchristianity.com/sitemap.xml
