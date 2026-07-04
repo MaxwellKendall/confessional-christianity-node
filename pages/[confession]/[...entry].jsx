@@ -7,7 +7,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { confessionPathByName, confessionCitationByIndex } from '../../dataMapping';
 import { loadConfessionContent } from '../../lib/confessionContent';
-import { entryIdToPathSegments, truncateForMeta } from '../../helpers';
+import { compareEntryIds, entryIdToPathSegments, truncateForMeta } from '../../helpers';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import DocumentResultGroup from '../../components/DocumentResultGroup';
@@ -46,6 +46,22 @@ export const getStaticProps = async (context) => {
   // the same string DocumentResultGroup/Algolia results key off of.
   const documentTitle = confessionCitationByIndex[documentId.toUpperCase()][0];
 
+  // A real, crawlable link to the adjacent entry in document order - not
+  // just the search-query-string nav ConfessionTextResult renders - so
+  // crawlers (and readers) have an actual path between every entry page.
+  const leafIds = Object
+    .values(contentById)
+    .filter((v) => !v.isParent)
+    .map((v) => v.id)
+    .sort(compareEntryIds);
+  const currentIndex = leafIds.indexOf(id);
+  const prevId = currentIndex > 0 ? leafIds[currentIndex - 1] : null;
+  const nextId = currentIndex < leafIds.length - 1 ? leafIds[currentIndex + 1] : null;
+  const toEntryLink = (entryId) => ({
+    href: `/${slug}/${entryIdToPathSegments(entryId, documentId).join('/')}`,
+    title: contentById[entryId].title,
+  });
+
   return {
     props: {
       slug,
@@ -55,6 +71,8 @@ export const getStaticProps = async (context) => {
       item,
       canonicalUrl: `${SITE_URL}/${slug}/${entry.join('/')}`,
       description: truncateForMeta(item.text),
+      prevEntry: prevId ? toEntryLink(prevId) : null,
+      nextEntry: nextId ? toEntryLink(nextId) : null,
     },
   };
 };
@@ -67,6 +85,8 @@ const ConfessionEntry = ({
   item,
   canonicalUrl,
   description,
+  prevEntry,
+  nextEntry,
 }) => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -148,6 +168,24 @@ const ConfessionEntry = ({
             onToggleExpand={() => setIsExpanded(!isExpanded)}
           />
         </ul>
+        {(prevEntry || nextEntry) && (
+          <nav className="flex justify-between w-full lg:w-1/2 mx-auto mb-24">
+            {prevEntry ? (
+              <Link href={prevEntry.href}>
+                <span className="cursor-pointer text-sm">
+                  {`← ${prevEntry.title}`}
+                </span>
+              </Link>
+            ) : <span />}
+            {nextEntry ? (
+              <Link href={nextEntry.href}>
+                <span className="cursor-pointer text-sm">
+                  {`${nextEntry.title} →`}
+                </span>
+              </Link>
+            ) : <span />}
+          </nav>
+        )}
         <Footer />
       </div>
     </div>
