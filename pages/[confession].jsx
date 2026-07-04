@@ -2,21 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { capitalize } from 'lodash';
 
 import { confessionPathByName, confessionIdsWithoutTitles } from '../dataMapping';
-import { isChapter } from '../helpers';
+import { isChapter, truncateForMeta } from '../helpers';
 import { loadConfessionContent } from '../lib/confessionContent';
 import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import ConfessionTextResult from '../components/ConfessionTextResult';
 import Header from '../components/Header';
+import SEO, { SITE_URL } from '../components/SEO';
 import { track, EVENTS } from '../lib/analytics';
 
 export const getStaticProps = async (context) => {
   const { contentById, documentId } = await loadConfessionContent(context.params.confession);
+  const title = capitalize(context.params.confession.split('-').join(' '));
+  const firstEntry = Object.values(contentById).find((v) => !v.isParent);
 
   return {
     props: {
       contentById,
-      title: capitalize(context.params.confession.split('-').join(' ')),
+      title,
       documentId,
+      description: firstEntry ? truncateForMeta(firstEntry.text) : null,
+      canonicalUrl: `${SITE_URL}/${context.params.confession}`,
     },
   };
 };
@@ -33,6 +38,8 @@ const Confession = ({
   title,
   contentById,
   documentId,
+  description,
+  canonicalUrl,
 }) => {
   const [collapsed, setCollapsed] = useState({});
 
@@ -103,6 +110,7 @@ const Confession = ({
 
   return (
     <div className="home flex flex-col w-full">
+      <SEO title={`${title} | Confessional Christianity`} description={description} canonicalUrl={canonicalUrl} />
       <Header />
       <div className="p-8 my-12">
         <h2 className="text-3xl lg:text-4xl my-12 flex flex-wrap justify-center w-full lg:w-1/2 mx-auto">{title}</h2>
