@@ -12,7 +12,6 @@ import {
   truncateForMeta,
 } from '../../helpers';
 import Header from '../../components/Header';
-import Footer from '../../components/Footer';
 import ConfessionTextResult from '../../components/ConfessionTextResult';
 import SEO, { SITE_URL } from '../../components/SEO';
 import { track, EVENTS } from '../../lib/analytics';
@@ -104,15 +103,15 @@ const ConfessionEntry = ({
       />
       <Header />
       <div className="p-8 my-12">
-        <Link href={`/${slug}`}>
-          <span className="cursor-pointer block text-center uppercase tracking-widest text-sm mb-12">
-            {documentTitle}
-          </span>
-        </Link>
+        <h2 className="text-3xl lg:text-4xl my-12 flex flex-wrap justify-center w-full lg:w-1/2 mx-auto">
+          <Link href={`/${slug}`}>
+            <span className="cursor-pointer">{documentTitle}</span>
+          </Link>
+        </h2>
         {parentTitle && (
-          <h3 className="text-3xl lg:text-4xl w-full text-center mb-12">{parentTitle}</h3>
+          <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{parentTitle}</h3>
         )}
-        <ul className="results w-full lg:w-1/2 mx-auto">
+        <ul className="results w-full lg:w-1/2 mx-auto relative">
           <ConfessionTextResult
             {...item}
             docId={documentId}
@@ -122,28 +121,21 @@ const ConfessionEntry = ({
             showNav={false}
             hideChapterTitle
           />
+          {prevHref && (
+            <li className="absolute top-2 right-full">
+              <Link scroll={false} className="text-md p-4" href={prevHref}>
+                <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} />
+              </Link>
+            </li>
+          )}
+          {nextHref && (
+            <li className="absolute top-2 left-full">
+              <Link scroll={false} className="text-md p-4" href={nextHref}>
+                <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} />
+              </Link>
+            </li>
+          )}
         </ul>
-        {(prevHref || nextHref) && (
-          <nav className="flex justify-between w-full lg:w-1/2 mx-auto mt-12">
-            {prevHref ? (
-              <Link href={prevHref}>
-                <span className="cursor-pointer">
-                  <FontAwesomeIcon icon={faChevronLeft} className="mr-2" />
-                  Previous
-                </span>
-              </Link>
-            ) : <span />}
-            {nextHref ? (
-              <Link href={nextHref}>
-                <span className="cursor-pointer">
-                  Next
-                  <FontAwesomeIcon icon={faChevronRight} className="ml-2" />
-                </span>
-              </Link>
-            ) : <span />}
-          </nav>
-        )}
-        <Footer />
       </div>
     </div>
   );
