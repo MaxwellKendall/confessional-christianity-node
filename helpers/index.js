@@ -186,6 +186,10 @@ export const regexV2 = /(catechism\sfor\syoung\schildren|cfyc|wcf|Westminster\sC
 export const keyWords = /(westminster\sstandards|three\sforms\sof\sunity|3\sforms\sof\sunity|six\sforms\sof\sunity|6\sforms\sof\sunity)/ig;
 export const bibleRegex = /(genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\ssamuel|2\ssamuel|1\skings|2\skings|1\schronicles|2\schronicles|ezra|nehemiah|esther|job|psalms|psalm|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|testament|matthew|mark|luke|john|acts|romans|1\scorinthians|2\scorinthians|galatians|ephesians|philippians|colossians|1\sthessalonians|2\sthessalonians|1\stimothy|2\stimothy|titus|philemon|hebrews|james|1\speter|2\speter|1\sjohn|2\sjohn|3\sjohn|jude|revelation)|(\1\s[0-9]{1,}:[0-9]{1,}$|\1\s[0-9]{1,}$)|(\1\s[0-9]{1,}:[0-9]{1,}-[0-9]{1,})/ig;
 const documentPrefix = /question\s[0-9]{1,}:\s|chapter\s[0-9]{1,}:\s|article\s[0-9]{1,}:\s|rejection\s[0-9]{1,}:\s/ig;
+const regexTest = (regex, value = '') => {
+  regex.lastIndex = 0;
+  return regex.test(value);
+};
 
 export const isEmptyKeywordSearch = (search) => search.replace(regexV2, '') === '';
 
@@ -195,7 +199,7 @@ export const parseFacets = (str) => {
   const doc = (result && result.length && result[0]) || null;
   const chap = (result && result.length > 1 && result[1]) || null;
   const art = (result && result.length > 2 && result[2]) || null;
-  if (keyWords.test(str)) {
+  if (regexTest(keyWords, str)) {
     const [doc] = str.match(keyWords);
     if (doc.toLowerCase().startsWith('west')) {
       return [
@@ -349,9 +353,9 @@ const getSubTitleFromConfession = (query, docId, chapterId, articleId) => {
 };
 
 export const usePgTitle = (search) => {
-  let queryWithoutFacetFilters = (search && `${search.replace(regexV2, '').replace(keyWords, '')}`).replace(bibleRegex, '') || null;
-  queryWithoutFacetFilters = queryWithoutFacetFilters ? `search results for "${startCase(queryWithoutFacetFilters)}"` : queryWithoutFacetFilters;
   if (!search) return ['Search the Confessions of Historic Protestantism', 'By Keyword, Scripture Text, or Citation'];
+  let queryWithoutFacetFilters = `${search.replace(regexV2, '').replace(keyWords, '').replace(bibleRegex, '')}` || null;
+  queryWithoutFacetFilters = queryWithoutFacetFilters ? `search results for "${startCase(queryWithoutFacetFilters)}"` : queryWithoutFacetFilters;
   const result = search.match(regexV2);
   const doc = (result && result.length && getCanonicalDocId(result[0])) || null;
   const chap = (result && result.length > 1 && `${facetNamesByCanonicalDocId[doc][0]} ${removeDot(result[1])}`) || null;
@@ -376,12 +380,12 @@ export const usePgTitle = (search) => {
   if (doc) {
     return [`${confessionCitationByIndex[doc][0]}`, queryWithoutFacetFilters];
   }
-  if (keyWords.test(search)) {
+  if (regexTest(keyWords, search)) {
     return [`The ${startCase(search.match(keyWords)[0].toLowerCase())}`, queryWithoutFacetFilters];
   }
-  if (bibleRegex.test(search)) {
+  if (regexTest(bibleRegex, search)) {
     return [
-      search.match(bibleRegex).map((s) => capitalize(s)).join(' '),
+      search.match(bibleRegex).map((s) => capitalize(s)).join(' ').replace(/\s+/g, ' ').trim(),
       queryWithoutFacetFilters,
     ];
   }
