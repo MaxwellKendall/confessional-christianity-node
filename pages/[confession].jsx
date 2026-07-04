@@ -1,41 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { capitalize } from 'lodash';
-import path from 'path';
-import { promises } from 'fs';
 
 import { confessionPathByName, confessionIdsWithoutTitles } from '../dataMapping';
 import { isChapter } from '../helpers';
+import { loadConfessionContent } from '../lib/confessionContent';
 import ConfessionChapterResult from '../components/ConfessionChapterResult';
 import ConfessionTextResult from '../components/ConfessionTextResult';
 import Header from '../components/Header';
 import { track, EVENTS } from '../lib/analytics';
 
 export const getStaticProps = async (context) => {
-  const contentById = await Object
-    .entries(confessionPathByName)
-    .filter(([key]) => key === context.params.confession)
-    .reduce((prevPromise, [, value]) => prevPromise.then(async (acc) => {
-      const pathToConfession = path.join(process.cwd(), value);
-      const fileContents = await promises.readFile(pathToConfession, 'utf8');
-      const parsed = JSON.parse(fileContents);
-      const asObject = parsed.content
-        .reduce((asObj, obj) => ({
-          ...asObj,
-          [obj.id]: obj,
-        }), {});
-      return Promise.resolve({
-        ...acc,
-        ...asObject,
-      });
-    }), Promise.resolve({}));
+  const { contentById, documentId } = await loadConfessionContent(context.params.confession);
 
   return {
     props: {
       contentById,
       title: capitalize(context.params.confession.split('-').join(' ')),
-      documentId: Object
-        .entries(contentById)
-        .find(([k, v]) => v.parent.split('-').length === 1)[1].parent,
+      documentId,
     },
   };
 };
