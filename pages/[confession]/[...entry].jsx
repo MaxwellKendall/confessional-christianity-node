@@ -1,12 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { capitalize } from 'lodash';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import { confessionPathByName } from '../../dataMapping';
+import { confessionPathByName, confessionCitationByIndex } from '../../dataMapping';
 import { loadConfessionContent } from '../../lib/confessionContent';
 import { entryIdToPathSegments, truncateForMeta } from '../../helpers';
 import Header from '../../components/Header';
-import ConfessionTextResult from '../../components/ConfessionTextResult';
+import Footer from '../../components/Footer';
+import DocumentResultGroup from '../../components/DocumentResultGroup';
 import SEO, { SITE_URL } from '../../components/SEO';
 import { track, EVENTS } from '../../lib/analytics';
 
@@ -37,26 +41,18 @@ export const getStaticProps = async (context) => {
 
   if (!item) return { notFound: true };
 
-  const documentTitle = capitalize(slug.split('-').join(' '));
-  const parentEntry = contentById[item.parent];
-
-  // ConfessionTextResult's own prev/next nav only ever looks up
-  // `${documentId}-${secondFragment +/- 1}` (see getNextConfessionId), so
-  // only ship those two lookup keys instead of the whole document's content.
-  const [, chapterOrNumber] = id.split('-');
-  const neighborContentById = [1, -1].reduce((acc, offset) => {
-    const neighborId = `${documentId}-${Number(chapterOrNumber) + offset}`;
-    return contentById[neighborId] ? { ...acc, [neighborId]: true } : acc;
-  }, {});
+  const slugTitle = capitalize(slug.split('-').join(' '));
+  // full canonical title (e.g. "Westminster Shorter Catechism") - matches
+  // the same string DocumentResultGroup/Algolia results key off of.
+  const documentTitle = confessionCitationByIndex[documentId.toUpperCase()][0];
 
   return {
     props: {
       slug,
-      documentId,
+      slugTitle,
       documentTitle,
-      contentById: neighborContentById,
+      contentById,
       item,
-      parentTitle: parentEntry ? parentEntry.title : null,
       canonicalUrl: `${SITE_URL}/${slug}/${entry.join('/')}`,
       description: truncateForMeta(item.text),
     },
@@ -65,53 +61,94 @@ export const getStaticProps = async (context) => {
 
 const ConfessionEntry = ({
   slug,
-  documentId,
+  slugTitle,
   documentTitle,
   contentById,
   item,
-  parentTitle,
   canonicalUrl,
   description,
 }) => {
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [collapsed, setCollapsed] = useState({});
+  const [isExpanded, setIsExpanded] = useState(true);
+
   useEffect(() => {
     track(EVENTS.CONFESSION_VIEWED, {
-      confession_id: documentId,
-      confession_title: documentTitle,
+      confession_id: documentTitle,
+      confession_title: slugTitle,
       entry_id: item.id,
       entry_title: item.title,
     });
-  }, [documentId, documentTitle, item.id, item.title]);
+  }, [documentTitle, slugTitle, item.id, item.title]);
+
+  const submitSearch = () => {
+    track(EVENTS.SEARCH_PERFORMED, {
+      search_term: searchTerm,
+      term_length: searchTerm?.length || 0,
+    });
+    router.push({ pathname: '/', query: { search: searchTerm } });
+  };
+
+  const handleKeyDown = (e) => {
+    e.persist();
+    if (e.keyCode === 13) submitSearch();
+  };
+
+  const handleSearchInput = (e) => {
+    e.persist();
+    setSearchTerm(e.target.value);
+  };
+
+  const handleClearSearch = (e) => {
+    e.preventDefault();
+    setSearchTerm('');
+  };
 
   return (
     <div className="home flex flex-col w-full">
       <SEO
-        title={`${item.title} | ${documentTitle}`}
+        title={`${item.title} | ${slugTitle}`}
         description={description}
         canonicalUrl={canonicalUrl}
         subTitle={item.title}
-        query={documentTitle}
+        query={slugTitle}
       />
       <Header />
-      <div className="p-8 my-12">
-        <h2 className="text-3xl lg:text-4xl my-12 flex flex-wrap justify-center w-full lg:w-1/2 mx-auto">
-          <Link href={`/${slug}`}>
-            <span className="cursor-pointer">{documentTitle}</span>
-          </Link>
-        </h2>
-        {parentTitle && (
-          <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{parentTitle}</h3>
-        )}
+      <div className="p-8">
+        <Link href={{ pathname: '/', query: { search: '' } }}>
+          <h1 className="cursor-pointer text-center text-4xl lg:text-5xl mx-auto max-w-2xl">
+            Confessional Christianity
+          </h1>
+        </Link>
+        <div className="w-full lg:w-1/2 mt-24 mx-auto sticky top-0 pt-10 pb-5 z-10 bg-white">
+          <input
+            type="text"
+            className="home-pg-search border border-gray-500 rounded-full leading-10 outline-none w-full pl-12 pr-12 py-2 relative"
+            value={searchTerm}
+            onChange={handleSearchInput}
+            onKeyDown={handleKeyDown}
+          />
+          <button className="absolute home-pg-search-btn" onClick={submitSearch} type="submit" tabIndex={-1} />
+          <FontAwesomeIcon icon={faTimes} onClick={handleClearSearch} className="home-pg-clear-search absolute" tabIndex={-1} />
+        </div>
+        <span className="block w-full text-center mb-24">
+          SHOWING 1 of 1 TOTAL MATCHES
+        </span>
         <ul className="results w-full lg:w-1/2 mx-auto">
-          <ConfessionTextResult
-            {...item}
-            docId={documentId}
-            docTitle={documentTitle}
+          <DocumentResultGroup
+            documentTitle={documentTitle}
+            results={[item]}
             contentById={contentById}
-            searchTerms={[]}
-            showNav
-            hideChapterTitle
+            showArticleNav
+            showChapterNav
+            collapsed={collapsed}
+            setCollapsed={setCollapsed}
+            isExpanded={isExpanded}
+            onToggleExpand={() => setIsExpanded(!isExpanded)}
           />
         </ul>
+        <Footer />
       </div>
     </div>
   );
