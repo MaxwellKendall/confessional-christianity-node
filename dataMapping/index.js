@@ -31,6 +31,20 @@ export const confessionPathByName = {
   'martin-luthers-95-theses': 'normalized-data/reformation/95-theses.json',
 };
 
+// maps each document's true canonical id (as it appears as the id prefix in
+// contentById, e.g. "WCoF-1-2") to the URL slug used for its per-entry pages.
+// Keep in sync with confessionPathByName above.
+export const slugByDocumentId = {
+  WCoF: 'westminster-confession-of-faith',
+  WLC: 'westminster-larger-catechism',
+  WSC: 'westminster-shorter-catechism',
+  HC: 'heidelberg-catechism',
+  CoD: 'canons-of-dort',
+  TBCoF: 'the-belgic-confession-of-faith',
+  TAoR: 'thirty-nine-articles-of-religion',
+  ML9t: 'martin-luthers-95-theses',
+};
+
 // canonical docIds in algolia 🤦
 export const parentIdByAbbreviation = {
   WCF: 'WCoF',

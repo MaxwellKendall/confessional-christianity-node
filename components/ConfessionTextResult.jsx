@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 import { parseOsisBibleReference, getConfessionalAbbreviationId } from '../scripts/helpers';
 import { confessionIdsWithoutTitles } from '../dataMapping';
-import { generateLink, regexV2 } from '../helpers';
+import { generateLink, generateNavLink, regexV2 } from '../helpers';
 
 const baseUrl = 'https://api.esv.org/v3/passage/text';
 const getQueryParams = (bibleText) => queryString.stringify({
@@ -196,8 +196,8 @@ const ConfessionTextResult = ({
             }
           }}
           href={obj.direction > 0
-            ? generateLink(nextConfessionId)
-            : generateLink(prevConfessionId)}
+            ? generateNavLink(nextConfessionId, contentById)
+            : generateNavLink(prevConfessionId, contentById)}
         >
           {/* className={`relative ${obj.direction > 0 ? 'left-full' : 'right-full'}`}> */}
           {obj.direction > 0

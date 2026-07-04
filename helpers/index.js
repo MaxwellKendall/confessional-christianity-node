@@ -5,6 +5,7 @@ import {
   excludedWordsInDocumentId,
   parentIdByAbbreviation,
   facetNamesByCanonicalDocId,
+  slugByDocumentId,
 } from '../dataMapping';
 import contentById from '../dataMapping/content-by-id.json';
 import { toOsis } from '../scripts/helpers';
@@ -65,6 +66,31 @@ export const generateLink = (confessionId) => {
       search: `${docId}.${chapterOrQuestion}.${article}`,
     },
   };
+};
+
+// resolves a confession id (e.g. "WCoF-1-2") to its canonical per-entry page
+// URL, e.g. "/westminster-confession-of-faith/1/2". Returns null when no
+// per-entry page exists for the id's document (id is malformed or belongs to
+// a document without per-entry pages, e.g. CfYC).
+export const generateCanonicalEntryLink = (confessionId) => {
+  const [id, ...rest] = confessionId.split('-');
+  const trueDocId = parentIdByAbbreviation[getCanonicalDocId(id)];
+  const slug = trueDocId && slugByDocumentId[trueDocId];
+  if (!slug || rest.length === 0) return null;
+  return `/${slug}/${rest.join('/')}`;
+};
+
+// prefers the canonical per-entry URL over generateLink's query-string
+// search link when the target id is a real leaf entry with its own static
+// page - this avoids a redundant client-side Algolia search just to move to
+// the contiguous next/previous entry, since the canonical page needs none.
+export const generateNavLink = (confessionId, contentById) => {
+  const target = contentById[confessionId];
+  if (target && !target.isParent) {
+    const canonicalHref = generateCanonicalEntryLink(confessionId);
+    if (canonicalHref) return canonicalHref;
+  }
+  return generateLink(confessionId);
 };
 
 /**
