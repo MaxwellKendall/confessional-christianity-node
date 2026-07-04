@@ -403,27 +403,6 @@ export const truncateForMeta = (text = '', maxLength = 160) => {
   return `${truncated.slice(0, lastSpace > 0 ? lastSpace : maxLength)}…`;
 };
 
-// compares two entry ids (e.g. "WCoF-1-2", "CoD-1-articles-3") in document order,
-// comparing each dash-separated fragment numerically where possible
-export const compareEntryIds = (aId, bId) => {
-  const a = aId.split('-').slice(1);
-  const b = bId.split('-').slice(1);
-  const len = Math.max(a.length, b.length);
-  for (let i = 0; i < len; i += 1) {
-    const [av, bv] = [a[i], b[i]];
-    if (av === undefined) return -1;
-    if (bv === undefined) return 1;
-    const [aNum, bNum] = [Number(av), Number(bv)];
-    const [aIsNum, bIsNum] = [!Number.isNaN(aNum), !Number.isNaN(bNum)];
-    if (aIsNum && bIsNum) {
-      if (aNum !== bNum) return aNum - bNum;
-    } else if (av !== bv) {
-      return av < bv ? -1 : 1;
-    }
-  }
-  return 0;
-};
-
 // strips the leading "<documentId>-" prefix off an entry id and splits the
 // remainder into URL path segments, e.g. entryIdToPathSegments('CoD-1-articles-1', 'CoD') -> ['1', 'articles', '1']
 export const entryIdToPathSegments = (id, documentId) => id.slice(documentId.length + 1).split('-');

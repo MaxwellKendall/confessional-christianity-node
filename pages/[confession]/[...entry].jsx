@@ -1,16 +1,10 @@
 import React, { useEffect } from 'react';
 import { capitalize } from 'lodash';
 import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 import { confessionPathByName } from '../../dataMapping';
 import { loadConfessionContent } from '../../lib/confessionContent';
-import {
-  compareEntryIds,
-  entryIdToPathSegments,
-  truncateForMeta,
-} from '../../helpers';
+import { entryIdToPathSegments, truncateForMeta } from '../../helpers';
 import Header from '../../components/Header';
 import ConfessionTextResult from '../../components/ConfessionTextResult';
 import SEO, { SITE_URL } from '../../components/SEO';
@@ -46,28 +40,25 @@ export const getStaticProps = async (context) => {
   const documentTitle = capitalize(slug.split('-').join(' '));
   const parentEntry = contentById[item.parent];
 
-  const leafIds = Object
-    .values(contentById)
-    .filter((v) => !v.isParent)
-    .map((v) => v.id)
-    .sort(compareEntryIds);
-  const currentIndex = leafIds.indexOf(id);
-  const prevId = currentIndex > 0 ? leafIds[currentIndex - 1] : null;
-  const nextId = currentIndex < leafIds.length - 1 ? leafIds[currentIndex + 1] : null;
-
-  const toHref = (entryId) => `/${slug}/${entryIdToPathSegments(entryId, documentId).join('/')}`;
+  // ConfessionTextResult's own prev/next nav only ever looks up
+  // `${documentId}-${secondFragment +/- 1}` (see getNextConfessionId), so
+  // only ship those two lookup keys instead of the whole document's content.
+  const [, chapterOrNumber] = id.split('-');
+  const neighborContentById = [1, -1].reduce((acc, offset) => {
+    const neighborId = `${documentId}-${Number(chapterOrNumber) + offset}`;
+    return contentById[neighborId] ? { ...acc, [neighborId]: true } : acc;
+  }, {});
 
   return {
     props: {
       slug,
       documentId,
       documentTitle,
+      contentById: neighborContentById,
       item,
       parentTitle: parentEntry ? parentEntry.title : null,
       canonicalUrl: `${SITE_URL}/${slug}/${entry.join('/')}`,
       description: truncateForMeta(item.text),
-      prevHref: prevId ? toHref(prevId) : null,
-      nextHref: nextId ? toHref(nextId) : null,
     },
   };
 };
@@ -76,12 +67,11 @@ const ConfessionEntry = ({
   slug,
   documentId,
   documentTitle,
+  contentById,
   item,
   parentTitle,
   canonicalUrl,
   description,
-  prevHref,
-  nextHref,
 }) => {
   useEffect(() => {
     track(EVENTS.CONFESSION_VIEWED, {
@@ -111,30 +101,16 @@ const ConfessionEntry = ({
         {parentTitle && (
           <h3 className="text-3xl lg:text-4xl w-full text-center mb-24">{parentTitle}</h3>
         )}
-        <ul className="results w-full lg:w-1/2 mx-auto relative">
+        <ul className="results w-full lg:w-1/2 mx-auto">
           <ConfessionTextResult
             {...item}
             docId={documentId}
             docTitle={documentTitle}
-            contentById={{}}
+            contentById={contentById}
             searchTerms={[]}
-            showNav={false}
+            showNav
             hideChapterTitle
           />
-          {prevHref && (
-            <li className="absolute top-2 right-full">
-              <Link scroll={false} className="text-md p-4" href={prevHref}>
-                <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} />
-              </Link>
-            </li>
-          )}
-          {nextHref && (
-            <li className="absolute top-2 left-full">
-              <Link scroll={false} className="text-md p-4" href={nextHref}>
-                <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} />
-              </Link>
-            </li>
-          )}
         </ul>
       </div>
     </div>
