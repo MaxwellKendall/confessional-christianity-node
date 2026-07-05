@@ -7,9 +7,11 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { confessionPathByName, confessionCitationByIndex } from '../../dataMapping';
 import { loadConfessionContent } from '../../lib/confessionContent';
+import { loadCommentary } from '../../lib/commentary';
 import { compareEntryIds, entryIdToPathSegments, truncateForMeta } from '../../helpers';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import Commentary from '../../components/Commentary';
 import DocumentResultGroup from '../../components/DocumentResultGroup';
 import SEO, { SITE_URL } from '../../components/SEO';
 import { track, EVENTS } from '../../lib/analytics';
@@ -62,6 +64,8 @@ export const getStaticProps = async (context) => {
     title: contentById[entryId].title,
   });
 
+  const commentary = await loadCommentary(id);
+
   return {
     props: {
       slug,
@@ -70,9 +74,10 @@ export const getStaticProps = async (context) => {
       contentById,
       item,
       canonicalUrl: `${SITE_URL}/${slug}/${entry.join('/')}`,
-      description: truncateForMeta(item.text),
+      description: truncateForMeta((commentary && commentary.subtitle) || item.text),
       prevEntry: prevId ? toEntryLink(prevId) : null,
       nextEntry: nextId ? toEntryLink(nextId) : null,
+      commentary,
     },
   };
 };
@@ -87,6 +92,7 @@ const ConfessionEntry = ({
   description,
   prevEntry,
   nextEntry,
+  commentary,
 }) => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -168,6 +174,7 @@ const ConfessionEntry = ({
             onToggleExpand={() => setIsExpanded(!isExpanded)}
           />
         </ul>
+        <Commentary commentary={commentary} />
         {(prevEntry || nextEntry) && (
           <nav className="flex justify-between w-full lg:w-1/2 mx-auto mb-24">
             {prevEntry ? (

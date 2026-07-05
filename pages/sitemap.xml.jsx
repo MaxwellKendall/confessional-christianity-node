@@ -3,7 +3,7 @@ import { loadConfessionContent } from '../lib/confessionContent';
 import { entryIdToPathSegments } from '../helpers';
 import { SITE_URL } from '../components/SEO';
 
-const STATIC_PATHS = ['', 'about'];
+const STATIC_PATHS = ['', 'about', 'study'];
 
 const buildUrlEntry = (path) => `  <url>\n    <loc>${SITE_URL}/${path}</loc>\n  </url>`;
 
