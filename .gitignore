@@ -5,3 +5,9 @@ normalized-data/deduped-bible-verses.json
 compendium/
 
 supabase/.temp
+
+# test coverage output
+coverage/
+
+# typescript incremental build cache
+*.tsbuildinfo
