@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "next -p 1517",
+    "new-post": "node scripts/new-post.js",
     "build": "next build",
     "prod": "next start",
     "db:migrate": "npx supabase db push",
