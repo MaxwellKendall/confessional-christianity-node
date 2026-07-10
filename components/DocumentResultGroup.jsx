@@ -17,6 +17,10 @@ import ConfessionTextResult from './ConfessionTextResult';
 // the match is a whole chapter) or ConfessionTextResult (a single entry) per
 // result. Shared by the homepage search results and the per-entry pages, so
 // both surfaces stay visually and behaviorally identical.
+/**
+ * @param {object} props
+ * @param {ContentById} props.contentById
+ */
 const DocumentResultGroup = ({
   documentTitle,
   results,

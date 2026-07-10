@@ -84,6 +84,7 @@ export const generateCanonicalEntryLink = (confessionId) => {
 // search link when the target id is a real leaf entry with its own static
 // page - this avoids a redundant client-side Algolia search just to move to
 // the contiguous next/previous entry, since the canonical page needs none.
+/** @param {string} confessionId @param {ContentById} contentById @returns {string} */
 export const generateNavLink = (confessionId, contentById) => {
   const target = contentById[confessionId];
   if (target && !target.isParent) {
@@ -409,6 +410,7 @@ export const groupContentByChapter = (content) => groupBy(content, (obj) => {
   return obj.parent;
 });
 
+/** @param {string} confessionId @param {ContentById} contentById @returns {boolean} */
 export const isChapter = (confessionId, contentById) => (
   // parent would then be the document
   confessionId.split('-').length === 2

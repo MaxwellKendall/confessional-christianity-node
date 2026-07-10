@@ -18,6 +18,10 @@ import { getConfessionalAbbreviationId } from '../scripts/helpers';
 import { generateLink } from '../helpers';
 import { facetNamesByCanonicalDocId } from '../dataMapping';
 
+/**
+ * @param {object} props
+ * @param {ContentById} props.contentById
+ */
 const ConfessionChapterResult = ({
   docId = null,
   chapterId = null,

@@ -25,6 +25,7 @@ const getQueryParams = (bibleText) => queryString.stringify({
 const MINIMUM_TEXT_LENGTH = 100;
 
 // return next position in confession
+/** @param {string} id @param {ContentById} contentById @param {string[]} searchTerms @param {number} direction @returns {string} */
 const getNextConfessionId = (id, contentById, searchTerms, direction = 1) => {
   const isArticle = searchTerms.some((str) => regexV2.test(str) && str.split('.').length >= 3);
   const fragments = id.split('-');
@@ -45,6 +46,10 @@ const getNextConfessionId = (id, contentById, searchTerms, direction = 1) => {
   return `${fragments[0]}-${nextChapterId}`;
 };
 
+/**
+ * @param {object} props
+ * @param {ContentById} props.contentById
+ */
 const ConfessionTextResult = ({
   contentById,
   searchTerms,
