@@ -9,6 +9,10 @@ import {
 } from '../helpers';
 import { confessionCitationByIndex } from '../dataMapping';
 
+/**
+ * @param {object} props
+ * @param {ContentById} props.contentById
+ */
 const BibleTextResult = ({
   contentById,
   bibleText,
