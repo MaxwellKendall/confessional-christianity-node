@@ -30,7 +30,7 @@ import {
   parseFacets,
   regexV2,
   keyWords,
-  usePgTitle,
+  getPageTitle,
   isEmptyKeywordSearch,
   isFacetLength,
   bibleRegex,
@@ -341,7 +341,7 @@ const HomePage = ({
     setSearchTerm('');
   };
 
-  const [pgTitle, query] = usePgTitle(search);
+  const [pgTitle, query] = getPageTitle(search);
   return (
     <div className="home flex flex-col w-full">
       <SEO subTitle={pgTitle} query={query} />

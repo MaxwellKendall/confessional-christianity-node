@@ -355,7 +355,9 @@ const getSubTitleFromConfession = (query, docId, chapterId, articleId) => {
   if (contentById[confessionId]) return removePrefix(contentById[confessionId].title);
 };
 
-export const usePgTitle = (search) => {
+// Pure function (not a React hook despite the historical `use` name): derives
+// the [title, subtitle] copy for a given search string. Renamed from usePgTitle.
+export const getPageTitle = (search) => {
   if (!search) return ['Search the Confessions of Historic Protestantism', 'By Keyword, Scripture Text, or Citation'];
   let queryWithoutFacetFilters = `${search.replace(regexV2, '').replace(keyWords, '').replace(bibleRegex, '')}` || null;
   queryWithoutFacetFilters = queryWithoutFacetFilters ? `search results for "${startCase(queryWithoutFacetFilters)}"` : queryWithoutFacetFilters;
