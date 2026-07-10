@@ -179,7 +179,6 @@ const ConfessionTextResult = ({
     return null;
   };
 
-  // Refactor to be its own component.
   const renderNav = () => [{ direction: 1, show: hasNext }, { direction: -1, show: hasPrevious }]
     .filter(({ show }) => show)
     .map((obj) => (
@@ -187,7 +186,6 @@ const ConfessionTextResult = ({
         <Link
           scroll={false}
           className="text-md p-4"
-          // className="text-md"
           onClick={() => {
             if (obj.direction > 0) {
               setCollapsed({ [nextConfessionId]: false });
@@ -199,7 +197,6 @@ const ConfessionTextResult = ({
             ? generateNavLink(nextConfessionId, contentById)
             : generateNavLink(prevConfessionId, contentById)}
         >
-          {/* className={`relative ${obj.direction > 0 ? 'left-full' : 'right-full'}`}> */}
           {obj.direction > 0
             ? <FontAwesomeIcon className="cursor-pointer" icon={faChevronRight} />
             : <FontAwesomeIcon className="cursor-pointer" icon={faChevronLeft} />}
