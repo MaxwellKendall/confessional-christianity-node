@@ -8,7 +8,7 @@ import {
   isChapter,
   parseFacets,
   truncateForMeta,
-  usePgTitle,
+  getPageTitle,
 } from '../helpers';
 import { defineCases } from './support/defineCases';
 
@@ -99,16 +99,16 @@ describe('metadata helpers', () => {
       actual: () => truncateForMeta('One two three four five six seven eight nine ten', 18),
       expected: 'One two three…',
     },
-    'usePgTitle returns the default landing-page title copy': {
-      actual: () => usePgTitle(),
+    'getPageTitle returns the default landing-page title copy': {
+      actual: () => getPageTitle(),
       expected: ['Search the Confessions of Historic Protestantism', 'By Keyword, Scripture Text, or Citation'],
     },
-    'usePgTitle resolves keyword bundle titles': {
-      actual: () => usePgTitle('three forms of unity'),
+    'getPageTitle resolves keyword bundle titles': {
+      actual: () => getPageTitle('three forms of unity'),
       expected: ['The Three Forms Of Unity', null],
     },
-    'usePgTitle resolves bible titles consistently across repeated calls': {
-      actual: () => [usePgTitle('john 3:16'), usePgTitle('john 3:16')],
+    'getPageTitle resolves bible titles consistently across repeated calls': {
+      actual: () => [getPageTitle('john 3:16'), getPageTitle('john 3:16')],
       expected: [
         ['John 3:16', null],
         ['John 3:16', null],
@@ -172,8 +172,8 @@ describe('regex state regressions', () => {
         ]],
       ],
     },
-    'usePgTitle remains stable across repeated keyword searches': {
-      actual: () => [usePgTitle('three forms of unity'), usePgTitle('three forms of unity')],
+    'getPageTitle remains stable across repeated keyword searches': {
+      actual: () => [getPageTitle('three forms of unity'), getPageTitle('three forms of unity')],
       expected: [
         ['The Three Forms Of Unity', null],
         ['The Three Forms Of Unity', null],
