@@ -38,7 +38,6 @@ const ConfessionChapterResult = ({
   const hasPrevious = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt - 1}-`));
   const hasNext = elaborateId && Object.keys(contentById).some((k) => k.includes(`${elaborateId}-${chapterIdAsInt + 1}-`));
 
-  // Refactor to be its own component.
   const renderNav = () => [{ direction: 1, show: hasNext }, { direction: -1, show: hasPrevious }]
     .filter(({ show }) => show)
     .map((obj) => (
