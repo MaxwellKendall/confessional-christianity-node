@@ -88,8 +88,8 @@ interface Commentary {
  * The return type of helpers.parseFacets(). Each element is an Algolia
  * facetFilter string like "id:WCoF-1-2" or "document:...". A NESTED array of
  * strings expresses OR between those filters (Algolia's facetFilters
- * semantics); a bare string is an AND term. See the "2d array is like an OR"
- * note in helpers/index.js.
+ * semantics); a bare string is an AND term. See the parseFacets note in
+ * helpers/index.js.
  */
 type FacetFilter = string | string[];
 type FacetFilters = FacetFilter[];
