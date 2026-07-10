@@ -193,7 +193,10 @@ const regexTest = (regex, value = '') => {
 
 export const isEmptyKeywordSearch = (search) => search.replace(regexV2, '') === '';
 
-// 2d array is like an OR
+// Parses a search string into Algolia facetFilters. A nested array expresses
+// OR between its filters; a bare string is an AND term (see FacetFilters type
+// and docs/DOMAIN.md).
+/** @param {string} str @returns {FacetFilters} */
 export const parseFacets = (str) => {
   const result = str.match(regexV2);
   const doc = (result && result.length && result[0]) || null;
